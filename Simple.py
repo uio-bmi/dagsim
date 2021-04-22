@@ -52,11 +52,14 @@ class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
-        self.adj_dict = self.adj_list()
+        self.adj_dict = {}
+        self.top_order = []
+        self.topol_order()
 
     def add_node(self, node: Node):
         if node not in self.nodes:
             self.nodes.append(node)
+        self.topol_order()
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
@@ -74,8 +77,7 @@ class Graph:
             if type(self[childNode]).__name__ != "Prior":
                 for parentNode in range(len(self[childNode])):
                     adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
-        print(adj_dict)
-        return adj_dict
+        self.adj_dict = adj_dict
 
     def adj_mat(self):
         # TODO replace the two lists by one
@@ -90,7 +92,8 @@ class Graph:
                 matrix[node.name][parent.name] = 1
         print(matrix)
 
-    def top_order(self):
+    def topol_order(self):
+        self.adj_list()
         indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
         for node in self.nodes:
             if node.parents is not None:
@@ -107,7 +110,7 @@ class Graph:
                 indegree[node] -= 1
             queue.extend([node for node in indegree if indegree[node] == 0])
             queue = list(set(queue))
-        return top_order
+        self.top_order = top_order
 
     # TODO change get by index to get by name
     def __getitem__(self, item):
@@ -142,30 +145,16 @@ class Graph:
         s.view(cleanup=True, quiet_view=True)
 
     def simulate(self, num_samples, csv_name=""):
-        self.adj_mat()
         output_dict = {}
-        done_list = []
-        prior_list = [node for node in self.nodes if node.__class__.__name__ == "Prior"]
-        generic_list = [node for node in self.nodes if node.__class__.__name__ == "Generic"]
-
-        for prior in prior_list:
-            prior.output = [prior.forward() for _ in range(num_samples)]
-            output_dict[prior.name] = prior.output
-            done_list.append(prior.name)
-
-        while generic_list:
-            for idx, generic in enumerate(generic_list):
-                if generic not in done_list:
-                    if set([par.name for par in generic.parents]).issubset(done_list):  # if the node is ready to emit
-                        # print(generic.name)
-                        generic.output = [generic.forward(i) for i in range(num_samples)]
-                        output_dict[generic.name] = generic.output
-                        generic_list.pop(idx)
-                        done_list.append(generic.name)
-
+        for node in self.top_order:
+            node = self.get_node_by_name(node)
+            if node.__class__.__name__ == "Prior":
+                node.output = [node.forward() for _ in range(num_samples)]
+            else:
+                node.output = [node.forward(i) for i in range(num_samples)]
+            output_dict[node.name] = node.output
         if csv_name:
             pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
-
         return output_dict
 
 
@@ -195,7 +184,8 @@ Node5 = Selection(name="Node5", parents=[Node2, Node3], function=add)
 listNodes = [Prior1, Prior2, Node1, Node2, Node3, Node4]
 my_graph = Graph("Graph1", listNodes)
 my_graph.add_node(Node5)
-my_graph.draw()
-ord = my_graph.top_order()
+# my_graph.draw()
+ord = my_graph.top_order
 n = my_graph.simulate(num_samples=2, csv_name="test")
 print(n)
+
