@@ -19,25 +19,9 @@ class Node:
         self.additional_params = additional_params
         self.output = None
         self.observed = observed
-        # self.ready = False
 
     def forward(self, idx):
-        # print(self.name + str([i() for i in self.parents]))
-        # print("called")
-        # self.output = self.function(*[i() for i in self.parents])
-        # self.output = self.function(*[p.output[idx] for p in self.parents])
-        # print(*[p.name for p in self.parents])
-        # print([p.output for p in self.parents])
-        # print(self.output)
-        # return self.output
         return self.function(*[p.output[idx] for p in self.parents])
-        # pass
-
-    # def __call__(self, *args, **kwargs):
-    #     # print(self.name)
-    #     time.sleep(0.3)
-    #     self.output = self.forward()
-    #     return self.output
 
     def __len__(self):
         return len(self.parents)
@@ -47,19 +31,9 @@ class Prior(Node):
     def __init__(self, name: str, function, additional_params=[], observed=True):
         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
                          observed=observed)
-        # self.ready = True
 
     def forward(self):
-        # return self.function(self.additional_params[0], self.additional_params[1])
-        # self.output = self.function(*self.additional_params)  # for i in range(num_samples)]
-        # return self.output
         return self.function(*self.additional_params)
-
-    # def __call__(self, *args, **kwargs):
-    #     return self.forward()
-
-    # def __getitem__(self, item):
-    #     return self.forward()
 
 
 class Generic(Node):
@@ -76,15 +50,11 @@ class Selection(Node):
 
 class Graph:
     def __init__(self, name, list_nodes):
-        # def __init__(self, name, num_nodes):
-
         self.name = name
-        # self.num_nodes = num_nodes
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = self.adj_list()
 
     def add_node(self, node: Node):
-        # def add_node(self, index: int, node: Node):
         if node not in self.nodes:
             self.nodes.append(node)
 
@@ -98,9 +68,6 @@ class Graph:
             else:
                 return node
 
-    # def __setitem__(self, key, value):
-    #     # def __setitem__(self, key, value):
-    #     self.add_node(value)
     def adj_list(self):
         adj_dict = {k.name: [] for k in self.nodes}
         for childNode in range(len(self)):
@@ -142,47 +109,12 @@ class Graph:
             queue = list(set(queue))
         return top_order
 
-    # def topologicalSortUtil(self, v, visited, stack):
-    #
-    #     # Mark the current node as visited.
-    #     visited[v] = True
-    #     print(self.adj_dict[v])
-    #     # Recur for all the vertices adjacent to this vertex
-    #     for i in self.adj_dict[v]:
-    #         print(i)
-    #         if visited[i] == False:
-    #             self.topologicalSortUtil(i, visited, stack)
-    #
-    #     # Push current vertex to stack which stores result
-    #     stack.append(v)
-    #
-    # def topologicalSort(self):
-    #     # Mark all the vertices as not visited
-    #     # visited = [False] * len(self)
-    #     visited = {x: False for x in self.adj_dict}
-    #     stack = []
-    #
-    #     # Call the recursive helper function to store Topological
-    #     # Sort starting from all vertices one by one
-    #     for i in self.nodes:
-    #         i = i.name
-    #         print(i)
-    #         if visited[i] == False:
-    #             self.topologicalSortUtil(i, visited, stack)
-    #
-    #     # Print contents of the stack
-    #     print(stack[::-1])  # return list in reverse order
-
     # TODO change get by index to get by name
     def __getitem__(self, item):
         return self.nodes[item]
 
     def __len__(self):
         return len(self.nodes)
-
-    # def compile(self, list_nodes):
-    #     for i in range(len(list_nodes)):
-    #         my_graph[i] = list_nodes[i]
 
     def generate_dot(self):
         self.adj_list()
@@ -193,12 +125,6 @@ class Graph:
             my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
-        # for childNode in range(len(self)):
-        #     if type(self[childNode]).__name__ is not "Prior":
-        #         for parentNode in range(len(self[childNode])):
-        #             my_str = my_graph[childNode].parents[parentNode].name + "->" + my_graph[childNode].name + ";\n"
-        #             dot_str = dot_str + my_str
-        #             self.adj_dict[my_graph[childNode].parents[parentNode].name].append(my_graph[childNode].name)
         for node in self.adj_dict.keys():
             if self.adj_dict[node]:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
@@ -214,32 +140,6 @@ class Graph:
         dot_str = self.generate_dot()
         s = Source(dot_str, filename=self.name + str(np.random.randint(low=0, high=5, size=1)[0]) + ".gv", format="png")
         s.view(cleanup=True, quiet_view=True)
-
-    # def simulate(self):
-    #     # ready_list = [node for node in self.nodes if node.ready == True]
-    #     initial_list = self.nodes
-    #     done_list = []
-    #     output_dict = {}
-    #     while initial_list:
-    #         print("initial_list ", [nodev.name for nodev in initial_list])
-    #         for idx, node in enumerate(initial_list):
-    #             # print("node ", node.name)
-    #             if node.ready:
-    #                 # print(node.name)
-    #                 output_dict[node.name] = node.forward()
-    #                 # print(node.output)
-    #                 initial_list.pop(idx)
-    #                 done_list.append(node.name)
-    #                 # break
-    #
-    #             if node.parents is not None:
-    #                 # print([par.name for par in node.parents])
-    #                 if set([par.name for par in node.parents]).issubset(done_list):
-    #                     # print([par.name for par in node.parents])
-    #                     node.ready = True
-    #         # print([node.name for node in ready_list])
-    #     # print(output_dict)
-    #     return output_dict
 
     def simulate(self, num_samples, csv_name=""):
         self.adj_mat()
@@ -269,10 +169,6 @@ class Graph:
         return output_dict
 
 
-# def add(params: List[int]):
-#     # print("gh", params)
-#     return params[0] + params[1]
-
 def add(params0, params1):
     return params0 + params1
     # return np.add(params0, params1)
@@ -298,44 +194,8 @@ Node5 = Selection(name="Node5", parents=[Node2, Node3], function=add)
 
 listNodes = [Prior1, Prior2, Node1, Node2, Node3, Node4]
 my_graph = Graph("Graph1", listNodes)
-# my_graph.draw()
 my_graph.add_node(Node5)
 my_graph.draw()
 ord = my_graph.top_order()
 n = my_graph.simulate(num_samples=2, csv_name="test")
 print(n)
-# print(type(Node1))
-# print(type(Node1).__bases__[0].__name__)
-
-# print(Prior1.forward())
-# print(Node1.forward())
-# print(Node2.forward())
-# print(Node2.forward())
-
-# print(Node3())
-#
-# my_graph.get_node_by_name("Node3")
-# dot_str = 'digraph G{\n'
-# for i in range(len(my_graph)):
-#     # if type(my_graph[i]).__bases__[0].__name__ == "Node":
-#     if type(my_graph[i]).__name__ == "Generic":
-#         print(my_graph[i].name)
-
-# for childNode in range(len(my_graph)):
-#     print(my_graph[childNode].name + ":")
-#     if type(my_graph[childNode]).__name__ == "Generic":
-#         for parentNode in range(len(my_graph[childNode])):
-#             # print(my_graph[childNode].parents[parentNode].name)
-#             my_str = my_graph[childNode].parents[parentNode].name + "->" + my_graph[childNode].name + ";\n"
-#             print(my_str)
-#             dot_str = dot_str + my_str
-#             # if type(my_graph[i]).__name__ == "Generic":
-#             #     print(my_graph[i].name)
-#
-# dot_str = dot_str + '}'
-#
-# s = Source(dot_str, filename="test.gv", format="png")
-# s.view()
-# with open('test.csv', 'w') as f:
-#     for key in my_dict.keys():
-#         f.write("%s,%s\n"%(key,my_dict[key]))
