@@ -12,7 +12,7 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, observed: bool, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, observed=True, additional_params=[]):
         self.name = name
         self.parents = parents
         self.function = function
@@ -21,7 +21,8 @@ class Node:
         self.observed = observed
 
     def forward(self, idx):
-        return self.function(*[p.output[idx] for p in self.parents])
+        templist = [p.output[idx] for p in self.parents] + self.additional_params
+        return self.function(*templist)
 
     def node_simulate(self, num_samples):
         self.output = [self.forward(i) for i in range(num_samples)]
@@ -60,13 +61,13 @@ class Graph:
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = {}
         self.top_order = []
-        self.topol_order()
+        self.update_topol_order()
 
     def add_node(self, node: Node):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
-        self.topol_order()
+        self.update_topol_order()
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
@@ -99,7 +100,7 @@ class Graph:
                 matrix[node.name][parent.name] = 1
         print(matrix)
 
-    def topol_order(self):
+    def update_topol_order(self):
         # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
         self.adj_list()
         indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
@@ -160,6 +161,7 @@ class Graph:
             #     node.output = [node.forward() for _ in range(num_samples)]
             # else:
             #     node.output = [node.forward(i) for i in range(num_samples)]
+
             node.node_simulate(num_samples)
             output_dict[node.name] = node.output
         if csv_name:
@@ -169,24 +171,21 @@ class Graph:
 
 def add(params0, params1):
     return params0 + params1
-    # return np.add(params0, params1)
 
 
-def square(input):
-    # return np.square(params[0])
-    return np.square(input)
+def square(param, add_param):
+    return np.square(param) + add_param
 
 
-def double(input):
-    # return np.square(params[0])
-    return np.square(input)
+def double(param, add1, add2):
+    return np.square(param) + add1 - add2
 
 
-Prior1 = Prior(name="Age", function=np.random.normal)
-Prior2 = Prior(name="HLA", function=np.random.normal)
-Node1 = Generic(name="Node1", parents=[Prior1, Prior2], function=add)
-Node2 = Generic(name="Node2", parents=[Prior1], function=double)
-Node3 = Generic(name="Node3", parents=[Node1, Node2], function=add, observed=False)
+Prior1 = Prior(name="Prior1", function=np.random.normal)
+Prior2 = Prior(name="Prior2", function=np.random.normal)
+Node1 = Generic(name="Node1", parents=[Prior1, Prior2], function=add, observed=False)
+Node2 = Generic(name="Node2", parents=[Prior1], function=double, additional_params=[2, 1])
+Node3 = Generic(name="Node3", parents=[Node1], function=square, additional_params=[1])
 Node4 = Generic(name="Node4", parents=[Node3, Prior1], function=add)
 Node5 = Selection(name="Node5", parents=[Node2, Node3], function=add)
 
