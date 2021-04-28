@@ -23,6 +23,9 @@ class Node:
     def forward(self, idx):
         return self.function(*[p.output[idx] for p in self.parents])
 
+    def node_simulate(self, num_samples):
+        self.output = [self.forward(i) for i in range(num_samples)]
+
     def __len__(self):
         return len(self.parents)
 
@@ -34,6 +37,9 @@ class Prior(Node):
 
     def forward(self):
         return self.function(*self.additional_params)
+
+    def node_simulate(self, num_samples):
+        self.output = [self.forward() for _ in range(num_samples)]
 
 
 class Generic(Node):
@@ -59,6 +65,7 @@ class Graph:
     def add_node(self, node: Node):
         if node not in self.nodes:
             self.nodes.append(node)
+        # update the topological order whenever a new node is added
         self.topol_order()
 
     def get_node_by_name(self, name: str):
@@ -93,6 +100,7 @@ class Graph:
         print(matrix)
 
     def topol_order(self):
+        # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
         self.adj_list()
         indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
         for node in self.nodes:
@@ -148,10 +156,11 @@ class Graph:
         output_dict = {}
         for node in self.top_order:
             node = self.get_node_by_name(node)
-            if node.__class__.__name__ == "Prior":
-                node.output = [node.forward() for _ in range(num_samples)]
-            else:
-                node.output = [node.forward(i) for i in range(num_samples)]
+            # if node.__class__.__name__ == "Prior":
+            #     node.output = [node.forward() for _ in range(num_samples)]
+            # else:
+            #     node.output = [node.forward(i) for i in range(num_samples)]
+            node.node_simulate(num_samples)
             output_dict[node.name] = node.output
         if csv_name:
             pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
@@ -188,4 +197,3 @@ my_graph.add_node(Node5)
 ord = my_graph.top_order
 n = my_graph.simulate(num_samples=2, csv_name="test")
 print(n)
-
