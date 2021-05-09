@@ -148,20 +148,15 @@ class Graph:
     # def get_node_by_name(self, name: str):
     #     return self.nodes[self.nodes.index(name)]
 
-    def draw(self):
+    def draw(self, filename="default"):
         dot_str = self.generate_dot()
-        s = Source(dot_str, filename=self.name + str(np.random.randint(low=0, high=5, size=1)[0]) + ".gv", format="png")
+        s = Source(dot_str, filename=filename, format="png")
         s.view(cleanup=True, quiet_view=True)
 
     def simulate(self, num_samples, csv_name=""):
         output_dict = {}
         for node in self.top_order:
             node = self.get_node_by_name(node)
-            # if node.__class__.__name__ == "Prior":
-            #     node.output = [node.forward() for _ in range(num_samples)]
-            # else:
-            #     node.output = [node.forward(i) for i in range(num_samples)]
-
             node.node_simulate(num_samples)
             output_dict[node.name] = node.output
         if csv_name:
@@ -192,7 +187,7 @@ Node5 = Selection(name="Node5", parents=[Node2, Node3], function=add)
 listNodes = [Prior1, Prior2, Node1, Node2, Node3, Node4]
 my_graph = Graph("Graph1", listNodes)
 my_graph.add_node(Node5)
-# my_graph.draw()
+my_graph.draw()
 ord = my_graph.top_order
 n = my_graph.simulate(num_samples=2, csv_name="test")
 print(n)
