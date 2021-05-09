@@ -89,16 +89,18 @@ class Graph:
 
     def adj_mat(self):
         # TODO replace the two lists by one
-        generic = [node for node in self.nodes if node.__class__.__name__ == "Generic"]
+        generic = [node for node in self.nodes if node.__class__.__name__ != "Selection"]
         generic_names = [node.name for node in generic]
-        matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)], dtype=np.bool),
+        matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
                               columns=generic_names,
                               index=generic_names)
-        print(generic)
         for node in generic:
-            for parent in node.parents:
-                matrix[node.name][parent.name] = 1
-        print(matrix)
+            if node.__class__.__name__ == "Prior":
+                continue
+            else:
+                for parent in node.parents:
+                    matrix[node.name][parent.name] = 1
+        return matrix
 
     def update_topol_order(self):
         # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
