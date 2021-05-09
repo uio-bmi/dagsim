@@ -1,4 +1,4 @@
-from Graph import Graph, Prior, Generic, Selection
+from baseDS import Graph, Prior, Generic, Selection
 import numpy as np
 
 
