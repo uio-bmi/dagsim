@@ -12,7 +12,7 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, observed=True, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, plate=0, observed=True, additional_params=[]):
         self.name = name
         self.parents = parents
         self.function = function
@@ -32,9 +32,9 @@ class Node:
 
 
 class Prior(Node):
-    def __init__(self, name: str, function, additional_params=[], observed=True):
+    def __init__(self, name: str, function, additional_params=[], plate=0, observed=True):
         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
-                         observed=observed)
+                         plate=plate, observed=observed)
 
     def forward(self):
         return self.function(*self.additional_params)
@@ -44,9 +44,9 @@ class Prior(Node):
 
 
 class Generic(Node):
-    def __init__(self, name: str, parents, function, additional_params=[], observed=True):
+    def __init__(self, name: str, parents, function, additional_params=[], plate=0, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
-                         observed=observed)
+                         plate=plate, observed=observed)
 
 
 class Selection(Node):
