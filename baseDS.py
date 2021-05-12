@@ -19,6 +19,7 @@ class Node:
         self.additional_params = additional_params
         self.output = None
         self.observed = observed
+        self.plate = plate
 
     def forward(self, idx):
         templist = [p.output[idx] for p in self.parents] + self.additional_params
@@ -56,10 +57,11 @@ class Selection(Node):
 
 
 class Graph:
-    def __init__(self, name, list_nodes):
+    def __init__(self, name, list_nodes, plates=1):
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = {}
+        self.plates = plates
         self.top_order = []
         self.update_topol_order()
 
@@ -143,6 +145,15 @@ class Graph:
             if self.adj_dict[node]:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
                 dot_str += tmp_str
+
+        for plate in range(1, self.plates):
+            tmp_str = 'subgraph cluster_1 {\
+                    node [style=filled];\
+                    ' + ', '.join([node.name for node in self.nodes if node.plate == plate]) + ';\
+                    label = "plate #' + str(plate) + '";\
+                    labelloc = b;\
+                    }'
+            dot_str += tmp_str
 
         dot_str = dot_str + '}'
         return dot_str
