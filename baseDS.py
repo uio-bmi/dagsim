@@ -12,7 +12,7 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, plate=0, observed=True, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, plate=None, observed=True, additional_params=[]):
         self.name = name
         self.parents = parents
         self.function = function
@@ -33,7 +33,7 @@ class Node:
 
 
 class Prior(Node):
-    def __init__(self, name: str, function, additional_params=[], plate=0, observed=True):
+    def __init__(self, name: str, function, additional_params=[], plate=None, observed=True):
         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
                          plate=plate, observed=observed)
 
@@ -45,7 +45,7 @@ class Prior(Node):
 
 
 class Generic(Node):
-    def __init__(self, name: str, parents, function, additional_params=[], plate=0, observed=True):
+    def __init__(self, name: str, parents, function, additional_params=[], plate=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
                          plate=plate, observed=observed)
 
@@ -64,6 +64,17 @@ class Graph:
         self.plates = plates
         self.top_order = []
         self.update_topol_order()
+
+    def plate_embedding(self):
+        plateDict = {}
+        i = 1
+        for node in self.nodes:
+            if node.plate:
+                for label in node.plate:
+                    if label not in plateDict.values():
+                        plateDict[i] = label
+                        i += 1
+        print(plateDict)
 
     def add_node(self, node: Node):
         if node not in self.nodes:
@@ -147,12 +158,16 @@ class Graph:
                 dot_str += tmp_str
 
         for plate in range(1, self.plates):
-            tmp_str = 'subgraph cluster_1 {\
-                    node [style=filled];\
-                    ' + ', '.join([node.name for node in self.nodes if node.plate == plate]) + ';\
-                    label = "plate #' + str(plate) + '";\
-                    labelloc = b;\
-                    }'
+            # print(plate)
+            plateNodes = ', '.join([node.name for node in self.nodes if node.plate == plate])
+            if plateNodes:
+                tmp_str = 'subgraph cluster_1 {\
+                        node [style=filled];\
+                        ' + plateNodes + ';\
+                        label = "plate #' + str(plate) + '";\
+                        labelloc = b;\
+                        }'
+            print(tmp_str)
             dot_str += tmp_str
 
         dot_str = dot_str + '}'
