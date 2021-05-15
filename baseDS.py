@@ -57,24 +57,35 @@ class Selection(Node):
 
 
 class Graph:
-    def __init__(self, name, list_nodes, plates=1):
+    def __init__(self, name, list_nodes):
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = {}
-        self.plates = plates
+        self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
 
     def plate_embedding(self):
-        plateDict = {}
-        i = 1
+        def get_key_by_label(label):
+            for key in plateDict.keys():
+                if plateDict[key][0] == label:
+                    return key
+
+        plateDict = {0: (None, [])}
+        idx = 1
         for node in self.nodes:
             if node.plate:
                 for label in node.plate:
                     if label not in plateDict.values():
-                        plateDict[i] = label
-                        i += 1
-        print(plateDict)
+                        plateDict[idx] = (label, [])
+                        idx += 1
+                    plateDict[get_key_by_label(label)][1].append(node.name)
+            else:
+                plateDict[0][1].append(node.name)
+        return plateDict
+
+    def get_plates(self):
+        pass
 
     def add_node(self, node: Node):
         if node not in self.nodes:
@@ -101,7 +112,6 @@ class Graph:
         self.adj_dict = adj_dict
 
     def adj_mat(self):
-        # TODO replace the two lists by one
         generic = [node for node in self.nodes if node.__class__.__name__ != "Selection"]
         generic_names = [node.name for node in generic]
         matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
@@ -157,7 +167,7 @@ class Graph:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
                 dot_str += tmp_str
 
-        for plate in range(1, self.plates):
+        for plate in self.plates:
             # print(plate)
             plateNodes = ', '.join([node.name for node in self.nodes if node.plate == plate])
             if plateNodes:
