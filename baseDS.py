@@ -5,6 +5,7 @@ import time
 from graphviz import Source
 import csv
 import pandas as pd
+from utils.processPlates import get_plate_dot
 import copy as cp
 
 
@@ -83,9 +84,6 @@ class Graph:
             else:
                 plateDict[0][1].append(node.name)
         return plateDict
-
-    def get_plates(self):
-        pass
 
     def add_node(self, node: Node):
         if node not in self.nodes:
@@ -167,20 +165,8 @@ class Graph:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
                 dot_str += tmp_str
 
-        for plate in self.plates:
-            # print(plate)
-            plateNodes = ', '.join([node.name for node in self.nodes if node.plate == plate])
-            if plateNodes:
-                tmp_str = 'subgraph cluster_1 {\
-                        node [style=filled];\
-                        ' + plateNodes + ';\
-                        label = "plate #' + str(plate) + '";\
-                        labelloc = b;\
-                        }'
-            print(tmp_str)
-            dot_str += tmp_str
-
-        dot_str = dot_str + '}'
+        dot_str += get_plate_dot(self.plates)
+        # print(dot_str)
         return dot_str
 
     # def get_node_by_name(self, name: str):
