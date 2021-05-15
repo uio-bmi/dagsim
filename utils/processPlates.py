@@ -28,9 +28,9 @@ def find_order(list_of_plates: list):
 
 
 def process_dict(redun_dict: dict):
-    innder_plateIdxs = set([item for sublist in my_dict.values() for item in sublist])
+    innder_plateIdxs = set([item for sublist in redun_dict.values() for item in sublist])
     for plate in innder_plateIdxs:
-        keysPlate = [key for key in redun_dict.keys() if plate in my_dict[key]]
+        keysPlate = [key for key in redun_dict.keys() if plate in redun_dict[key]]
         if len(keysPlate) == 1:
             continue
         # print("plate", plate)
@@ -78,17 +78,17 @@ def find_roots(my_dict):
     return root_plates
 
 
-my_dict = find_order(listPlates)
-print(my_dict)
-
-my_dict = process_dict(my_dict)
-print(my_dict)
-
-root_plates = find_roots(my_dict)
-
-empL = transform(my_dict, root_plates, subs_dict)
-
-print(empL)
+# my_dict = find_order(listPlates)
+# print(my_dict)
+#
+# my_dict = process_dict(my_dict)
+# print(my_dict)
+#
+# root_plates = find_roots(my_dict)
+#
+# empL = transform(my_dict, root_plates, subs_dict)
+#
+# print(empL)
 
 
 def get_plate_dot(plate_embedding):
