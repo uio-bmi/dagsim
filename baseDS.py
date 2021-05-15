@@ -74,11 +74,13 @@ class Graph:
 
         plateDict = {0: (None, [])}
         idx = 1
+        labels = []
         for node in self.nodes:
             if node.plate:
                 for label in node.plate:
-                    if label not in plateDict.values():
+                    if label not in labels:
                         plateDict[idx] = (label, [])
+                        labels.append(label)
                         idx += 1
                     plateDict[get_key_by_label(label)][1].append(node.name)
             else:
