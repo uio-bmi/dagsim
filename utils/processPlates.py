@@ -34,17 +34,12 @@ def process_dict(redun_dict: dict):
         keysPlate = [key for key in redun_dict.keys() if plate in redun_dict[key]]
         if len(keysPlate) == 1:
             continue
-        # print("plate", plate)
-        # print("before", keysPlate)
         for childPlate in keysPlate:
             for parentPlate in keysPlate:
                 if childPlate in redun_dict[parentPlate]:
-                    # keysPlate.remove(childPlate)
                     redun_dict[parentPlate].remove(plate)
             if len(keysPlate) == 1:
                 break
-        # print("after", keysPlate)
-    # print(redun_dict)
     return redun_dict
 
 
@@ -60,25 +55,25 @@ def transform(processed_dict, root_plates, subs_dict):
         string: A string defining all the plates and their nodes, in .dot format.
 
     """
-    empL = ""
-    lvl = 0
+    dot_string = ""
+    level = 0
 
     def plate_string(processed_dict, root_plates):
-        nonlocal empL, lvl, subs_dict
+        nonlocal dot_string, level, subs_dict
         for idx, root in enumerate(root_plates):
-            empL = empL + subs_dict[root] + "\n"
+            dot_string = dot_string + subs_dict[root] + "\n"
             if not processed_dict[root]:
                 if idx == (len(root_plates) - 1):
-                    lvl -= 1
-                    empL = empL + "}"
+                    level -= 1
+                    dot_string = dot_string + "}"
             else:
-                lvl += 1
+                level += 1
                 plate_string(processed_dict, processed_dict[root])
-                empL = empL[:-1]
-            empL = empL + "}"
+                dot_string = dot_string[:-1]
+            dot_string = dot_string + "}"
 
     plate_string(processed_dict, root_plates)
-    return empL
+    return dot_string
 
 
 def find_roots(processed_dict):
@@ -119,8 +114,7 @@ def get_plate_dot(plate_embedding):
 
 
 if __name__ == "__main__":
-    # Sample plate_embedding
-    plate_embedding = {0: (None, ['Prior', 'Node4']), 1: ('plate_1', ['Node1', 'Node2']),
-                       2: ('plate_2', ['Node5', 'Node1', 'Node2'])}
+    sample_plate_embedding = {0: (None, ['Prior', 'Node4']), 1: ('plate_1', ['Node1', 'Node2']),
+                              2: ('plate_2', ['Node5', 'Node1', 'Node2'])}
     # Note that the 0th plate is excluded from the .dot string generation.
-    print(get_plate_dot(plate_embedding))
+    print(get_plate_dot(sample_plate_embedding))
