@@ -103,7 +103,7 @@ class Graph:
             else:
                 return node
 
-    def adj_list(self):
+    def update_adj_dict(self):
         adj_dict = {k.name: [] for k in self.nodes}
         for childNode in range(len(self)):
             if type(self[childNode]).__name__ != "Prior":
@@ -127,7 +127,7 @@ class Graph:
 
     def update_topol_order(self):
         # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
-        self.adj_list()
+        self.update_adj_dict()
         indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
         for node in self.nodes:
             if node.parents is not None:
@@ -146,7 +146,6 @@ class Graph:
             queue = list(set(queue))
         self.top_order = top_order
 
-    # TODO change get by index to get by name
     def __getitem__(self, item):
         return self.nodes[item]
 
@@ -154,7 +153,7 @@ class Graph:
         return len(self.nodes)
 
     def generate_dot(self):
-        self.adj_list()
+        self.update_adj_dict()
 
         shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle"}
         dot_str = 'digraph G{\n'
@@ -170,9 +169,6 @@ class Graph:
         dot_str += get_plate_dot(self.plates)
         # print(dot_str)
         return dot_str
-
-    # def get_node_by_name(self, name: str):
-    #     return self.nodes[self.nodes.index(name)]
 
     def draw(self, filename="default"):
         dot_str = self.generate_dot()
