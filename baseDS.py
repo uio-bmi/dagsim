@@ -23,8 +23,11 @@ class Node:
         self.plate = plate
 
     def forward(self, idx):
-        templist = [p.output[idx] for p in self.parents] + self.additional_params
-        return self.function(*templist)
+        temp_list = []
+        if self.parents is not None:
+            temp_list += [p.output[idx] for p in self.parents]
+        temp_list += self.additional_params
+        return self.function(*temp_list)
 
     def node_simulate(self, num_samples):
         self.output = [self.forward(i) for i in range(num_samples)]
@@ -65,6 +68,7 @@ class Graph:
         self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
+        print(len(self.plates))
 
     def plate_embedding(self):
         def get_key_by_label(label):
@@ -166,8 +170,11 @@ class Graph:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
                 dot_str += tmp_str
 
-        dot_str += get_plate_dot(self.plates)
-        # print(dot_str)
+        # check if there are any plates defined in the graph
+        if len(self.plates) > 1:
+            dot_str += get_plate_dot(self.plates)
+        dot_str += "}"
+        print(dot_str)
         return dot_str
 
     def draw(self, filename="default"):

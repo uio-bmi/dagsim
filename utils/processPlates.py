@@ -73,7 +73,7 @@ def transform(processed_dict, root_plates, subs_dict):
             dot_string = dot_string + "}"
 
     plate_string(processed_dict, root_plates)
-    return dot_string
+    return dot_string[0:-1]
 
 
 def find_roots(processed_dict):
