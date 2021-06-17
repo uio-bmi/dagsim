@@ -36,20 +36,20 @@ class Node:
         return len(self.parents)
 
 
-class Prior(Node):
-    def __init__(self, name: str, function, additional_params=[], plate=None, observed=True):
-        super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
-                         plate=plate, observed=observed)
-
-    def forward(self):
-        return self.function(*self.additional_params)
-
-    def node_simulate(self, num_samples):
-        self.output = [self.forward() for _ in range(num_samples)]
+# class Prior(Node):
+#     def __init__(self, name: str, function, additional_params=[], plate=None, observed=True):
+#         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
+#                          plate=plate, observed=observed)
+#
+#     def forward(self):
+#         return self.function(*self.additional_params)
+#
+#     def node_simulate(self, num_samples):
+#         self.output = [self.forward() for _ in range(num_samples)]
 
 
 class Generic(Node):
-    def __init__(self, name: str, parents, function, additional_params=[], plate=None, observed=True):
+    def __init__(self, name: str, function, parents=None, additional_params=[], plate=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
                          plate=plate, observed=observed)
 
@@ -68,7 +68,6 @@ class Graph:
         self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
-        print(len(self.plates))
 
     def plate_embedding(self):
         def get_key_by_label(label):
@@ -110,7 +109,7 @@ class Graph:
     def update_adj_dict(self):
         adj_dict = {k.name: [] for k in self.nodes}
         for childNode in range(len(self)):
-            if type(self[childNode]).__name__ != "Prior":
+            if self[childNode].parents is not None:
                 for parentNode in range(len(self[childNode])):
                     adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
         self.adj_dict = adj_dict
@@ -122,9 +121,7 @@ class Graph:
                               columns=generic_names,
                               index=generic_names)
         for node in generic:
-            if node.__class__.__name__ == "Prior":
-                continue
-            else:
+            if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
         return matrix
@@ -157,12 +154,14 @@ class Graph:
         return len(self.nodes)
 
     def generate_dot(self):
-        self.update_adj_dict()
 
         shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle"}
         dot_str = 'digraph G{\n'
         for childNode in range(len(self)):
-            my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
+            if self[childNode].parents is None:
+                my_str = self[childNode].name + " [shape=" + shape_dict['Prior'] + "];\n"
+            else:
+                my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
         for node in self.adj_dict.keys():
@@ -174,7 +173,6 @@ class Graph:
         if len(self.plates) > 1:
             dot_str += get_plate_dot(self.plates)
         dot_str += "}"
-        print(dot_str)
         return dot_str
 
     def draw(self, filename="default"):
