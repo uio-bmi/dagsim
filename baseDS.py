@@ -5,6 +5,7 @@ import time
 from graphviz import Source
 import csv
 import pandas as pd
+from utils.processPlates import get_plate_dot
 import copy as cp
 
 
@@ -12,13 +13,14 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, observed=True, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, plate=None, observed=True, additional_params=[]):
         self.name = name
         self.parents = parents
         self.function = function
         self.additional_params = additional_params
         self.output = None
         self.observed = observed
+        self.plate = plate
 
     def forward(self, idx):
         templist = [p.output[idx] for p in self.parents] + self.additional_params
@@ -32,9 +34,9 @@ class Node:
 
 
 class Prior(Node):
-    def __init__(self, name: str, function, additional_params=[], observed=True):
+    def __init__(self, name: str, function, additional_params=[], plate=None, observed=True):
         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
-                         observed=observed)
+                         plate=plate, observed=observed)
 
     def forward(self):
         return self.function(*self.additional_params)
@@ -44,9 +46,9 @@ class Prior(Node):
 
 
 class Generic(Node):
-    def __init__(self, name: str, parents, function, additional_params=[], observed=True):
+    def __init__(self, name: str, parents, function, additional_params=[], plate=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
-                         observed=observed)
+                         plate=plate, observed=observed)
 
 
 class Selection(Node):
@@ -60,8 +62,30 @@ class Graph:
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = {}
+        self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
+
+    def plate_embedding(self):
+        def get_key_by_label(label):
+            for key in plateDict.keys():
+                if plateDict[key][0] == label:
+                    return key
+
+        plateDict = {0: (None, [])}
+        idx = 1
+        labels = []
+        for node in self.nodes:
+            if node.plate:
+                for label in node.plate:
+                    if label not in labels:
+                        plateDict[idx] = (label, [])
+                        labels.append(label)
+                        idx += 1
+                    plateDict[get_key_by_label(label)][1].append(node.name)
+            else:
+                plateDict[0][1].append(node.name)
+        return plateDict
 
     def add_node(self, node: Node):
         if node not in self.nodes:
@@ -88,7 +112,6 @@ class Graph:
         self.adj_dict = adj_dict
 
     def adj_mat(self):
-        # TODO replace the two lists by one
         generic = [node for node in self.nodes if node.__class__.__name__ != "Selection"]
         generic_names = [node.name for node in generic]
         matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
@@ -143,7 +166,8 @@ class Graph:
                 tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
                 dot_str += tmp_str
 
-        dot_str = dot_str + '}'
+        dot_str += get_plate_dot(self.plates)
+        # print(dot_str)
         return dot_str
 
     def draw(self, filename="default"):
