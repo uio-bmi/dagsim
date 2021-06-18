@@ -55,7 +55,7 @@ Once we have compiled the graph, we can draw it to get a graphical representatio
 
   my_graph.draw()
 
-.. figure:: ../_static/images/tutorials/Linear\ Regression.png
+.. figure:: ../_static/images/tutorials/linear_regression.png
     :align: center
 
 3. **Running the simulation:**
