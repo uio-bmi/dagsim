@@ -13,14 +13,14 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, plate=None, observed=True, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, plates=None, observed=True, additional_params=[]):
         self.name = name
         self.parents = parents
         self.function = function
         self.additional_params = additional_params
         self.output = None
         self.observed = observed
-        self.plate = plate
+        self.plates = plates
 
     def forward(self, idx):
         temp_list = []
@@ -37,9 +37,9 @@ class Node:
 
 
 # class Prior(Node):
-#     def __init__(self, name: str, function, additional_params=[], plate=None, observed=True):
+#     def __init__(self, name: str, function, additional_params=[], plates=None, observed=True):
 #         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
-#                          plate=plate, observed=observed)
+#                          plates=plates, observed=observed)
 #
 #     def forward(self):
 #         return self.function(*self.additional_params)
@@ -49,9 +49,9 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, parents=None, additional_params=[], plate=None, observed=True):
+    def __init__(self, name: str, function, parents=None, additional_params=[], plates=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
-                         plate=plate, observed=observed)
+                         plates=plates, observed=observed)
 
 
 class Selection(Node):
@@ -79,8 +79,8 @@ class Graph:
         idx = 1
         labels = []
         for node in self.nodes:
-            if node.plate:
-                for label in node.plate:
+            if node.plates:
+                for label in node.plates:
                     if label not in labels:
                         plateDict[idx] = (label, [])
                         labels.append(label)
@@ -175,9 +175,9 @@ class Graph:
         dot_str += "}"
         return dot_str
 
-    def draw(self, filename="default"):
+    def draw(self):
         dot_str = self.generate_dot()
-        s = Source(dot_str, filename=filename, format="png")
+        s = Source(dot_str, filename=self.name, format="png")
         s.view(cleanup=True, quiet_view=True)
 
     def simulate(self, num_samples, csv_name=""):

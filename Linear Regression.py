@@ -1,22 +1,22 @@
-from baseDS import Graph, Prior, Generic
+from baseDS import Graph, Generic
 import numpy as np
 from sklearn.linear_model import LinearRegression as lr
 import pandas as pd
 
 
 # define the function of the ground truth
-def gt(x, add_param):
+def ground_truth(x, add_param):
     y = 2 * x + 1 + np.random.normal(0, add_param)
     return y
 
 
 # define a node for the input feature, and another node for the outcome of a linear regression model
-Nodex = Prior(name="x", function=np.random.normal)
-Nodey = Generic(name="y", parents=[Nodex], function=gt, additional_params=[1])
+Nodex = Generic(name="x", function=np.random.normal)
+Nodey = Generic(name="y", parents=[Nodex], function=ground_truth, additional_params=[1])
 
 # define a list of all nodes, then instantiate the graph
 listNodes = [Nodex, Nodey]
-my_graph = Graph("Graph1", listNodes)
+my_graph = Graph("Linear Regression", listNodes)
 
 my_graph.draw()
 
