@@ -1,6 +1,6 @@
 from baseDS import Graph, Generic
 import numpy as np
-from sklearn.linear_model import LinearRegression as lr
+from sklearn.linear_model import LinearRegression as LinReg
 import pandas as pd
 
 
@@ -34,7 +34,7 @@ y_train = train_data.iloc[:, 1].to_numpy().reshape([-1, 1])
 print("y_train", y_train.shape)
 
 # define a linear regression model
-LR = lr()
+LR = LinReg()
 # fit the model on the training data
 reg = LR.fit(x_train, y_train)
 reg.score(x_train, y_train)
