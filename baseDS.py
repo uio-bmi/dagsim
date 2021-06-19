@@ -13,7 +13,9 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, plates=None, observed=True, additional_params=[]):
+    def __init__(self, name: str, parents: list, function, plates=None, observed=True, additional_params=None):
+        if additional_params is None:
+            additional_params = []
         self.name = name
         self.parents = parents
         self.function = function
@@ -49,15 +51,19 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, parents=None, additional_params=[], plates=None, observed=True):
+    def __init__(self, name: str, function, parents=None, additional_params=None, plates=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
                          plates=plates, observed=observed)
+        if additional_params is None:
+            additional_params = []
 
 
 class Selection(Node):
-    def __init__(self, name: str, parents, function, additional_params=[], observed=True):
+    def __init__(self, name: str, parents, function, additional_params=None, observed=True):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
                          observed=observed)
+        if additional_params is None:
+            additional_params = []
 
 
 class Graph:
