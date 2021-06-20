@@ -59,12 +59,16 @@ class Generic(Node):
 
 
 class Selection(Node):
-    def __init__(self, name: str, parents, function, additional_params=None, observed=True):
+    def __init__(self, name: str, parents, function, additional_params=None, observed=None):
         super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
                          observed=observed)
         if additional_params is None:
             additional_params = []
 
+    def filter_output(self, output_dict):
+        for key, value in output_dict.items():
+            output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
+        return output_dict
 
 class Graph:
     def __init__(self, name, list_nodes):
@@ -101,6 +105,13 @@ class Graph:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
         self.update_topol_order()
+
+    def get_selection(self):
+        check_for_selection = next((item for item in self.nodes if item.__class__.__name__ == "Selection"), None)
+        if check_for_selection is not None:
+            return self.nodes.index(check_for_selection)
+        else:
+            return None
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
@@ -191,7 +202,13 @@ class Graph:
         for node in self.top_order:
             node = self.get_node_by_name(node)
             node.node_simulate(num_samples)
-            output_dict[node.name] = node.output
+            if node.__class__.__name__ != "Selection":
+                output_dict[node.name] = node.output
+
+        selection = self.get_selection()
+        if selection is not None:
+            output_dict = self.nodes[selection].filter_output(output_dict=output_dict)
+
         if csv_name:
             pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
         return output_dict
