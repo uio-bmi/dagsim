@@ -194,6 +194,9 @@ class Graph:
 
     def draw(self):
         dot_str = self.generate_dot()
+        with open(self.name+"_DOT.txt","w") as file:
+            file.write(dot_str)
+
         s = Source(dot_str, filename=self.name, format="png")
         s.view(cleanup=True, quiet_view=True)
 
