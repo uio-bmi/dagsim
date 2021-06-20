@@ -1,0 +1,10 @@
+graph:
+node:
+      name:pHead
+        func: scipy.norm(0.5,0.1)
+    node:
+      name:outcome
+        func: scipy.stats.binomial.rvs(pHead,10)
+    selectionNode:
+      func: isEight(outcome)
+
