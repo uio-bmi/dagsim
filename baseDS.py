@@ -201,6 +201,9 @@ class Graph:
         s.view(cleanup=True, quiet_view=True)
 
     def simulate(self, num_samples, csv_name=""):
+        self.base_simulate(num_samples, csv_name=csv_name)
+
+    def base_simulate(self, num_samples, csv_name):
         output_dict = {}
         for node in self.top_order:
             node = self.get_node_by_name(node)
@@ -215,3 +218,12 @@ class Graph:
         if csv_name:
             pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
         return output_dict
+
+    def ml_simulation(self, num_samples, train_test_ratio, csv_prefix=""):
+        if csv_prefix:
+            csv_prefix = csv_prefix + "_"
+        num_tr_samples = int(num_samples*train_test_ratio)
+        num_te_samples = num_samples - num_tr_samples
+        train_dict = self.base_simulate(num_samples=num_tr_samples, csv_name=csv_prefix + "train")
+        test_dict = self.base_simulate(num_samples=num_te_samples, csv_name=csv_prefix + "test")
+        return [train_dict, test_dict]

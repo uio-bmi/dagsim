@@ -1,0 +1,14 @@
+graph:
+	node:
+  	name:X
+    func: math.square(Y) + scipy.norm(0,10)
+  node:
+  	name:Y
+    func: scipy.stats.beta.rvs(1,1,1)*100
+simulation:
+	type: MachineLearning
+  training:
+  	numExamples:100000
+  test:
+  	numExamples:1000
+  format: csv
