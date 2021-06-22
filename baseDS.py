@@ -201,7 +201,7 @@ class Graph:
         s.view(cleanup=True, quiet_view=True)
 
     def simulate(self, num_samples, csv_name=""):
-        self.base_simulate(num_samples, csv_name=csv_name)
+        return self.base_simulate(num_samples, csv_name=csv_name)
 
     def base_simulate(self, num_samples, csv_name):
         output_dict = {}
