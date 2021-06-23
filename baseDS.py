@@ -70,6 +70,7 @@ class Selection(Node):
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
         return output_dict
 
+
 class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
@@ -200,10 +201,12 @@ class Graph:
         s = Source(dot_str, filename=self.name, format="png")
         s.view(cleanup=True, quiet_view=True)
 
-    def simulate(self, num_samples, csv_name=""):
-        return self.base_simulate(num_samples, csv_name=csv_name)
+    # def simulate(self, num_samples, selection=True, csv_name=""):
+    #     if self.get_selection():
+    #         selection = True
+    #     return self.base_simulate(num_samples, csv_name=csv_name)
 
-    def base_simulate(self, num_samples, csv_name):
+    def simulate(self, num_samples, selection=True, csv_name=""):
         output_dict = {}
         for node in self.top_order:
             node = self.get_node_by_name(node)
@@ -211,19 +214,24 @@ class Graph:
             if node.__class__.__name__ != "Selection":
                 output_dict[node.name] = node.output
 
-        selection = self.get_selection()
-        if selection is not None:
-            output_dict = self.nodes[selection].filter_output(output_dict=output_dict)
+        selectionNode = self.get_selection()
+        if selectionNode is not None:
+            if selection:
+                output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
 
         if csv_name:
             pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
         return output_dict
 
-    def ml_simulation(self, num_samples, train_test_ratio, csv_prefix=""):
+    def ml_simulation(self, num_samples, train_test_ratio, include_external=False, csv_prefix=""):
         if csv_prefix:
             csv_prefix = csv_prefix + "_"
         num_tr_samples = int(num_samples*train_test_ratio)
         num_te_samples = num_samples - num_tr_samples
-        train_dict = self.base_simulate(num_samples=num_tr_samples, csv_name=csv_prefix + "train")
-        test_dict = self.base_simulate(num_samples=num_te_samples, csv_name=csv_prefix + "test")
-        return [train_dict, test_dict]
+        train_dict = self.simulate(num_samples=num_tr_samples, csv_name=csv_prefix + "train")
+        test_dict = self.simulate(num_samples=num_te_samples, csv_name=csv_prefix + "test")
+        output = [train_dict, test_dict]
+        if include_external:
+            exter_dict = self.simulate(num_samples=num_te_samples, selection=False, csv_name=csv_prefix + "external")
+            output.append(exter_dict)
+        return output
