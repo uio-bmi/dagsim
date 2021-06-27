@@ -59,9 +59,8 @@ class Generic(Node):
 
 
 class Selection(Node):
-    def __init__(self, name: str, parents, function, additional_params=None, observed=None):
-        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
-                         observed=observed)
+    def __init__(self, name: str, parents, function, additional_params=None):
+        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params)
         if additional_params is None:
             additional_params = []
 
@@ -69,6 +68,25 @@ class Selection(Node):
         for key, value in output_dict.items():
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
         return output_dict
+
+
+class Stratify(Node):
+    def __init__(self, name: str, parents, function, additional_params=None):
+        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params)
+        if additional_params is None:
+            additional_params = []
+
+    def filter_output(self, output_dict):
+        node_names = output_dict.keys()
+        strata = list(set(self.output))
+        # A dictionary of dictionaries. Outer dictionary with keys=strata, and inner dictionaries with keys=node_names
+        new_dict = {key: {node: [] for node in node_names} for key in strata}
+
+        for i, stratum in enumerate(self.output):
+            for k, v in output_dict.items():
+                new_dict[stratum][k].append(v[i])
+
+        return new_dict
 
 
 class Graph:
@@ -111,6 +129,13 @@ class Graph:
         check_for_selection = next((item for item in self.nodes if item.__class__.__name__ == "Selection"), None)
         if check_for_selection is not None:
             return self.nodes.index(check_for_selection)
+        else:
+            return None
+
+    def get_stratify(self):
+        check_for_stratify = next((item for item in self.nodes if item.__class__.__name__ == "Stratify"), None)
+        if check_for_stratify is not None:
+            return self.nodes.index(check_for_stratify)
         else:
             return None
 
@@ -173,7 +198,8 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle"}
+        shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle",
+                      'Stratify': "doubleoctagon"}
         dot_str = 'digraph G{\n'
         for childNode in range(len(self)):
             if self[childNode].parents is None:
@@ -195,7 +221,7 @@ class Graph:
 
     def draw(self):
         dot_str = self.generate_dot()
-        with open(self.name+"_DOT.txt","w") as file:
+        with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
         s = Source(dot_str, filename=self.name, format="png")
@@ -206,12 +232,12 @@ class Graph:
     #         selection = True
     #     return self.base_simulate(num_samples, csv_name=csv_name)
 
-    def simulate(self, num_samples, selection=True, csv_name=""):
+    def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
         output_dict = {}
         for node in self.top_order:
             node = self.get_node_by_name(node)
             node.node_simulate(num_samples)
-            if node.__class__.__name__ != "Selection":
+            if node.__class__.__name__ not in ["Selection", "Stratify"]:
                 output_dict[node.name] = node.output
 
         selectionNode = self.get_selection()
@@ -219,19 +245,28 @@ class Graph:
             if selection:
                 output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
 
+        stratifyNode = self.get_stratify()
+        if stratifyNode is not None:
+            if stratify:
+                output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+
         if csv_name:
-            pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
+            if stratify:
+                for key in output_dict.keys():
+                    pd.DataFrame(output_dict[key]).to_csv(csv_name + '_' + key + '.csv', index=False)
+            else:
+                pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
         return output_dict
 
-    def ml_simulation(self, num_samples, train_test_ratio, include_external=False, csv_prefix=""):
+    def ml_simulation(self, num_samples, train_test_ratio, stratify=False, include_external=False, csv_prefix=""):
         if csv_prefix:
             csv_prefix = csv_prefix + "_"
-        num_tr_samples = int(num_samples*train_test_ratio)
+        num_tr_samples = int(num_samples * train_test_ratio)
         num_te_samples = num_samples - num_tr_samples
-        train_dict = self.simulate(num_samples=num_tr_samples, csv_name=csv_prefix + "train")
-        test_dict = self.simulate(num_samples=num_te_samples, csv_name=csv_prefix + "test")
+        train_dict = self.simulate(num_samples=num_tr_samples, stratify=stratify, csv_name=csv_prefix + "train")
+        test_dict = self.simulate(num_samples=num_te_samples, stratify=stratify, csv_name=csv_prefix + "test")
         output = [train_dict, test_dict]
         if include_external:
-            exter_dict = self.simulate(num_samples=num_te_samples, selection=False, csv_name=csv_prefix + "external")
+            exter_dict = self.simulate(num_samples=num_te_samples, stratify=stratify, selection=False, csv_name=csv_prefix + "external")
             output.append(exter_dict)
         return output
