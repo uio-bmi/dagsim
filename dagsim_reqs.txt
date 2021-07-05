@@ -2,8 +2,6 @@
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
 graphite2>=1.3.13
-matplotlib-base>=3.4.2
-matplotlib-inline>=0.1.2
 numba>=0.53.1
 pickleshare>=0.7.5
 pillow>=8.2.0
