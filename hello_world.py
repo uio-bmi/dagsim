@@ -16,10 +16,10 @@ def double(param, add1, add2):
 
 Prior1 = Generic(name="Prior1", function=np.random.normal)
 Prior2 = Generic(name="Prior2", function=np.random.normal)
-Node1 = Generic(name="Node1", parents=[Prior2], function=double, additional_params=[2, 1])
-Node2 = Generic(name="Node2", parents=[Prior1], function=double, additional_params=[2, 1])
-Node3 = Generic(name="Node3", parents=[Node1], function=square, additional_params=[1])
-Node4 = Generic(name="Node4", parents=[Node3, Prior1], function=add)
+Node1 = Generic(name="Node1", arguments={"param": Prior2, "add1": 2, "add2": 1}, function=double)
+Node2 = Generic(name="Node2", arguments={"param": Prior1, "add1": 2, "add2": 1}, function=double)
+Node3 = Generic(name="Node3", arguments={"param": Node1, "add_param": 1}, function=square)
+Node4 = Generic(name="Node4", arguments={"params0": Node3, "params1": Prior1}, function=add)
 
 listNodes = [Prior1, Prior2, Node1, Node2, Node3, Node4]
 my_graph = Graph("Graph1", listNodes)

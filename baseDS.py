@@ -13,23 +13,24 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, parents: list, function, plates=None, observed=True, additional_params=None):
-        if additional_params is None:
-            additional_params = []
+    def __init__(self, name: str, function, plates=None, observed=True, arguments=None):
+        if arguments is None:
+            arguments = {}
         self.name = name
-        self.parents = parents
+        self.parents_dict = {k: v for k, v in arguments.items() if v.__class__.__name__ == "Generic"}
+        self.parents = [value for value in self.parents_dict.values()]
+        self.additional_parameters = {k: v for k, v in arguments.items() if k not in self.parents_dict}
         self.function = function
-        self.additional_params = additional_params
         self.output = None
         self.observed = observed
         self.plates = plates
 
     def forward(self, idx):
-        temp_list = []
+        temp_dict = {}
         if self.parents is not None:
-            temp_list += [p.output[idx] for p in self.parents]
-        temp_list += self.additional_params
-        return self.function(*temp_list)
+            temp_dict = {k: v.output[idx] for k, v in self.parents_dict.items()}
+        temp_dict = {**temp_dict, **self.additional_parameters}
+        return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
         self.output = [self.forward(i) for i in range(num_samples)]
@@ -39,30 +40,28 @@ class Node:
 
 
 # class Prior(Node):
-#     def __init__(self, name: str, function, additional_params=[], plates=None, observed=True):
-#         super().__init__(name=name, parents=None, function=function, additional_params=additional_params,
+#     def __init__(self, name: str, function, arguments=[], plates=None, observed=True):
+#         super().__init__(name=name, parents=None, function=function, arguments=arguments,
 #                          plates=plates, observed=observed)
 #
 #     def forward(self):
-#         return self.function(*self.additional_params)
+#         return self.function(*self.arguments)
 #
 #     def node_simulate(self, num_samples):
 #         self.output = [self.forward() for _ in range(num_samples)]
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, parents=None, additional_params=None, plates=None, observed=True):
-        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params,
+    def __init__(self, name: str, function, arguments=None, plates=None, observed=True):
+        super().__init__(name=name, function=function, arguments=arguments,
                          plates=plates, observed=observed)
-        if additional_params is None:
-            additional_params = []
 
 
 class Selection(Node):
-    def __init__(self, name: str, parents, function, additional_params=None):
-        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params)
-        if additional_params is None:
-            additional_params = []
+    def __init__(self, name: str, function, arguments=None):
+        super().__init__(name=name, function=function, arguments=arguments)
+        if arguments is None:
+            arguments = []
 
     def filter_output(self, output_dict):
         for key, value in output_dict.items():
@@ -71,10 +70,10 @@ class Selection(Node):
 
 
 class Stratify(Node):
-    def __init__(self, name: str, parents, function, additional_params=None):
-        super().__init__(name=name, parents=parents, function=function, additional_params=additional_params)
-        if additional_params is None:
-            additional_params = []
+    def __init__(self, name: str, function, arguments=None):
+        super().__init__(name=name, function=function, arguments=arguments)
+        if arguments is None:
+            arguments = []
 
     def filter_output(self, output_dict):
         node_names = output_dict.keys()
@@ -267,6 +266,7 @@ class Graph:
         test_dict = self.simulate(num_samples=num_te_samples, stratify=stratify, csv_name=csv_prefix + "test")
         output = [train_dict, test_dict]
         if include_external:
-            exter_dict = self.simulate(num_samples=num_te_samples, stratify=stratify, selection=False, csv_name=csv_prefix + "external")
+            exter_dict = self.simulate(num_samples=num_te_samples, stratify=stratify, selection=False,
+                                       csv_name=csv_prefix + "external")
             output.append(exter_dict)
         return output
