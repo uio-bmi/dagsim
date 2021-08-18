@@ -32,7 +32,7 @@ This function would inform DagSim how to simulate the value :math:`y` for each v
 
 2. **Defining the graph:**
 
-For the node of the variable :math:`x` we only need to give it a name and the function to evaluate. This is because it has no parents, i.e. it is a root node, and the function to evaluate :math:`x` does not need any arguments in our case. For the node of the variable :math:`y`, we need to give it a name, the function to evaluate, and the values of the arguments needed to evaluate that function. The latter is given as a dictionary where the keys are the names of the function arguments, and each value is either another node or an object of the correct data type for the corresponding argument.
+For the node of the variable :math:`x` we only need to give it a name and the function to evaluate. This is because it has no parents, i.e. it is a root node, and the function to evaluate :math:`x` does not need any arguments in our case. For the node of the variable :math:`y`, we need to give it a name, the function to evaluate, and the values of the arguments needed to evaluate that function, in the form of a dictionary, as shown below:
 
 .. highlight:: python
 .. code-block:: python
@@ -40,7 +40,8 @@ For the node of the variable :math:`x` we only need to give it a name and the fu
   Nodex = Generic(name="x", function=np.random.normal)
   Nodey = Generic(name="y", function=ground_truth, arguemnts={"x": Nodex, "add_param": 1})
   
-At this stage we can simply compile the graph as follows:
+At this stage, we can simply compile the graph as follows:
+
     
 .. highlight:: python
 .. code-block:: python
