@@ -36,7 +36,7 @@ To define a node, you need to specify the following things:
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
  - :code:`name (str)`: A name for the graph.
- - :code:`list_nodes (list)`: A list of all the nodes that you defined.
+ - :code:`list_nodes (list)`: A list of all the nodes that you have defined.
  
 3. **Simulation details:**
  
