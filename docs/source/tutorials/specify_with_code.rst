@@ -38,7 +38,7 @@ After defining all the nodes in your model, you construct a graph by creating an
  - :code:`name (str)`: A name for the graph.
  - :code:`list_nodes (list)`: A list of all the nodes that you defined.
  
- 3. **Simulation details:**
+3. **Simulation details:**
  
 Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph and giving it two arguments:
 
