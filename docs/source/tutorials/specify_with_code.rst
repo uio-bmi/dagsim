@@ -19,18 +19,18 @@ These functions should encode how the value of a node depends on the parent node
 
 2. **Nodes and Graph:**
 
-The nodes represent variables in the model that interact with each other based on the user defined function. A node can be one of two possible types:
+The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of three possible types:
 
  * **Generic node** :code:`(Generic)`: a node that can receive values from its parents, if any, in addition to optional additional parameters.
  * **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
  * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user in the form of a function.
- For more information on how to use **Selection** and **Stratify**, please check this tutorial.
+ Please check this tutorial for more information on how to use **Selection** and **Stratify**.
 
 To define a node, you need to specify the following things:
  
  * :code:`name (str)`: A name for the node.
- * :code:`function`: The function to evaluate in order to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
- * :code:`arguments (dict)` (Optional): A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph, or an object of the correct data type for the corresponding argument.
+ * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
+ * :code:`arguments (dict)` (Optional): A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
  * :code:`plates (list of str)` (Optional): The names of the plates in which the node resides.
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
@@ -43,9 +43,9 @@ After defining all the nodes in your model, you construct a graph by creating an
 Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph and giving it two arguments:
 
  * :code:`num_samples (int)`: The number of samples to simulate.
- * :code:`csv_name (str)` (Optional): The name of the csv file to which to save the simulated data.
+ * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data.
  
-This method will return a python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
+This method will return a Python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
  
 .. toctree::
    :maxdepth: 2
