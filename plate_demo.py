@@ -14,12 +14,12 @@ def double(param, add1, add2):
     return np.square(param) + add1 - add2
 
 
-Prior1 = Generic(name="Prior1", function=np.random.normal, plate=['7', '4']) # G
-Prior2 = Generic(name="Prior2", function=np.random.normal, plate=['6', '4', '2']) # B
-Prior3 = Generic(name="Prior3", function=np.random.normal, plate=['4']) # F
-Node1 = Generic(name="Node1", parents=[Prior2], function=double, additional_params=[2, 1], plate=['1', '2', '4']) # A
-Node2 = Generic(name="Node2", parents=[Prior1], function=double, additional_params=[2, 1], plate=['5', '4']) # E
-Node3 = Generic(name="Node3", parents=[Node1], function=square, additional_params=[1], plate=['3']) # C
+Prior1 = Generic(name="Prior1", function=np.random.normal, plates=['7', '4'])  # G
+Prior2 = Generic(name="Prior2", function=np.random.normal, plates=['6', '4', '2'])  # B
+Prior3 = Generic(name="Prior3", function=np.random.normal, plates=['4'])  # F
+Node1 = Generic(name="Node1", parents=[Prior2], function=double, additional_params=[2, 1], plates=['1', '2', '4'])  # A
+Node2 = Generic(name="Node2", parents=[Prior1], function=double, additional_params=[2, 1], plates=['5', '4'])  # E
+Node3 = Generic(name="Node3", parents=[Node1], function=square, additional_params=[1], plates=['3'])  # C
 Node4 = Generic(name="Node4", parents=[Node3, Prior1], function=add)
 
 listNodes = [Prior1, Prior2, Prior3, Node1, Node2, Node3, Node4]
