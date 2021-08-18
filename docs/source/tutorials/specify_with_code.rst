@@ -43,7 +43,7 @@ After defining all the nodes in your model, you construct a graph by creating an
 Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph and giving it two arguments:
 
  * :code:`num_samples (int)`: The number of samples to simulate.
- * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data.
+ * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data. If no name is provided, the data will not be saved, only returned in the code.
  
 This method will return a Python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
  
