@@ -23,14 +23,15 @@ The nodes represent variables in the model that interact with each other based o
 
  - **Generic node** :code:`(Generic)`: a node that can receive values from its parents, if any, in addition to optional additional parameters.
  - **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
+ - **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user in the form of a function.
+ For more information on how to use **Selection** and **Stratify**, please check this tutorial.
 
 To define a node, you need to specify the following things:
  
  - :code:`name (str)`: A name for the node.
- - :code:`function`: The function to evaluate in order to get the value of the node. Note that here you only need to specify the name of the function without any arguments.
- - :code:`parents (list of Generic)` (Optional): A list of the parents of that node.
- - :code:`additional_params (list)` (Optional): Additional parameter values to be used by the corresponding function.
- - :code:`plates (list of str)` (Optional): The names of the plates in which that node resides.
+ - :code:`function`: The function to evaluate in order to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
+ - :code:`arguments (dict)` (Optional): A dictionary where the keys are the names of the function arguments to be specified, and each value is the value of that argument. Such a value can be either another node in the graph, or an object of the correct data type for the corresponding argument.
+ - :code:`plates (list of str)` (Optional): The names of the plates in which the node resides.
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
