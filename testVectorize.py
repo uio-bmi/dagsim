@@ -17,7 +17,7 @@ Nodey = Generic(name="y", function=ground_truth, arguments={"x": Nodex}, vectori
 
 # define a list of all nodes, then instantiate the graph
 listNodes = [Nodex, Nodey]
-my_graph = Graph("testUnravel", listNodes)
+my_graph = Graph("testVectorize", listNodes)
 
 my_graph.draw()
 
