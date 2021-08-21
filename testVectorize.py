@@ -31,13 +31,3 @@ x = np.array(Nodex.output)
 # print(x)
 # print(y)
 # print(z)
-
-# 1 for i in num_:
-#       genx()
-
-# genx(num_)
-
-# 1 for i in num_:
-#       geny()
-
-# geny()
