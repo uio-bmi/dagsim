@@ -31,7 +31,7 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        print(str(self.name) + str(temp_dict))
+        # print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
@@ -45,7 +45,7 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        print(str(self.name) + str(temp_dict))
+        # print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def __len__(self):
