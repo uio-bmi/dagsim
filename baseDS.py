@@ -13,7 +13,7 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, function, plates=None, observed=True, arguments=None):
+    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, vectorize=None):
         if arguments is None:
             arguments = {}
         self.name = name
@@ -24,16 +24,29 @@ class Node:
         self.output = None
         self.observed = observed
         self.plates = plates
+        self.vectorize = vectorize
 
     def forward(self, idx):
         temp_dict = {}
         if self.parents is not None:
-            temp_dict = {k: v.output[idx] for k, v in self.parents_dict.items()}
+            temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
+        print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
-        self.output = [self.forward(i) for i in range(num_samples)]
+        if self.vectorize is None:
+            self.output = [self.forward(i) for i in range(num_samples)]
+        else:
+            self.output = self.vectorize_forward(num_samples)
+
+    def vectorize_forward(self, size):
+        temp_dict = {self.vectorize: size}
+        if self.parents is not None:
+            temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
+        temp_dict = {**temp_dict, **self.additional_parameters}
+        print(str(self.name) + str(temp_dict))
+        return self.function(**temp_dict)
 
     def __len__(self):
         return len(self.parents)
@@ -52,9 +65,22 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, observed=True):
+    def __init__(self, name: str, function, arguments=None, plates=None, vectorize=None, observed=True):
         super().__init__(name=name, function=function, arguments=arguments,
-                         plates=plates, observed=observed)
+                         plates=plates, observed=observed, vectorize=vectorize)
+        # self.unravel = unravel
+        # if self.unravel is not None:
+        #     print("got here")
+        #
+        #     def node_simulate(self, num_samples):
+        #         print("got in")
+        # #         temp_dict = {self.unravel: num_samples}
+        # #         # if self.parents is not None:
+        # #         #     temp_dict = {k: v.output[idx] for k, v in self.parents_dict.items()}
+        # #         temp_dict = {**temp_dict, **self.additional_parameters}
+        # #         output = self.function(**self.additional_parameters)
+        # #         print("this ",output)
+        # #         return output
 
 
 class Selection(Node):
