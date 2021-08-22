@@ -240,13 +240,17 @@ class Graph:
                 output_dict[node.name] = node.output
 
         selectionNode = self.get_selection()
-        if selectionNode is not None:
-            if selection:
+        if selection:
+            if selectionNode is None:
+                raise AttributeError("No selection node found in the graph")
+            if selectionNode is not None:
                 output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
 
         stratifyNode = self.get_stratify()
-        if stratifyNode is not None:
-            if stratify:
+        if stratify:
+            if stratifyNode is None:
+                raise AttributeError("No stratification node found in the graph")
+            if stratifyNode is not None:
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
