@@ -96,7 +96,7 @@ The following code shows an example where the samples are split into three categ
 
 	listNodes = [Node1, Node2, Node3, Node4, Node5]
 	my_graph = Graph("Graph1", listNodes)
-	output = my_graph.simulate(num_samples=20, csv_name="testing")	
+	output = my_graph.simulate(num_samples=20, csv_name="StratifyExample")	
 
  
 .. toctree::
