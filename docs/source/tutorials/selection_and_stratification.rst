@@ -56,7 +56,7 @@ The following code shows an example where only the samples that have a value of 
 Stratification
 ---------------------------------------------
 
-The arguments needed to specify a :code:`Stratify` node are exactly the same as for a :code:`Selection` node. However, the function here should return the name :code:`(str)` of the stratum to which a given example should belong. These names will be used as suffixes to the .csv files' names.
+The arguments needed to specify a :code:`Stratify` node are exactly the same as for a :code:`Selection` node. However, the function here should return the name :code:`(str)` of the stratum to which a given example should belong. These names will be used as suffixes to the main .csv file name.
 
 .. .. note::
 ..	Note that the names of the strata should be of the data type :code:`str`.
