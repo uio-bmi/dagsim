@@ -37,9 +37,9 @@ The following code shows an example where only the samples that have a value of 
 
 	def is_greater_than2(node, threshold):
 	    if node < threshold:
-		return 1
+		return True
 	    else:
-		return 0
+		return False
 
 
 	Node1 = Generic(name="A", function=np.random.normal)

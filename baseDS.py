@@ -264,7 +264,13 @@ class Graph:
             for node in self.top_order:
                 node = self.get_node_by_name(node)
                 node.node_simulate(num_samples)
-                if node.__class__.__name__ not in ["Selection", "Stratify"]:
+                if node.__class__.__name__ == "Selection":
+                    assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
+                            "a boolean"
+                elif node.__class__.__name__ == "Stratify":
+                    assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
+                            "return a string"
+                else:
                     # print(str(node.name) + str(type(node.output)))
                     output_dict[node.name] = node.output
             return output_dict
