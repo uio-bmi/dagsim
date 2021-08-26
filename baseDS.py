@@ -31,7 +31,7 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        print(str(self.name) + str(temp_dict))
+        # print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
@@ -45,8 +45,8 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        print(str(self.name) + str(temp_dict))
-        return self.function(**temp_dict)#.tolist()
+        # print(str(self.name) + str(temp_dict))
+        return self.function(**temp_dict)  # .tolist()
 
     def __len__(self):
         return len(self.parents)
@@ -258,30 +258,38 @@ class Graph:
     #     return self.base_simulate(num_samples, csv_name=csv_name)
 
     def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
-        output_dict = {}
-        for node in self.top_order:
-            node = self.get_node_by_name(node)
-            node.node_simulate(num_samples)
-            if node.__class__.__name__ not in ["Selection", "Stratify"]:
-                print(str(node.name) + str(type(node.output)))
-                output_dict[node.name] = node.output
+
+        def traverse_graph(num_samples):
+            output_dict = {}
+            for node in self.top_order:
+                node = self.get_node_by_name(node)
+                node.node_simulate(num_samples)
+                if node.__class__.__name__ not in ["Selection", "Stratify"]:
+                    # print(str(node.name) + str(type(node.output)))
+                    output_dict[node.name] = node.output
+            return output_dict
+
+        output_dict = traverse_graph(num_samples)
 
         selectionNode = self.get_selection()
-        if selection:
-            if selectionNode is None:
-                raise AttributeError("No selection node found in the graph")
-            if selectionNode is not None:
-                output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
+        # if selection:
+        #     if selectionNode is None:
+        #         raise AttributeError("No selection node found in the graph")
+        if selectionNode is not None:
+            output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
+            while len(list(output_dict.values())[0]) < num_samples:
+                temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
+                output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         stratifyNode = self.get_stratify()
-        if stratify:
-            if stratifyNode is None:
-                raise AttributeError("No stratification node found in the graph")
-            if stratifyNode is not None:
-                output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+        # if stratify:
+        #     if stratifyNode is None:
+        #         raise AttributeError("No stratification node found in the graph")
+        if stratifyNode is not None:
+            output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
-            if stratify:
+            if stratifyNode is not None:
                 for key in output_dict.keys():
                     pd.DataFrame(output_dict[key]).to_csv(csv_name + '_' + key + '.csv', index=False)
             else:
