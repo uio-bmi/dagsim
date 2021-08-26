@@ -13,7 +13,7 @@ import copy as cp
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, vectorize=None):
+    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None):
         if arguments is None:
             arguments = {}
         self.name = name
@@ -24,29 +24,29 @@ class Node:
         self.output = None
         self.observed = observed
         self.plates = plates
-        self.vectorize = vectorize
+        self.size_field = size_field
 
     def forward(self, idx):
         temp_dict = {}
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        # print(str(self.name) + str(temp_dict))
+        print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
-        if self.vectorize is None:
+        if self.size_field is None:
             self.output = [self.forward(i) for i in range(num_samples)]
         else:
             self.output = self.vectorize_forward(num_samples)
 
     def vectorize_forward(self, size):
-        temp_dict = {self.vectorize: size}
+        temp_dict = {self.size_field: size}
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        # print(str(self.name) + str(temp_dict))
-        return self.function(**temp_dict)
+        print(str(self.name) + str(temp_dict))
+        return self.function(**temp_dict)#.tolist()
 
     def __len__(self):
         return len(self.parents)
@@ -65,9 +65,9 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, vectorize=None, observed=True):
+    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
         super().__init__(name=name, function=function, arguments=arguments,
-                         plates=plates, observed=observed, vectorize=vectorize)
+                         plates=plates, observed=observed, size_field=size_field)
         # self.unravel = unravel
         # if self.unravel is not None:
         #     print("got here")
@@ -263,6 +263,7 @@ class Graph:
             node = self.get_node_by_name(node)
             node.node_simulate(num_samples)
             if node.__class__.__name__ not in ["Selection", "Stratify"]:
+                print(str(node.name) + str(type(node.output)))
                 output_dict[node.name] = node.output
 
         selectionNode = self.get_selection()
