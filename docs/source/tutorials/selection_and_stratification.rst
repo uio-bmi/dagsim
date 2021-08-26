@@ -39,7 +39,7 @@ The following code shows an example where only the samples that have a value of 
 	    if node < threshold:
 		return True
 	    else:
-		return False
+		return False 
 
 
 	Node1 = Generic(name="A", function=np.random.normal)
@@ -96,7 +96,7 @@ The following code shows an example where the samples are split into three categ
 
 	listNodes = [Node1, Node2, Node3, Node4, Node5]
 	my_graph = Graph("Graph1", listNodes)
-	output = my_graph.simulate(num_samples=20, csv_name="StratifyExample")	
+	output = my_graph.simulate(num_samples=20, csv_name="testing")	
 
  
 .. toctree::

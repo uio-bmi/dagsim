@@ -271,7 +271,7 @@ class Graph:
                     assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
                             "return a string"
                 else:
-                    # print(str(node.name) + str(type(node.output)))
+                     # print(str(node.name) + str(type(node.output)))
                     output_dict[node.name] = node.output
             return output_dict
 
