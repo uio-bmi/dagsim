@@ -2,7 +2,7 @@ import numpy as np
 import igraph as ig
 
 
-def import_notears(weight_matrix: np.ndarray, sem_type: str = ""):
+def import_notears(weight_matrix: np.ndarray, sem_type: str = "", script_name: str = "script"):
 
     def create_function(name, weight_vector, sem_type):
         non_zero_indices = [i for i, e in enumerate(weight_vector) if e != 0]
@@ -71,12 +71,12 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = ""):
     graph_def = graph_def[:-2] + "]\n"
     graph_def += "graph = Graph('Graph1', listNodes) \n"
 
-    return imports + functions + nodes + graph_def
+    script = imports + functions + nodes + graph_def
+    with open(script_name + ".py", "w") as file:
+        file.write(script)
 
 
 if __name__ == "__main__":
     weight = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
 
-    script = import_notears(weight, sem_type="gauss")
-    with open("test.py", "w") as file:
-        file.write(script)
+    script = import_notears(weight, sem_type="gauss", script_name="gaussDagSim")
