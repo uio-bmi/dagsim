@@ -1,9 +1,8 @@
-from baseDS import Graph, Selection, Stratify, Generic
 import numpy as np
 import igraph as ig
 
 
-def import_notears(weight_matrix: np.ndarray, top_order: list, sem_type: str = ""):
+def import_notears(weight_matrix: np.ndarray, sem_type: str = ""):
 
     def create_function(name, weight_vector, sem_type):
         non_zero_indices = [i for i, e in enumerate(weight_vector) if e != 0]
@@ -44,6 +43,9 @@ def import_notears(weight_matrix: np.ndarray, top_order: list, sem_type: str = "
             node_def += "np.random.normal, arguments={'loc': 1, 'scale': 0})"
         return node_def
 
+    G = ig.Graph.Weighted_Adjacency(weight.tolist())
+    top_order = G.topological_sorting()
+
     imports = "from baseDS import Graph, Selection, Stratify, Generic \n" \
               "import numpy as np \n\n\n"
 
@@ -75,9 +77,6 @@ def import_notears(weight_matrix: np.ndarray, top_order: list, sem_type: str = "
 if __name__ == "__main__":
     weight = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
 
-    G = ig.Graph.Weighted_Adjacency(weight.tolist())
-    ordered_vertices = G.topological_sorting()
-
-    script = import_notears(weight, ordered_vertices, sem_type="gauss")
+    script = import_notears(weight, sem_type="gauss")
     with open("test.py", "w") as file:
         file.write(script)
