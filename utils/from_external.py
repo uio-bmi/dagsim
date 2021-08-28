@@ -2,7 +2,7 @@ import numpy as np
 import igraph as ig
 
 
-def import_notears(weight_matrix: np.ndarray, sem_type: str = "", script_name: str = "script"):
+def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name: str = "script"):
 
     def create_function(name, weight_vector, sem_type):
         non_zero_indices = [i for i, e in enumerate(weight_vector) if e != 0]
@@ -43,7 +43,7 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "", script_name: s
             node_def += "np.random.normal, arguments={'loc': 1, 'scale': 0})"
         return node_def
 
-    G = ig.Graph.Weighted_Adjacency(weight.tolist())
+    G = ig.Graph.Weighted_Adjacency(weight_matrix.tolist())
     top_order = G.topological_sorting()
 
     imports = "from baseDS import Graph, Selection, Stratify, Generic \n" \
@@ -69,7 +69,7 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "", script_name: s
     for node_index in top_order:
         graph_def += "Node_x" + str(node_index) + ", "
     graph_def = graph_def[:-2] + "]\n"
-    graph_def += "graph = Graph('Graph1', listNodes) \n"
+    graph_def += "graph = Graph('myGraph', listNodes) \n"
 
     script = imports + functions + nodes + graph_def
     with open(script_name + ".py", "w") as file:
