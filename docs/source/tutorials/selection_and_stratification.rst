@@ -12,7 +12,8 @@ Selection
 ---------------------------------------------
 
 Similar to a :code:`Generic` node, to define a :code:`Selection` node, you need to specify the following:
- 
+
+ * :code:`weight (ndarray)`: The learned weight matrix from NOTEARS.
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`arguments (dict)`: A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument. At least one :code:`value`: in the dictionary should be a node in the graph.
