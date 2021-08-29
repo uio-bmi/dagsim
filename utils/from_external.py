@@ -79,4 +79,4 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_na
 if __name__ == "__main__":
     weight = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
 
-    script = import_notears(weight, sem_type="gauss", script_name="gaussDagSim")
+    import_notears(weight, sem_type="gauss", script_name="gaussDagSim")

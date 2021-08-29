@@ -33,6 +33,8 @@ The following code is an example showing how a weight matrix would be used:
 .. code-block:: python
 
 	import numpy as np
+	from utils.from_external import import_notears
+
 
 	weight = np.array([[0, 0, 2], [0, 0, 3], [0, 0, 0]])
 
