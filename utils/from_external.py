@@ -1,8 +1,9 @@
 import numpy as np
 import igraph as ig
+from numpy import genfromtxt
 
 
-def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name: str = "script"):
+def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name: str = "script"):
     def create_function(name, weight_vector, sem_type):
         non_zero_indices = [i for i, e in enumerate(weight_vector) if e != 0]
         parents_names = ", ".join(["x" + str(i) for i in non_zero_indices])
@@ -49,9 +50,9 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_na
               "import numpy as np \n"
 
     if sem_type == "logistic":
-        imports += "from scipy.special import expit as sigmoid"
+        imports += "from scipy.special import expit as sigmoid\n"
 
-    imports += "\n\n\n"
+    imports += "\n\n"
 
     functions = ""
     for index, column in enumerate(weight_matrix.T):
@@ -80,7 +81,12 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_na
         file.write(script)
 
 
-if __name__ == "__main__":
-    weight = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
+def from_csv(file_name: str, sem_type: str = "gauss", script_name: str = "script"):
+    weight_matrix = genfromtxt(file_name+".csv")
+    from_matrix(weight_matrix, sem_type=sem_type, script_name=script_name)
 
-    import_notears(weight, sem_type="logistic", script_name="gaussDagSim")
+
+if __name__ == "__main__":
+    matrix_example = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
+
+    from_matrix(matrix_example, sem_type="logistic", script_name="gaussDagSim")
