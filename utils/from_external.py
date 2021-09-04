@@ -43,6 +43,8 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
             node_def += "np.random.normal, arguments={'loc': 1, 'scale': 0})"
         return node_def
 
+    assert weight_matrix.shape[0] == weight_matrix.shape[1], "The weight matrix should be a square matrix"
+
     G = ig.Graph.Weighted_Adjacency(weight_matrix.tolist())
     top_order = G.topological_sorting()
 
@@ -81,7 +83,7 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
         file.write(script)
 
 
-def from_csv(file_name: str, sem_type: str = "gauss", script_name: str = "script"):
+def from_csv(file_name: str, sem_type: str, script_name: str):
     weight_matrix = genfromtxt(file_name+".csv")
     from_matrix(weight_matrix, sem_type=sem_type, script_name=script_name)
 
