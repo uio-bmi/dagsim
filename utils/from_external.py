@@ -3,12 +3,11 @@ import igraph as ig
 
 
 def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name: str = "script"):
-
     def create_function(name, weight_vector, sem_type):
         non_zero_indices = [i for i, e in enumerate(weight_vector) if e != 0]
         parents_names = ", ".join(["x" + str(i) for i in non_zero_indices])
         linear_equation = " + ".join(
-                [str(weight_vector[e]) + " * x" + str(non_zero_indices[i]) for i, e in enumerate(non_zero_indices)])
+            [str(weight_vector[e]) + " * x" + str(non_zero_indices[i]) for i, e in enumerate(non_zero_indices)])
         func_str = "def func_" + name + "(" + parents_names + "):\n\t" + name + " = "
         if sem_type not in ["logistic", "poisson"]:
             func_str += linear_equation + " + "
@@ -47,7 +46,12 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_na
     top_order = G.topological_sorting()
 
     imports = "from baseDS import Graph, Selection, Stratify, Generic \n" \
-              "import numpy as np \n\n\n"
+              "import numpy as np \n"
+
+    if sem_type == "logistic":
+        imports += "from scipy.special import expit as sigmoid"
+
+    imports += "\n\n\n"
 
     functions = ""
     for index, column in enumerate(weight_matrix.T):
@@ -79,4 +83,4 @@ def import_notears(weight_matrix: np.ndarray, sem_type: str = "gauss", script_na
 if __name__ == "__main__":
     weight = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
 
-    import_notears(weight, sem_type="gauss", script_name="gaussDagSim")
+    import_notears(weight, sem_type="logistic", script_name="gaussDagSim")
