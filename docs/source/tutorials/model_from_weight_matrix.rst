@@ -69,7 +69,7 @@ In case you have a weighted adjacency matrix in the form of a csv file, you can 
    	import numpy as np
 	from utils.from_external import from_csv
 
-   	from_csv(csv_file_name, sem_type="logistic", script_name="gaussDagSim")
+   	from_csv(csv_file_name, sem_type="gauss", script_name="gaussDagSim")
 
 
 
