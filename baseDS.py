@@ -7,6 +7,8 @@ import csv
 import pandas as pd
 from utils.processPlates import get_plate_dot
 import copy as cp
+from IPython.display import display
+import __main__
 
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
@@ -249,8 +251,12 @@ class Graph:
         with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
-        s = Source(dot_str, filename=self.name, format="png")
-        s.view(cleanup=True, quiet_view=True)
+        if not hasattr(__main__, '__file__'):
+            display(Source(dot_str))
+
+        else:
+            s = Source(dot_str, filename=self.name, format="png")
+            s.view(cleanup=True, quiet_view=True)
 
     # def simulate(self, num_samples, selection=True, csv_name=""):
     #     if self.get_selection():
@@ -266,12 +272,12 @@ class Graph:
                 node.node_simulate(num_samples)
                 if node.__class__.__name__ == "Selection":
                     assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
-                            "a boolean"
+                                                                          "a boolean"
                 elif node.__class__.__name__ == "Stratify":
                     assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
-                            "return a string"
+                                                                         "return a string"
                 else:
-                     # print(str(node.name) + str(type(node.output)))
+                    # print(str(node.name) + str(type(node.output)))
                     output_dict[node.name] = node.output
             return output_dict
 
