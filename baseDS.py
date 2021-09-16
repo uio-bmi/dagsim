@@ -8,7 +8,6 @@ import pandas as pd
 from utils.processPlates import get_plate_dot
 import copy as cp
 from IPython.display import display
-import __main__
 
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
@@ -251,12 +250,11 @@ class Graph:
         with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
-        if not hasattr(__main__, '__file__'):
-            display(Source(dot_str))
-
-        else:
+        try:
             s = Source(dot_str, filename=self.name, format="png")
             s.view(cleanup=True, quiet_view=True)
+        except TypeError:
+            display(Source(dot_str))
 
     # def simulate(self, num_samples, selection=True, csv_name=""):
     #     if self.get_selection():
