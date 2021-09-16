@@ -7,6 +7,7 @@ import csv
 import pandas as pd
 from utils.processPlates import get_plate_dot
 import copy as cp
+from IPython.display import display
 
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
@@ -253,7 +254,6 @@ class Graph:
             s = Source(dot_str, filename=self.name, format="png")
             s.view(cleanup=True, quiet_view=True)
         except TypeError:
-            from IPython.display import display
             display(Source(dot_str))
 
     # def simulate(self, num_samples, selection=True, csv_name=""):
