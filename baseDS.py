@@ -68,6 +68,12 @@ class Generic(Node):
     def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
         super().__init__(name=name, function=function, arguments=arguments,
                          plates=plates, observed=observed, size_field=size_field)
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        generic = Generic(**kwargs)
+        return generic
         # self.unravel = unravel
         # if self.unravel is not None:
         #     print("got here")
@@ -89,6 +95,13 @@ class Selection(Node):
         if arguments is None:
             arguments = []
 
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        selection = Selection(**kwargs)
+        return selection
+
     def filter_output(self, output_dict):
         for key, value in output_dict.items():
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
@@ -100,6 +113,12 @@ class Stratify(Node):
         super().__init__(name=name, function=function, arguments=arguments)
         if arguments is None:
             arguments = []
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        stratify = Stratify(**kwargs)
+        return stratify
 
     def filter_output(self, output_dict):
         node_names = output_dict.keys()
