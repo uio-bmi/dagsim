@@ -123,6 +123,16 @@ class Graph:
         self.top_order = []
         self.update_topol_order()
 
+    def __str__(self):
+        main_str = ""
+        for idx, node in enumerate(self.nodes):
+            main_str += "Node " + str(idx+1) + ":\n"
+            main_str += "\tname: " + node.name + "\n"
+            main_str += "\ttype: " + node.__class__.__name__ + "\n"
+            main_str += "\tfunction: " + node.function.__name__ + "\n"
+            main_str += "\tparents: " + ", ".join([par.name for par in node.parents]) + "\n"
+        return main_str[:-1]
+
     def plate_embedding(self):
         def get_key_by_label(label):
             for key in plateDict.keys():
