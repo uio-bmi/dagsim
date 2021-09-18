@@ -91,7 +91,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">How to specify a simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-specify-a-simulation-using-python-code">How to specify a simulation using python code</a><ul class="simple">
+<li class="toctree-l3"><a class="reference internal" href="#how-to-specify-a-simulation-using-python-code">How to specify a simulation using python code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-specify-a-simulation-using-yaml">How to specify a simulation using YAML</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -224,6 +225,42 @@
 </ul>
 </div></blockquote>
 <p>This method will return a Python dictionary where the <code class="code docutils literal notranslate"><span class="pre">keys</span></code> are the names of the nodes and the <code class="code docutils literal notranslate"><span class="pre">values</span></code> are the simulated values of each node.</p>
+</div>
+<div class="section" id="how-to-specify-a-simulation-using-yaml">
+<h2>How to specify a simulation using YAML<a class="headerlink" href="#how-to-specify-a-simulation-using-yaml" title="Permalink to this headline">¶</a></h2>
+<p>The YAML file has two main components, the definition of the graph itself including all the nodes and functions that connect them to each other, and the simulation details including the number of samples to be simulated and the name of the csv file to save the simulated data to.</p>
+<p>Within the graph component, you provide a name for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes within the “nodes” key.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Functions provided by standard libraries do not need to be included in the python file. However, these functions should use the whole library name instead of abbreviations, for example, <code class="code docutils literal notranslate"><span class="pre">numpy</span></code> instead of <code class="code docutils literal notranslate"><span class="pre">np</span></code>.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="code docutils literal notranslate"><span class="pre">scipy</span></code> are automatically installed when you install DagSim. Should you need another library, please install it manually.</p>
+</div>
+<p>Each key inside “nodes” would correspond to a node in the graph, with the name of that node being the key itself. For each node, you need to specify the name of the function to use, the arguments needed by that function, if any, in addition to other optional keys.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.</p>
+</div>
+<p># TODO add explanation of each component in each main component + fix the sample YAML + add sample YAML for Linear Regression
+The general structure of the YAML file would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
+  <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path/to/file</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;user-defined</span><span class="nv"> </span><span class="s">name&quot;</span>
+  <span class="nt">nodes</span><span class="p">:</span>
+    <span class="nt">name_of_node1</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library</span>
+      <span class="nt">arguments</span><span class="p">:</span>
+        <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># an appropriate python object or the name of a parent node</span>
+        <span class="nt">name_of_argument2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument2</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span>
+    <span class="l l-Scalar l-Scalar-Plain">⋮</span>
+
+<span class="nt">instructions</span><span class="p">:</span>
+  <span class="nt">simulation</span><span class="p">:</span>
+    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+    <span class="nt">csv_name</span><span class="p">:</span> <span class="s">&quot;parser&quot;</span>
+</pre></div>
+</div>
+<p>For a sample simulation definition using a YAML file, please see <a class="reference internal" href="linear_regression.html#define-the-simulation-using-a-yaml-file"><span class="std std-ref">Define the simulation using a YAML file</span></a>.</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>

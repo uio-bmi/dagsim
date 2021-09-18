@@ -93,7 +93,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="specify_with_code.html">How to specify a simulation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulate data for a simple linear regression problem</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulate data for a simple linear regression problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-simulation-using-python-code">Define the simulation using python code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-simulation-using-a-yaml-file">Define the simulation using a YAML file</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="selection_and_stratification.html">Special nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_from_weight_matrix.html">Importing models from other libraries</a></li>
 </ul>
@@ -169,8 +173,10 @@
             
   <div class="section" id="simulate-data-for-a-simple-linear-regression-problem">
 <h1>Simulate data for a simple linear regression problem<a class="headerlink" href="#simulate-data-for-a-simple-linear-regression-problem" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem. If you are not familiar with the workflow of DagSim, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation"><span class="std std-ref">How to specify a simulation</span></a>.
-We begin by importing the following:</p>
+<p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation"><span class="std std-ref">How to specify a simulation</span></a>.</p>
+<div class="section" id="define-the-simulation-using-python-code">
+<h2>Define the simulation using python code<a class="headerlink" href="#define-the-simulation-using-python-code" title="Permalink to this headline">¶</a></h2>
+<p>We begin by importing the following:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">baseDS</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Generic</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span> <span class="k">as</span> <span class="n">lr</span>
@@ -250,6 +256,32 @@ We begin by importing the following:</p>
 </pre></div>
 </div>
 <p>The complete code can be found on GitHub.</p>
+</div>
+<div class="section" id="define-the-simulation-using-a-yaml-file">
+<h2>Define the simulation using a YAML file<a class="headerlink" href="#define-the-simulation-using-a-yaml-file" title="Permalink to this headline">¶</a></h2>
+<p>where script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
+  <span class="nt">python_file</span><span class="p">:</span> <span class="s">&quot;script_of_functions&quot;</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;my_graph&quot;</span>
+  <span class="nt">nodes</span><span class="p">:</span>
+    <span class="nt">result</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;square&quot;</span>
+      <span class="nt">arguments</span><span class="p">:</span>
+        <span class="nt">param</span><span class="p">:</span> <span class="s">&quot;source&quot;</span>
+        <span class="nt">add_param</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span>
+    <span class="nt">source</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;numpy.random.normal&quot;</span>
+      <span class="nt">arguments</span><span class="p">:</span>
+        <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+        <span class="nt">loc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">instructions</span><span class="p">:</span>
+  <span class="nt">simulation</span><span class="p">:</span>
+    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+    <span class="nt">csv_name</span><span class="p">:</span> <span class="s">&quot;parser&quot;</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 

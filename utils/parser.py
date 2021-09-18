@@ -19,18 +19,21 @@ def parse_yaml(file_name: str):
         for child in node_names:
             for parent in parents_dict[child]:
                 pd_dict[child][parent] = 1
-        return pd_dict
+        return pd_dict.to_numpy(), list(node_names)
+
+    def get_top_order():
+        pdDAG, names = build_adj_matrix(yaml_file["graph"]["nodes"])
+        print(names)
+        G = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
+        top_order = G.topological_sorting()
+        top_order = [names[i] for i in top_order]
+        return top_order
 
     def check_acyclicity():
-        pdDAG = build_adj_matrix(yaml_file["graph"]["nodes"]).to_numpy()
+        pdDAG, _ = build_adj_matrix(yaml_file["graph"]["nodes"])
         # print(ppd.to_numpy())
         pdDAGGraph = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
         return ig.Graph.is_dag(pdDAGGraph)
-
-    with open(file_name, 'r') as stream:
-        yaml_file = yaml.safe_load(stream)
-
-    assert check_acyclicity(), "The graph is not acyclic."
 
     def get_func_by_name(functions_list: list, func_name: str):
         for name, func in functions_list:
@@ -66,8 +69,13 @@ def parse_yaml(file_name: str):
         #     raise ModuleNotFoundError("no lib")
         #     return None
 
-    # get_implicit_func("numpy.random.normal")
-    # exit()
+    with open(file_name, 'r') as stream:
+        yaml_file = yaml.safe_load(stream)
+
+    assert check_acyclicity(), "The graph is not acyclic."
+    nodes_dict = yaml_file["graph"]["nodes"]
+    top_order = get_top_order()
+    print(top_order)
 
     functions_file = importlib.import_module(yaml_file["graph"]["python_file"])
     # print(functions)
@@ -75,9 +83,8 @@ def parse_yaml(file_name: str):
     # print(functions_list)
 
     my_graph = Graph("Graph1", [])
-    nodes_dict = yaml_file["graph"]["nodes"]
 
-    for key in nodes_dict.keys():
+    for key in top_order:
 
         nodes_dict[key] = {**nodes_dict[key], **{"name": key}}
         nodes_dict[key]["function"] = get_func_by_name(functions_list, nodes_dict[key]["function"])
