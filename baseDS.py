@@ -16,6 +16,7 @@ class Node:
     def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None):
         if arguments is None:
             arguments = {}
+        self.temp_arg = arguments
         self.name = name
         self.parents_dict = {k: v for k, v in arguments.items() if v.__class__.__name__ == "Generic"}
         self.parents = [value for value in self.parents_dict.values()]
@@ -25,6 +26,19 @@ class Node:
         self.observed = observed
         self.plates = plates
         self.size_field = size_field
+
+    def __str__(self):
+        main_str = ""
+        main_str += "\tname: " + self.name + "\n"
+        main_str += "\ttype: " + self.__class__.__name__ + "\n"
+        main_str += "\tfunction: " + self.function.__name__ + "\n"
+        # print("->", self.parents)
+        main_str += "\targuments: " + str(self.temp_arg) + "\n"
+        if self.parents:
+            main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
+        else:
+            main_str += "\tparents: None"
+        return main_str
 
     def forward(self, idx):
         temp_dict = {}
@@ -95,7 +109,6 @@ class Selection(Node):
         if arguments is None:
             arguments = []
 
-
     @staticmethod
     def build_object(**kwargs):
         # check params
@@ -145,11 +158,8 @@ class Graph:
     def __str__(self):
         main_str = ""
         for idx, node in enumerate(self.nodes):
-            main_str += "Node " + str(idx+1) + ":\n"
-            main_str += "\tname: " + node.name + "\n"
-            main_str += "\ttype: " + node.__class__.__name__ + "\n"
-            main_str += "\tfunction: " + node.function.__name__ + "\n"
-            main_str += "\tparents: " + ", ".join([par.name for par in node.parents]) + "\n"
+            main_str += "Node " + str(idx + 1) + ":\n"
+            main_str += node.__str__() + "\n"
         return main_str[:-1]
 
     def plate_embedding(self):
@@ -173,7 +183,7 @@ class Graph:
                 plateDict[0][1].append(node.name)
         return plateDict
 
-    def add_node(self, node: Node):
+    def add_node(self, node: Union[Generic, Selection, Stratify]):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
@@ -195,7 +205,8 @@ class Graph:
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
-            print("Please enter a valid node name")
+            # print("Please enter a valid node name")
+            return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
             if node is None:
