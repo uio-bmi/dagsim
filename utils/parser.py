@@ -4,8 +4,10 @@ from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
 import igraph as ig
-import numpy as np
-import scipy as sp
+
+
+# import numpy as np
+# import scipy as sp
 
 
 def parse_yaml(file_name: str):
@@ -17,8 +19,6 @@ def parse_yaml(file_name: str):
         for child in node_names:
             for parent in parents_dict[child]:
                 pd_dict[child][parent] = 1
-        print("parents_dict", parents_dict)
-        print("pd_dict ", pd_dict)
         return pd_dict
 
     def check_acyclicity():
@@ -30,18 +30,44 @@ def parse_yaml(file_name: str):
     with open(file_name, 'r') as stream:
         yaml_file = yaml.safe_load(stream)
 
-    assert check_acyclicity(), "The graph is not acyclic"
+    assert check_acyclicity(), "The graph is not acyclic."
 
     def get_func_by_name(functions_list: list, func_name: str):
-        ret_func = None
         for name, func in functions_list:
             if name == func_name:
-                ret_func = func
-                break
-        if ret_func is None:
-            raise ValueError("Function \"" + func_name + "\" not found")
-        else:
-            return ret_func
+                return func
+        try:
+            func = get_implicit_func(func_name=func_name)
+            return func
+        except (AttributeError, ModuleNotFoundError):
+            raise ImportError("Couldn't find the function \"" + func_name + "\"")
+
+    def get_implicit_func(func_name: str):
+        first_part = func_name.rfind(".")
+        module_name = func_name[:first_part]
+        func_name = func_name[first_part + 1:]
+        module = importlib.import_module(module_name)
+        func = getattr(module, func_name)
+        return func
+
+        # try:
+        #     print("succ1")
+        #     library = importlib.import_module(library)
+        #     print("succ2")
+        #     try:
+        #         func = getattr(library, func_name)
+        #         print(func)
+        #         print("succ")
+        #         return func
+        #     except AttributeError:
+        #         print("no func")
+        #         return None
+        # except ModuleNotFoundError:
+        #     raise ModuleNotFoundError("no lib")
+        #     return None
+
+    # get_implicit_func("numpy.random.normal")
+    # exit()
 
     functions_file = importlib.import_module(yaml_file["graph"]["python_file"])
     # print(functions)
@@ -50,7 +76,6 @@ def parse_yaml(file_name: str):
 
     my_graph = Graph("Graph1", [])
     nodes_dict = yaml_file["graph"]["nodes"]
-    print(nodes_dict)
 
     for key in nodes_dict.keys():
 
@@ -64,7 +89,7 @@ def parse_yaml(file_name: str):
         if node_type is not None:
             nodes_dict[key].pop("type")
 
-        if node_type == "Generic" or type is None:
+        if node_type == "Generic" or node_type is None:
             node = Generic.build_object(**nodes_dict[key])
             my_graph.add_node(node)
 

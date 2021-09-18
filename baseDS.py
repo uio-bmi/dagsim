@@ -16,7 +16,6 @@ class Node:
     def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None):
         if arguments is None:
             arguments = {}
-        self.temp_arg = arguments
         self.name = name
         self.parents_dict = {k: v for k, v in arguments.items() if v.__class__.__name__ == "Generic"}
         self.parents = [value for value in self.parents_dict.values()]
@@ -33,7 +32,8 @@ class Node:
         main_str += "\ttype: " + self.__class__.__name__ + "\n"
         main_str += "\tfunction: " + self.function.__name__ + "\n"
         # print("->", self.parents)
-        main_str += "\targuments: " + str(self.temp_arg) + "\n"
+        main_str += "\targuments: " + str(
+            {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
         if self.parents:
             main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
         else:
