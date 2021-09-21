@@ -82,7 +82,7 @@ def parse_yaml(file_name: str):
     functions_list = getmembers(functions_file, isfunction)
     # print(functions_list)
 
-    my_graph = Graph("Graph1", [])
+    my_graph = Graph(yaml_file["graph"]["name"], [])
 
     for key in top_order:
 
