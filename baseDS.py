@@ -259,11 +259,12 @@ class Graph:
         with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
+        s = Source(dot_str, filename=self.name, format="png")
         try:
-            s = Source(dot_str, filename=self.name, format="png")
             s.view(cleanup=True, quiet_view=True)
-        except TypeError:
+        except (TypeError, FileNotFoundError):
             from IPython.display import display
+            s.render()
             display(Source(dot_str))
 
     # def simulate(self, num_samples, selection=True, csv_name=""):
