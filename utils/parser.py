@@ -114,6 +114,7 @@ def parse_yaml(file_name: str):
 
     print(my_graph)
     data = my_graph.simulate(**yaml_file["instructions"]["simulation"])
+    my_graph.draw()
     return data
 
 
