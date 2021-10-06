@@ -19,7 +19,7 @@ class Parser:
         with open(file_name, 'r') as stream:
             self.yaml_file = yaml.safe_load(stream)
 
-    def build_adj_matrix(self, nodes: dict):
+    def _build_adj_matrix(self, nodes: dict):
         # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
         parents_dict = {k: [v for v in nodes[k]["arguments"].values() if v in node_names] for k in node_names}
@@ -29,27 +29,27 @@ class Parser:
                 pd_dict[child][parent] = 1
         return pd_dict.to_numpy(), list(node_names)
 
-    def find_top_order(self, pdDAG, names):
+    def _find_top_order(self, pdDAG, names):
         G = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
         top_order = G.topological_sorting()
         top_order = [names[i] for i in top_order]
         self.top_order = top_order
 
-    def check_acyclicity(self, adj_mat):
+    def _check_acyclicity(self, adj_mat):
         pdDAGGraph = ig.Graph.Weighted_Adjacency(adj_mat.tolist())
         return ig.Graph.is_dag(pdDAGGraph)
 
-    def get_func_by_name(self, functions_list: list, func_name: str):
+    def _get_func_by_name(self, functions_list: list, func_name: str):
         for name, func in functions_list:
             if name == func_name:
                 return func
         try:
-            func = self.get_implicit_func(func_name=func_name)
+            func = self._get_implicit_func(func_name=func_name)
             return func
         except (AttributeError, ModuleNotFoundError):
             raise ImportError("Couldn't find the function \"" + func_name + "\"")
 
-    def get_implicit_func(self, func_name: str):
+    def _get_implicit_func(self, func_name: str):
         first_part = func_name.rfind(".")
         module_name = func_name[:first_part]
         func_name = func_name[first_part + 1:]
@@ -73,7 +73,7 @@ class Parser:
         #     raise ModuleNotFoundError("no lib")
         #     return None
 
-    def split_func_and_args(self, func_expression: str):
+    def _split_func_and_args(self, func_expression: str):
         func_expression = func_expression.replace(" ", "")
         args_str = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
         args_str = args_str.split(",")
@@ -88,19 +88,20 @@ class Parser:
         func_name = func_expression[:func_expression.find("(")]
         return func_name, args_dict
 
-    def parse_string_args(self, nodes):
+    def _parse_string_args(self, nodes):
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
                 print(key)
-                nodes[key]["function"], nodes[key]["arguments"] = self.split_func_and_args(
+                nodes[key]["function"], nodes[key]["arguments"] = self._split_func_and_args(
                     nodes[key]["function"])
         return nodes
 
-    def populate_graph_from_nodes(self, nodes: dict, functions: list):
-
+    def _build_graph_from_nodes(self, nodes: dict, functions: list):
+        self.graph = Graph(self.yaml_file["graph"]["name"], [])
+        
         for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
-            nodes[key]["function"] = self.get_func_by_name(functions, nodes[key]["function"])
+            nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
             nodes[key]["arguments"] = {
                 k: self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for k, v in
                 nodes[key]["arguments"].items()}
@@ -127,34 +128,32 @@ class Parser:
 
     def parse(self):
 
-        nodes_dict = self.parse_string_args(self.yaml_file["graph"]["nodes"])
+        nodes_dict = self._parse_string_args(self.yaml_file["graph"]["nodes"])
 
-        self.adj_matrix, self.node_names = self.build_adj_matrix(nodes_dict)
+        self.adj_matrix, self.node_names = self._build_adj_matrix(nodes_dict)
 
-        assert self.check_acyclicity(self.adj_matrix), "The graph is not acyclic."
+        assert self._check_acyclicity(self.adj_matrix), "The graph is not acyclic."
 
-        self.find_top_order(self.adj_matrix, self.node_names)
+        self._find_top_order(self.adj_matrix, self.node_names)
         print(self.top_order)
 
         functions_file = importlib.import_module(self.yaml_file["graph"]["python_file"])
         functions_list = getmembers(functions_file, isfunction)
 
-        self.graph = Graph(self.yaml_file["graph"]["name"], [])
-        self.populate_graph_from_nodes(nodes_dict, functions_list)
+        self._build_graph_from_nodes(nodes_dict, functions_list)
         print(self.graph)
 
         self.graph.draw()
-        data = self.simulate_data()
+        data = self._simulate_data()
         return data
 
-    def simulate_data(self):
+    def _simulate_data(self):
         data = self.graph.simulate(**self.yaml_file["instructions"]["simulation"])
         return data
 
 
 if __name__ == "__main__":
     parser = Parser(file_name="testyml.yml")
-    parser.parse()
-    data = parser.simulate_data()
+    data = parser.parse()
     # data = graph.simulate(2)
     print(data)
