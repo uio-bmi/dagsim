@@ -5,13 +5,21 @@ import importlib
 import pandas as pd
 import igraph as ig
 
+import numpy as np
 
-# import numpy as np
+
 # import scipy as sp
 
+class Parser:
+    def __init__(self, file_name: str):
+        self.top_order = []
+        self.graph = None
+        self.node_names = []
+        self.adj_matrix = None
+        with open(file_name, 'r') as stream:
+            self.yaml_file = yaml.safe_load(stream)
 
-def parse_yaml(file_name: str):
-    def build_adj_matrix(nodes: dict):
+    def build_adj_matrix(self, nodes: dict):
         # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
         parents_dict = {k: [v for v in nodes[k]["arguments"].values() if v in node_names] for k in node_names}
@@ -21,27 +29,27 @@ def parse_yaml(file_name: str):
                 pd_dict[child][parent] = 1
         return pd_dict.to_numpy(), list(node_names)
 
-    def get_top_order(pdDAG, names):
+    def find_top_order(self, pdDAG, names):
         G = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
         top_order = G.topological_sorting()
         top_order = [names[i] for i in top_order]
-        return top_order
+        self.top_order = top_order
 
-    def check_acyclicity(adj_mat):
+    def check_acyclicity(self, adj_mat):
         pdDAGGraph = ig.Graph.Weighted_Adjacency(adj_mat.tolist())
         return ig.Graph.is_dag(pdDAGGraph)
 
-    def get_func_by_name(functions_list: list, func_name: str):
+    def get_func_by_name(self, functions_list: list, func_name: str):
         for name, func in functions_list:
             if name == func_name:
                 return func
         try:
-            func = get_implicit_func(func_name=func_name)
+            func = self.get_implicit_func(func_name=func_name)
             return func
         except (AttributeError, ModuleNotFoundError):
             raise ImportError("Couldn't find the function \"" + func_name + "\"")
 
-    def get_implicit_func(func_name: str):
+    def get_implicit_func(self, func_name: str):
         first_part = func_name.rfind(".")
         module_name = func_name[:first_part]
         func_name = func_name[first_part + 1:]
@@ -65,14 +73,14 @@ def parse_yaml(file_name: str):
         #     raise ModuleNotFoundError("no lib")
         #     return None
 
-    def split_func_and_args(func_expression: str):
+    def split_func_and_args(self, func_expression: str):
         func_expression = func_expression.replace(" ", "")
         args_str = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
         args_str = args_str.split(",")
         args_dict = {}
         for arg in args_str:
             arg_name = arg[:arg.find("=")]
-            args_dict[arg_name] = arg[arg.find("=")+1:]
+            args_dict[arg_name] = arg[arg.find("=") + 1:]
             try:
                 args_dict[arg_name] = float(args_dict[arg_name])
             except ValueError:
@@ -80,22 +88,21 @@ def parse_yaml(file_name: str):
         func_name = func_expression[:func_expression.find("(")]
         return func_name, args_dict
 
-    def parse_string_args(nodes):
+    def parse_string_args(self, nodes):
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
                 print(key)
-                nodes[key]["function"], nodes[key]["arguments"] = split_func_and_args(
+                nodes[key]["function"], nodes[key]["arguments"] = self.split_func_and_args(
                     nodes[key]["function"])
         return nodes
 
-    def populate_graph_from_nodes(nodes: dict, functions: list):
-        nonlocal my_graph
-        for key in top_order:
+    def populate_graph_from_nodes(self, nodes: dict, functions: list):
 
+        for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
-            nodes[key]["function"] = get_func_by_name(functions, nodes[key]["function"])
+            nodes[key]["function"] = self.get_func_by_name(functions, nodes[key]["function"])
             nodes[key]["arguments"] = {
-                k: my_graph.get_node_by_name(v) if my_graph.get_node_by_name(v) is not None else v for k, v in
+                k: self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for k, v in
                 nodes[key]["arguments"].items()}
 
             node_type = nodes[key].get("type")
@@ -104,49 +111,50 @@ def parse_yaml(file_name: str):
 
             if node_type == "Generic" or node_type is None:
                 node = Generic.build_object(**nodes[key])
-                my_graph.add_node(node)
+                self.graph.add_node(node)
 
             elif node_type == "Selection":
                 node = Selection.build_object(**nodes[key])
-                my_graph.add_node(node)
+                self.graph.add_node(node)
 
             elif node_type == "Stratify":
                 node = Stratify.build_object(**nodes[key])
-                my_graph.add_node(node)
+                self.graph.add_node(node)
 
             else:
                 raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Generic, "
                                                    "Selection, or Stratify.")
-        return my_graph
 
-    with open(file_name, 'r') as stream:
-        yaml_file = yaml.safe_load(stream)
+    def parse(self):
 
-    nodes_dict = yaml_file["graph"]["nodes"]
-    nodes_dict = parse_string_args(nodes_dict)
+        nodes_dict = self.parse_string_args(self.yaml_file["graph"]["nodes"])
 
-    adj_matrix, node_names = build_adj_matrix(nodes_dict)
+        self.adj_matrix, self.node_names = self.build_adj_matrix(nodes_dict)
 
-    assert check_acyclicity(adj_matrix), "The graph is not acyclic."
+        assert self.check_acyclicity(self.adj_matrix), "The graph is not acyclic."
 
-    top_order = get_top_order(adj_matrix, node_names)
-    print(top_order)
+        self.find_top_order(self.adj_matrix, self.node_names)
+        print(self.top_order)
 
-    functions_file = importlib.import_module(yaml_file["graph"]["python_file"])
-    # print(functions)
-    functions_list = getmembers(functions_file, isfunction)
-    # print(functions_list)
+        functions_file = importlib.import_module(self.yaml_file["graph"]["python_file"])
+        functions_list = getmembers(functions_file, isfunction)
 
-    my_graph = Graph(yaml_file["graph"]["name"], [])
-    my_graph = populate_graph_from_nodes(nodes_dict, functions_list)
+        self.graph = Graph(self.yaml_file["graph"]["name"], [])
+        self.populate_graph_from_nodes(nodes_dict, functions_list)
+        print(self.graph)
 
-    print(my_graph)
-    data = my_graph.simulate(**yaml_file["instructions"]["simulation"])
-    my_graph.draw()
-    return data
+        self.graph.draw()
+        data = self.simulate_data()
+        return data
+
+    def simulate_data(self):
+        data = self.graph.simulate(**self.yaml_file["instructions"]["simulation"])
+        return data
 
 
 if __name__ == "__main__":
-    data = parse_yaml(file_name="testyml.yml")
+    parser = Parser(file_name="testyml.yml")
+    parser.parse()
+    data = parser.simulate_data()
     # data = graph.simulate(2)
     print(data)
