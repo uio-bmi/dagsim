@@ -5,6 +5,7 @@ import time
 from graphviz import Source
 import csv
 import pandas as pd
+import igraph as ig
 from utils.processPlates import get_plate_dot
 import copy as cp
 
@@ -223,6 +224,13 @@ class Graph:
                 indegree[node] -= 1
             queue.extend([node for node in indegree if indegree[node] == 0])
             queue = list(set(queue))
+        self.top_order = top_order
+
+    def update_topol_order_v2(self):
+        self.update_adj_dict()
+        G = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
+        top_order = G.topological_sorting()
+        top_order = [names[i] for i in top_order]
         self.top_order = top_order
 
     def __getitem__(self, item):
