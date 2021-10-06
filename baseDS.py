@@ -120,9 +120,13 @@ class Graph:
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_dict = {}
+        self.adj_mat = pd.DataFrame()
         self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
+        # TODO add build graph where you call the updates once.
+        # TODO Add a function to check that no node has a non-Generic node as a parent, as the adj_mat excludes such
+        #  nodes.
 
     def __str__(self):
         main_str = ""
@@ -185,6 +189,7 @@ class Graph:
             else:
                 return node
 
+    # TODO replace adj_dict with adj_mat in traverse graph
     def update_adj_dict(self):
         adj_dict = {k.name: [] for k in self.nodes}
         for childNode in range(len(self)):
@@ -193,8 +198,8 @@ class Graph:
                     adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
         self.adj_dict = adj_dict
 
-    def adj_mat(self):
-        generic = [node for node in self.nodes if node.__class__.__name__ != "Selection"]
+    def update_adj_mat(self):
+        generic = [node for node in self.nodes if node.__class__.__name__ == "Generic"]
         generic_names = [node.name for node in generic]
         matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
                               columns=generic_names,
@@ -203,34 +208,13 @@ class Graph:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
-        return matrix
+        self.adj_mat = matrix
 
     def update_topol_order(self):
-        # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
-        self.update_adj_dict()
-        indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
-        for node in self.nodes:
-            if node.parents is not None:
-                indegree[node.name] = len(node.parents)
-        queue = [k for k in indegree if indegree[k] == 0]
-        top_order = []
-        while queue:
-            drop = queue[0]
-            top_order.append(drop)
-            queue.pop(0)
-            indegree.pop(drop)
-            drop = self.get_node_by_name(drop)
-            for node in self.adj_dict[drop.name]:
-                indegree[node] -= 1
-            queue.extend([node for node in indegree if indegree[node] == 0])
-            queue = list(set(queue))
-        self.top_order = top_order
-
-    def update_topol_order_v2(self):
-        self.update_adj_dict()
-        G = ig.Graph.Weighted_Adjacency(pdDAG.tolist())
+        self.update_adj_mat()
+        G = ig.Graph.Weighted_Adjacency(self.adj_mat.to_numpy().tolist())
         top_order = G.topological_sorting()
-        top_order = [names[i] for i in top_order]
+        top_order = [list(self.adj_mat.columns)[i] for i in top_order]
         self.top_order = top_order
 
     def __getitem__(self, item):
