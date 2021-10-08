@@ -189,22 +189,12 @@ class Graph:
             else:
                 return node
 
-    # TODO replace adj_dict with adj_mat in traverse graph
-    def update_adj_dict(self):
-        adj_dict = {k.name: [] for k in self.nodes}
-        for childNode in range(len(self)):
-            if self[childNode].parents is not None:
-                for parentNode in range(len(self[childNode])):
-                    adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
-        self.adj_dict = adj_dict
-
     def update_adj_mat(self):
-        generic = [node for node in self.nodes if node.__class__.__name__ == "Generic"]
-        generic_names = [node.name for node in generic]
-        matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
-                              columns=generic_names,
-                              index=generic_names)
-        for node in generic:
+        nodes_names = [node.name for node in self.nodes]
+        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
+                              columns=nodes_names,
+                              index=nodes_names)
+        for node in self.nodes:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
@@ -228,17 +218,18 @@ class Graph:
         shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle",
                       'Stratify': "doubleoctagon"}
         dot_str = 'digraph G{\n'
-        for childNode in range(len(self)):
-            if self[childNode].parents is None:
-                my_str = self[childNode].name + " [shape=" + shape_dict['Prior'] + "];\n"
+        for child_node in range(len(self)):
+            if self[child_node].parents is None:
+                my_str = self[child_node].name + " [shape=" + shape_dict['Prior'] + "];\n"
             else:
-                my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
+                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
-        for node in self.adj_dict.keys():
-            if self.adj_dict[node]:
-                tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
-                dot_str += tmp_str
+        for parent_node in self.adj_mat:
+            for child_node in self.adj_mat.loc[parent_node].index:
+                if self.adj_mat.loc[parent_node].loc[child_node] == 1:
+                    tmp_str = parent_node + "->" + child_node + ";\n"
+                    dot_str += tmp_str
 
         # check if there are any plates defined in the graph
         if len(self.plates) > 1:
