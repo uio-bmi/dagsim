@@ -151,7 +151,6 @@ class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
-        self.adj_dict = {}
         self.adj_mat = pd.DataFrame()
         self.plates = self.plate_embedding()
         self.top_order = []
@@ -219,22 +218,12 @@ class Graph:
             else:
                 return node
 
-    # TODO replace adj_dict with adj_mat in traverse graph
-    def update_adj_dict(self):
-        adj_dict = {k.name: [] for k in self.nodes}
-        for childNode in range(len(self)):
-            if self[childNode].parents is not None:
-                for parentNode in range(len(self[childNode])):
-                    adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
-        self.adj_dict = adj_dict
-
     def update_adj_mat(self):
-        generic = [node for node in self.nodes if node.__class__.__name__ == "Generic"]
-        generic_names = [node.name for node in generic]
-        matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
-                              columns=generic_names,
-                              index=generic_names)
-        for node in generic:
+        nodes_names = [node.name for node in self.nodes]
+        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
+                              columns=nodes_names,
+                              index=nodes_names)
+        for node in self.nodes:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
@@ -255,20 +244,20 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle",
-                      'Stratify': "doubleoctagon"}
+        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon"}
         dot_str = 'digraph G{\n'
-        for childNode in range(len(self)):
-            if self[childNode].parents is None:
-                my_str = self[childNode].name + " [shape=" + shape_dict['Prior'] + "];\n"
+        for child_node in range(len(self)):
+            if self[child_node].parents is None:
+                my_str = self[child_node].name + " [shape=" + shape_dict['Prior'] + "];\n"
             else:
-                my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
+                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
-        for node in self.adj_dict.keys():
-            if self.adj_dict[node]:
-                tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
-                dot_str += tmp_str
+        for parent_node in self.adj_mat:
+            for child_node in self.adj_mat.loc[parent_node].index:
+                if self.adj_mat.loc[parent_node].loc[child_node] == 1:
+                    tmp_str = parent_node + "->" + child_node + ";\n"
+                    dot_str += tmp_str
 
         # check if there are any plates defined in the graph
         if len(self.plates) > 1:
@@ -288,11 +277,6 @@ class Graph:
             from IPython.display import display
             s.render()
             display(Source(dot_str))
-
-    # def simulate(self, num_samples, selection=True, csv_name=""):
-    #     if self.get_selection():
-    #         selection = True
-    #     return self.base_simulate(num_samples, csv_name=csv_name)
 
     def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
 
@@ -315,21 +299,17 @@ class Graph:
         output_dict = traverse_graph(num_samples)
 
         selectionNode = self.get_selection()
-        # if selection:
-        #     if selectionNode is None:
-        #         raise AttributeError("No selection node found in the graph")
-        if selectionNode is not None:
-            output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
-            while len(list(output_dict.values())[0]) < num_samples:
-                temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
-                output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
+        if selection:
+            if selectionNode is not None:
+                output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
+                while len(list(output_dict.values())[0]) < num_samples:
+                    temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
+                    output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         stratifyNode = self.get_stratify()
-        # if stratify:
-        #     if stratifyNode is None:
-        #         raise AttributeError("No stratification node found in the graph")
-        if stratifyNode is not None:
-            output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+        if stratify:
+            if stratifyNode is not None:
+                output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
             if stratifyNode is not None:
