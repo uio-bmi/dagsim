@@ -1,7 +1,11 @@
 Simulate data for a simple linear regression problem
 =========================================================================
 
-In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem. If you are not familiar with the workflow of DagSim, see :ref:`How to specify a simulation`.
+In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see :ref:`How to specify a simulation`.
+
+Define the simulation using python code
+---------------------------------------
+
 We begin by importing the following:
 
 .. highlight:: python
@@ -110,3 +114,30 @@ Now, we evaluate the model by first reading the testing data set, and then calcu
   print("R2 score on test data: ", LR.score(x_test, y_test))
   
 The complete code can be found on GitHub.
+
+Define the simulation using a YAML file
+---------------------------------------
+where script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
+
+.. highlight:: yaml
+.. code-block:: yaml
+
+    graph:
+      python_file: "script_of_functions"
+      name: "my_graph"
+      nodes:
+        result:
+          function: "square"
+          arguments:
+            param: "source"
+            add_param: 2
+          type: Generic
+        source:
+          function: "numpy.random.normal"
+          arguments:
+            scale: 1
+            loc: 0
+    instructions:
+      simulation:
+        num_samples: 4
+        csv_name: "parser"
