@@ -7,4 +7,3 @@ scipy>=1.6.2
 ipython>=7.27.0
 python-graphviz>=0.16
 python-igraph>=0.9.6
-elfi~=0.8.0
