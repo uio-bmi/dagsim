@@ -5,6 +5,7 @@ import time
 from graphviz import Source
 import csv
 import pandas as pd
+import igraph as ig
 from utils.processPlates import get_plate_dot
 import copy as cp
 
@@ -25,6 +26,20 @@ class Node:
         self.observed = observed
         self.plates = plates
         self.size_field = size_field
+
+    def __str__(self):
+        main_str = ""
+        main_str += "\tname: " + self.name + "\n"
+        main_str += "\ttype: " + self.__class__.__name__ + "\n"
+        main_str += "\tfunction: " + self.function.__name__ + "\n"
+        # print("->", self.parents)
+        main_str += "\targuments: " + str(
+            {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
+        if self.parents:
+            main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
+        else:
+            main_str += "\tparents: None"
+        return main_str
 
     def forward(self, idx):
         temp_dict = {}
@@ -68,6 +83,12 @@ class Generic(Node):
     def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
         super().__init__(name=name, function=function, arguments=arguments,
                          plates=plates, observed=observed, size_field=size_field)
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        generic = Generic(**kwargs)
+        return generic
         # self.unravel = unravel
         # if self.unravel is not None:
         #     print("got here")
@@ -89,6 +110,12 @@ class Selection(Node):
         if arguments is None:
             arguments = []
 
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        selection = Selection(**kwargs)
+        return selection
+
     def filter_output(self, output_dict):
         for key, value in output_dict.items():
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
@@ -100,6 +127,12 @@ class Stratify(Node):
         super().__init__(name=name, function=function, arguments=arguments)
         if arguments is None:
             arguments = []
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        stratify = Stratify(**kwargs)
+        return stratify
 
     def filter_output(self, output_dict):
         node_names = output_dict.keys()
@@ -118,19 +151,19 @@ class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
-        self.adj_dict = {}
+        self.adj_mat = pd.DataFrame()
         self.plates = self.plate_embedding()
         self.top_order = []
         self.update_topol_order()
+        # TODO add build graph where you call the updates once.
+        # TODO Add a function to check that no node has a non-Generic node as a parent, as the adj_mat excludes such
+        #  nodes.
 
     def __str__(self):
         main_str = ""
         for idx, node in enumerate(self.nodes):
-            main_str += "Node " + str(idx+1) + ":\n"
-            main_str += "\tname: " + node.name + "\n"
-            main_str += "\ttype: " + node.__class__.__name__ + "\n"
-            main_str += "\tfunction: " + node.function.__name__ + "\n"
-            main_str += "\tparents: " + ", ".join([par.name for par in node.parents]) + "\n"
+            main_str += "Node " + str(idx + 1) + ":\n"
+            main_str += node.__str__() + "\n"
         return main_str[:-1]
 
     def plate_embedding(self):
@@ -154,7 +187,7 @@ class Graph:
                 plateDict[0][1].append(node.name)
         return plateDict
 
-    def add_node(self, node: Node):
+    def add_node(self, node: Union[Generic, Selection, Stratify]):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
@@ -176,7 +209,8 @@ class Graph:
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
-            print("Please enter a valid node name")
+            # print("Please enter a valid node name")
+            return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
             if node is None:
@@ -184,45 +218,22 @@ class Graph:
             else:
                 return node
 
-    def update_adj_dict(self):
-        adj_dict = {k.name: [] for k in self.nodes}
-        for childNode in range(len(self)):
-            if self[childNode].parents is not None:
-                for parentNode in range(len(self[childNode])):
-                    adj_dict[self[childNode].parents[parentNode].name].append(self[childNode].name)
-        self.adj_dict = adj_dict
-
-    def adj_mat(self):
-        generic = [node for node in self.nodes if node.__class__.__name__ != "Selection"]
-        generic_names = [node.name for node in generic]
-        matrix = pd.DataFrame(data=np.zeros([len(generic), len(generic)]), dtype=np.int,
-                              columns=generic_names,
-                              index=generic_names)
-        for node in generic:
+    def update_adj_mat(self):
+        nodes_names = [node.name for node in self.nodes]
+        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
+                              columns=nodes_names,
+                              index=nodes_names)
+        for node in self.nodes:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
-        return matrix
+        self.adj_mat = matrix
 
     def update_topol_order(self):
-        # https://courses.cs.washington.edu/courses/cse326/03wi/lectures/RaoLect20.pdf
-        self.update_adj_dict()
-        indegree = {k.name: 0 for k in self.nodes if k.__class__.__name__ != "Selection"}
-        for node in self.nodes:
-            if node.parents is not None:
-                indegree[node.name] = len(node.parents)
-        queue = [k for k in indegree if indegree[k] == 0]
-        top_order = []
-        while queue:
-            drop = queue[0]
-            top_order.append(drop)
-            queue.pop(0)
-            indegree.pop(drop)
-            drop = self.get_node_by_name(drop)
-            for node in self.adj_dict[drop.name]:
-                indegree[node] -= 1
-            queue.extend([node for node in indegree if indegree[node] == 0])
-            queue = list(set(queue))
+        self.update_adj_mat()
+        G = ig.Graph.Weighted_Adjacency(self.adj_mat.to_numpy().tolist())
+        top_order = G.topological_sorting()
+        top_order = [list(self.adj_mat.columns)[i] for i in top_order]
         self.top_order = top_order
 
     def __getitem__(self, item):
@@ -233,20 +244,20 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Prior': "invhouse", 'Generic': "ellipse", 'Selection': "doublecircle",
-                      'Stratify': "doubleoctagon"}
+        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon"}
         dot_str = 'digraph G{\n'
-        for childNode in range(len(self)):
-            if self[childNode].parents is None:
-                my_str = self[childNode].name + " [shape=" + shape_dict['Prior'] + "];\n"
+        for child_node in range(len(self)):
+            if self[child_node].parents is None:
+                my_str = self[child_node].name + " [shape=" + shape_dict['Prior'] + "];\n"
             else:
-                my_str = self[childNode].name + " [shape=" + shape_dict[type(self[childNode]).__name__] + "];\n"
+                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
-        for node in self.adj_dict.keys():
-            if self.adj_dict[node]:
-                tmp_str = node + "->" + ",".join(self.adj_dict[node]) + ";\n"
-                dot_str += tmp_str
+        for parent_node in self.adj_mat:
+            for child_node in self.adj_mat.loc[parent_node].index:
+                if self.adj_mat.loc[parent_node].loc[child_node] == 1:
+                    tmp_str = parent_node + "->" + child_node + ";\n"
+                    dot_str += tmp_str
 
         # check if there are any plates defined in the graph
         if len(self.plates) > 1:
@@ -266,11 +277,6 @@ class Graph:
             from IPython.display import display
             s.render()
             display(Source(dot_str))
-
-    # def simulate(self, num_samples, selection=True, csv_name=""):
-    #     if self.get_selection():
-    #         selection = True
-    #     return self.base_simulate(num_samples, csv_name=csv_name)
 
     def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
 
@@ -293,21 +299,17 @@ class Graph:
         output_dict = traverse_graph(num_samples)
 
         selectionNode = self.get_selection()
-        # if selection:
-        #     if selectionNode is None:
-        #         raise AttributeError("No selection node found in the graph")
-        if selectionNode is not None:
-            output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
-            while len(list(output_dict.values())[0]) < num_samples:
-                temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
-                output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
+        if selection:
+            if selectionNode is not None:
+                output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
+                while len(list(output_dict.values())[0]) < num_samples:
+                    temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
+                    output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         stratifyNode = self.get_stratify()
-        # if stratify:
-        #     if stratifyNode is None:
-        #         raise AttributeError("No stratification node found in the graph")
-        if stratifyNode is not None:
-            output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+        if stratify:
+            if stratifyNode is not None:
+                output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
             if stratifyNode is not None:
