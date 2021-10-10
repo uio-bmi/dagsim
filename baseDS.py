@@ -27,6 +27,20 @@ class Node:
         self.plates = plates
         self.size_field = size_field
 
+    def __str__(self):
+        main_str = ""
+        main_str += "\tname: " + self.name + "\n"
+        main_str += "\ttype: " + self.__class__.__name__ + "\n"
+        main_str += "\tfunction: " + self.function.__name__ + "\n"
+        # print("->", self.parents)
+        main_str += "\targuments: " + str(
+            {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
+        if self.parents:
+            main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
+        else:
+            main_str += "\tparents: None"
+        return main_str
+
     def forward(self, idx):
         temp_dict = {}
         if self.parents is not None:
@@ -69,6 +83,12 @@ class Generic(Node):
     def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
         super().__init__(name=name, function=function, arguments=arguments,
                          plates=plates, observed=observed, size_field=size_field)
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        generic = Generic(**kwargs)
+        return generic
         # self.unravel = unravel
         # if self.unravel is not None:
         #     print("got here")
@@ -90,6 +110,12 @@ class Selection(Node):
         if arguments is None:
             arguments = []
 
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        selection = Selection(**kwargs)
+        return selection
+
     def filter_output(self, output_dict):
         for key, value in output_dict.items():
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
@@ -101,6 +127,12 @@ class Stratify(Node):
         super().__init__(name=name, function=function, arguments=arguments)
         if arguments is None:
             arguments = []
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        stratify = Stratify(**kwargs)
+        return stratify
 
     def filter_output(self, output_dict):
         node_names = output_dict.keys()
@@ -130,11 +162,8 @@ class Graph:
     def __str__(self):
         main_str = ""
         for idx, node in enumerate(self.nodes):
-            main_str += "Node " + str(idx+1) + ":\n"
-            main_str += "\tname: " + node.name + "\n"
-            main_str += "\ttype: " + node.__class__.__name__ + "\n"
-            main_str += "\tfunction: " + node.function.__name__ + "\n"
-            main_str += "\tparents: " + ", ".join([par.name for par in node.parents]) + "\n"
+            main_str += "Node " + str(idx + 1) + ":\n"
+            main_str += node.__str__() + "\n"
         return main_str[:-1]
 
     def plate_embedding(self):
@@ -158,7 +187,7 @@ class Graph:
                 plateDict[0][1].append(node.name)
         return plateDict
 
-    def add_node(self, node: Node):
+    def add_node(self, node: Union[Generic, Selection, Stratify]):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
@@ -180,7 +209,8 @@ class Graph:
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
-            print("Please enter a valid node name")
+            # print("Please enter a valid node name")
+            return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
             if node is None:
