@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def import_requirements(filename) -> list:
@@ -10,7 +10,7 @@ def import_requirements(filename) -> list:
 setup(
     name='dagsim',
     version='0.1',
-    packages=['dagsim'],
+    packages=find_packages(),
     url='https://github.com/uio-bmi/dagsim',
     license='AGPL-3.0 License',
     author='Ghadi Al Hajj',
