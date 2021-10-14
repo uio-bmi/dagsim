@@ -5,5 +5,5 @@ python-igraph>=0.9.6
 scikit-learn>=0.24.2
 scipy>=1.6.2
 ipython>=7.27.0
-python-graphviz>=0.16
+#python-graphviz>=0.16
 python-igraph>=0.9.6
