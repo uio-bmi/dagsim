@@ -1,13 +1,9 @@
 import numpy as np
-import scipy.stats as sts
-from typing import Union, List
-import time
+from typing import Union
 from graphviz import Source
-import csv
 import pandas as pd
 import igraph as ig
-from utils.processPlates import get_plate_dot
-import copy as cp
+from dagsim.utils.processPlates import get_plate_dot
 
 
 # https://graphviz.org/doc/info/attrs.html#d:shape

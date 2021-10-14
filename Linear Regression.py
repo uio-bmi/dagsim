@@ -1,4 +1,4 @@
-from baseDS import Graph, Generic
+from dagsim.baseDS import Graph, Generic
 import numpy as np
 from sklearn.linear_model import LinearRegression as LinReg
 import pandas as pd

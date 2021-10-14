@@ -1,7 +1,5 @@
-from baseDS import Graph, Generic
+from dagsim.baseDS import Graph, Generic
 import numpy as np
-from sklearn.linear_model import LinearRegression as LinReg
-import pandas as pd
 
 
 # define the function of the ground truth
@@ -12,8 +10,8 @@ def ground_truth(x, size: int):
 
 
 # define a node for the input feature, and another node for the outcome of a linear regression model
-Nodex = Generic(name="x", function=np.random.normal, vectorize="size")
-Nodey = Generic(name="y", function=ground_truth, arguments={"x": Nodex}, vectorize="size")
+Nodex = Generic(name="x", function=np.random.normal, size_field="size")
+Nodey = Generic(name="y", function=ground_truth, arguments={"x": Nodex}, size_field="size")
 
 # define a list of all nodes, then instantiate the graph
 listNodes = [Nodex, Nodey]

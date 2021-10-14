@@ -1,4 +1,4 @@
-from baseDS import Graph, Generic, Selection
+from dagsim.baseDS import Graph, Generic
 import numpy as np
 
 

@@ -1,5 +1,5 @@
-from baseDS import Graph, Generic, Selection
-from scipy.stats import beta, binom
+from dagsim.baseDS import Graph, Generic
+from scipy.stats import binom
 
 
 def add_if_diseased(base, signal, state):
