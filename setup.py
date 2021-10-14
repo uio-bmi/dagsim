@@ -10,7 +10,7 @@ def import_requirements(filename) -> list:
 setup(
     name='dagsim',
     version='0.1',
-    packages=[''],
+    packages=['dagsim'],
     url='https://github.com/uio-bmi/dagsim',
     license='AGPL-3.0 License',
     author='Ghadi Al Hajj',
