@@ -143,6 +143,28 @@ class Stratify(Node):
         return new_dict
 
 
+class Missing(Node):
+    def __init__(self, name: str, underlying_value: Generic, index_node: Generic):
+        super().__init__(name=name, arguments=None, function=self.filter_output)
+        self.underlying_value = underlying_value
+        self.parents = [underlying_value, index_node]
+        self.index_node = index_node
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        missing = Missing(**kwargs)
+        return missing
+
+    def filter_output(self):
+        # parent_output = pd.DataFrame.from_dict({self.underlying_value.name: self.underlying_value.output})
+        index_output = self.index_node.output
+        # output = {key: [x if y == 1 else 'NaN' for x, y in zip(value, index_output)] for key, value in
+        #           parent_output.items()}
+        output = [x if y == 1 else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
+        self.output = output
+
+
 class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
@@ -150,10 +172,19 @@ class Graph:
         self.adj_mat = pd.DataFrame()
         self.plates = self.plate_embedding()
         self.top_order = []
+        # self.check_graph()
         self.update_topol_order()
         # TODO add build graph where you call the updates once.
         # TODO Add a function to check that no node has a non-Generic node as a parent, as the adj_mat excludes such
         #  nodes.
+
+    def check_graph(self):
+        pass
+        # for node in self.nodes:
+        #     if node.__class__.__name__ == "Missing":
+        #         index_node = node.index_node
+        #         if not node.keep_index:
+        #             index_node.observed = False
 
     def __str__(self):
         main_str = ""
@@ -190,6 +221,7 @@ class Graph:
         self.update_topol_order()
 
     def get_selection(self):
+        # todo change to missing way
         check_for_selection = next((item for item in self.nodes if item.__class__.__name__ == "Selection"), None)
         if check_for_selection is not None:
             return self.nodes.index(check_for_selection)
@@ -203,6 +235,10 @@ class Graph:
         else:
             return None
 
+    def get_missing(self):
+        check_for_missing = [item for item in self.nodes if item.__class__.__name__ == "Missing"]
+        return check_for_missing if check_for_missing else None
+
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
             # print("Please enter a valid node name")
@@ -215,11 +251,14 @@ class Graph:
                 return node
 
     def update_adj_mat(self):
-        nodes_names = [node.name for node in self.nodes]
-        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
+        # if needed: retract to previous and remove below in the simulate method
+        # nodes = [node for node in self.nodes if node.__class__.__name__ != "Missing"]
+        nodes = [node for node in self.nodes]
+        nodes_names = [node.name for node in nodes]
+        matrix = pd.DataFrame(data=np.zeros([len(nodes_names), len(nodes_names)]), dtype=np.int,
                               columns=nodes_names,
                               index=nodes_names)
-        for node in self.nodes:
+        for node in nodes:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
@@ -240,13 +279,10 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon"}
+        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon", "Missing": "Mcircle"}
         dot_str = 'digraph G{\n'
         for child_node in range(len(self)):
-            if self[child_node].parents is None:
-                my_str = self[child_node].name + " [shape=" + shape_dict['Prior'] + "];\n"
-            else:
-                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
+            my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
             dot_str = dot_str + my_str
 
         for parent_node in self.adj_mat:
@@ -274,19 +310,22 @@ class Graph:
             s.render()
             display(Source(dot_str))
 
-    def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
+    def simulate(self, num_samples, selection=True, stratify=False, missing=True, csv_name=""):
 
         def traverse_graph(num_samples):
             output_dict = {}
-            for node in self.top_order:
-                node = self.get_node_by_name(node)
-                node.node_simulate(num_samples)
+            for node_name in self.top_order:
+                node = self.get_node_by_name(node_name)
+                if node.__class__.__name__ == "Missing":
+                    node.filter_output()
+                else:
+                    node.node_simulate(num_samples)
                 if node.__class__.__name__ == "Selection":
-                    assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
-                                                                          "a boolean"
+                    assert all(isinstance(x, bool) for x in node.output), "The selection node function should " \
+                                                                          "return a boolean"
                 elif node.__class__.__name__ == "Stratify":
-                    assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
-                                                                         "return a string"
+                    assert all(isinstance(x, str) for x in node.output), "The stratification node function " \
+                                                                         "should return a string"
                 else:
                     # print(str(node.name) + str(type(node.output)))
                     output_dict[node.name] = node.output
@@ -306,6 +345,18 @@ class Graph:
         if stratify:
             if stratifyNode is not None:
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+
+        # missingnessNodes = self.get_missing()
+        # if missing:
+        #     if missingnessNodes is not None:
+        #         for node in missingnessNodes:
+        #             parents_names = [parent.name for parent in node.underlying_value]
+        #             print("->", parents_names)
+        #             node_output = node.filter_output()
+        #             for parent in parents_names:
+        #                 output_dict[parent] = node_output[parent]
+
+        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
 
         if csv_name:
             if stratifyNode is not None:
