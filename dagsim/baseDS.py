@@ -10,7 +10,7 @@ from dagsim.utils.processPlates import get_plate_dot
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None):
+    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None, visible=True):
         if arguments is None:
             arguments = {}
         self.name = name
@@ -20,6 +20,7 @@ class Node:
         self.function = function
         self.output = None
         self.observed = observed
+        self.visible = visible
         self.plates = plates
         self.size_field = size_field
 
@@ -76,9 +77,9 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
+    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True, visible=True):
         super().__init__(name=name, function=function, arguments=arguments,
-                         plates=plates, observed=observed, size_field=size_field)
+                         plates=plates, observed=observed, visible=visible, size_field=size_field)
 
     @staticmethod
     def build_object(**kwargs):
@@ -242,18 +243,20 @@ class Graph:
 
         shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon"}
         dot_str = 'digraph G{\n'
+        # add the visible nodes
         for child_node in range(len(self)):
-            if self[child_node].parents is None:
-                my_str = self[child_node].name + " [shape=" + shape_dict['Prior'] + "];\n"
-            else:
+            if self[child_node].visible:
                 my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
-            dot_str = dot_str + my_str
+                dot_str = dot_str + my_str
 
+        # add the edges of both vertices are visible
         for parent_node in self.adj_mat:
-            for child_node in self.adj_mat.loc[parent_node].index:
-                if self.adj_mat.loc[parent_node].loc[child_node] == 1:
-                    tmp_str = parent_node + "->" + child_node + ";\n"
-                    dot_str += tmp_str
+            if self.get_node_by_name(parent_node).visible:
+                for child_node in self.adj_mat.loc[parent_node].index:
+                    if self.adj_mat.loc[parent_node].loc[child_node] == 1:
+                        if self.get_node_by_name(child_node).visible:
+                            tmp_str = parent_node + "->" + child_node + ";\n"
+                            dot_str += tmp_str
 
         # check if there are any plates defined in the graph
         if len(self.plates) > 1:
