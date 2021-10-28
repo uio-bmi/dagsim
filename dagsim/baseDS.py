@@ -10,7 +10,7 @@ from dagsim.utils.processPlates import get_plate_dot
 # https://networkx.org/documentation/stable//reference/drawing.html
 
 class Node:
-    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None):
+    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None, visible=True):
         if arguments is None:
             arguments = {}
         self.name = name
@@ -20,6 +20,7 @@ class Node:
         self.function = function
         self.output = None
         self.observed = observed
+        self.visible = visible
         self.plates = plates
         self.size_field = size_field
 
@@ -76,9 +77,9 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True):
+    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True, visible=True):
         super().__init__(name=name, function=function, arguments=arguments,
-                         plates=plates, observed=observed, size_field=size_field)
+                         plates=plates, observed=observed, visible=visible, size_field=size_field)
 
     @staticmethod
     def build_object(**kwargs):
@@ -172,19 +173,10 @@ class Graph:
         self.adj_mat = pd.DataFrame()
         self.plates = self.plate_embedding()
         self.top_order = []
-        # self.check_graph()
         self.update_topol_order()
         # TODO add build graph where you call the updates once.
         # TODO Add a function to check that no node has a non-Generic node as a parent, as the adj_mat excludes such
         #  nodes.
-
-    def check_graph(self):
-        pass
-        # for node in self.nodes:
-        #     if node.__class__.__name__ == "Missing":
-        #         index_node = node.index_node
-        #         if not node.keep_index:
-        #             index_node.observed = False
 
     def __str__(self):
         main_str = ""
@@ -251,14 +243,11 @@ class Graph:
                 return node
 
     def update_adj_mat(self):
-        # if needed: retract to previous and remove below in the simulate method
-        # nodes = [node for node in self.nodes if node.__class__.__name__ != "Missing"]
-        nodes = [node for node in self.nodes]
-        nodes_names = [node.name for node in nodes]
-        matrix = pd.DataFrame(data=np.zeros([len(nodes_names), len(nodes_names)]), dtype=np.int,
+        nodes_names = [node.name for node in self.nodes]
+        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
                               columns=nodes_names,
                               index=nodes_names)
-        for node in nodes:
+        for node in self.nodes:
             if node.parents is not None:
                 for parent in node.parents:
                     matrix[node.name][parent.name] = 1
@@ -281,15 +270,20 @@ class Graph:
 
         shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon", "Missing": "Mcircle"}
         dot_str = 'digraph G{\n'
+        # add the visible nodes
         for child_node in range(len(self)):
-            my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
-            dot_str = dot_str + my_str
+            if self[child_node].visible:
+                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
+                dot_str = dot_str + my_str
 
+        # add the edges of both vertices are visible
         for parent_node in self.adj_mat:
-            for child_node in self.adj_mat.loc[parent_node].index:
-                if self.adj_mat.loc[parent_node].loc[child_node] == 1:
-                    tmp_str = parent_node + "->" + child_node + ";\n"
-                    dot_str += tmp_str
+            if self.get_node_by_name(parent_node).visible:
+                for child_node in self.adj_mat.loc[parent_node].index:
+                    if self.adj_mat.loc[parent_node].loc[child_node] == 1:
+                        if self.get_node_by_name(child_node).visible:
+                            tmp_str = parent_node + "->" + child_node + ";\n"
+                            dot_str += tmp_str
 
         # check if there are any plates defined in the graph
         if len(self.plates) > 1:
