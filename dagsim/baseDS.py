@@ -310,7 +310,7 @@ class Graph:
             output_dict = {}
             for node_name in self.top_order:
                 node = self.get_node_by_name(node_name)
-                if node.__class__.__name__ == "Missing":
+                if node.__class__.__name__ == "Missing" and missing:
                     node.filter_output()
                 else:
                     node.node_simulate(num_samples)
