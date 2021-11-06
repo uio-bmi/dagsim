@@ -4,7 +4,7 @@ from graphviz import Source
 import pandas as pd
 import igraph as ig
 from dagsim.utils.processPlates import get_plate_dot
-
+from tqdm import tqdm
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
 # https://networkx.org/documentation/stable//reference/drawing.html
@@ -281,7 +281,7 @@ class Graph:
 
         def traverse_graph(num_samples):
             output_dict = {}
-            for node in self.top_order:
+            for node in tqdm(self.top_order, desc="Nodes simulated: "):
                 node = self.get_node_by_name(node)
                 node.node_simulate(num_samples)
                 if node.__class__.__name__ == "Selection":
