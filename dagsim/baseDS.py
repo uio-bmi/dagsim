@@ -5,9 +5,11 @@ import pandas as pd
 import igraph as ig
 from dagsim.utils.processPlates import get_plate_dot
 from tqdm import tqdm
+import time
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
 # https://networkx.org/documentation/stable//reference/drawing.html
+
 
 class Node:
     def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None, visible=True):
@@ -29,7 +31,6 @@ class Node:
         main_str += "\tname: " + self.name + "\n"
         main_str += "\ttype: " + self.__class__.__name__ + "\n"
         main_str += "\tfunction: " + self.function.__name__ + "\n"
-        # print("->", self.parents)
         main_str += "\targuments: " + str(
             {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
         if self.parents:
@@ -43,7 +44,6 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        # print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)
 
     def node_simulate(self, num_samples):
@@ -57,23 +57,10 @@ class Node:
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
-        # print(str(self.name) + str(temp_dict))
         return self.function(**temp_dict)  # .tolist()
 
     def __len__(self):
         return len(self.parents)
-
-
-# class Prior(Node):
-#     def __init__(self, name: str, function, arguments=[], plates=None, observed=True):
-#         super().__init__(name=name, parents=None, function=function, arguments=arguments,
-#                          plates=plates, observed=observed)
-#
-#     def forward(self):
-#         return self.function(*self.arguments)
-#
-#     def node_simulate(self, num_samples):
-#         self.output = [self.forward() for _ in range(num_samples)]
 
 
 class Generic(Node):
@@ -86,19 +73,6 @@ class Generic(Node):
         # check params
         generic = Generic(**kwargs)
         return generic
-        # self.unravel = unravel
-        # if self.unravel is not None:
-        #     print("got here")
-        #
-        #     def node_simulate(self, num_samples):
-        #         print("got in")
-        # #         temp_dict = {self.unravel: num_samples}
-        # #         # if self.parents is not None:
-        # #         #     temp_dict = {k: v.output[idx] for k, v in self.parents_dict.items()}
-        # #         temp_dict = {**temp_dict, **self.additional_parameters}
-        # #         output = self.function(**self.additional_parameters)
-        # #         print("this ",output)
-        # #         return output
 
 
 class Selection(Node):
@@ -206,7 +180,6 @@ class Graph:
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
-            # print("Please enter a valid node name")
             return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
@@ -291,15 +264,16 @@ class Graph:
                     assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
                                                                          "return a string"
                 else:
-                    # print(str(node.name) + str(type(node.output)))
                     output_dict[node.name] = node.output
             return output_dict
 
+        tic = time.perf_counter()
         output_dict = traverse_graph(num_samples)
 
         selectionNode = self.get_selection()
         if selection:
             if selectionNode is not None:
+                print("Simulating selection bias")
                 output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
                 while len(list(output_dict.values())[0]) < num_samples:
                     temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
@@ -308,6 +282,7 @@ class Graph:
         stratifyNode = self.get_stratify()
         if stratify:
             if stratifyNode is not None:
+                print("Stratifying the data")
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
@@ -316,6 +291,9 @@ class Graph:
                     pd.DataFrame(output_dict[key]).to_csv(csv_name + '_' + key + '.csv', index=False)
             else:
                 pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
+
+        toc = time.perf_counter()
+        print(f"Simulation finished in {toc - tic:0.4f} seconds")
         return output_dict
 
     def ml_simulation(self, num_samples, train_test_ratio, stratify=False, include_external=False, csv_prefix=""):
