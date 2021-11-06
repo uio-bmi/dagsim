@@ -4,7 +4,6 @@ from graphviz import Source
 import pandas as pd
 import igraph as ig
 from dagsim.utils.processPlates import get_plate_dot
-from tqdm import tqdm
 import time
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
@@ -254,7 +253,7 @@ class Graph:
 
         def traverse_graph(num_samples):
             output_dict = {}
-            for node in tqdm(self.top_order, desc="Nodes simulated: "):
+            for node in self.top_order:
                 node = self.get_node_by_name(node)
                 node.node_simulate(num_samples)
                 if node.__class__.__name__ == "Selection":
@@ -268,12 +267,12 @@ class Graph:
             return output_dict
 
         tic = time.perf_counter()
+        print("Simulation started")
         output_dict = traverse_graph(num_samples)
 
         selectionNode = self.get_selection()
         if selection:
             if selectionNode is not None:
-                print("Simulating selection bias")
                 output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
                 while len(list(output_dict.values())[0]) < num_samples:
                     temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
@@ -282,7 +281,6 @@ class Graph:
         stratifyNode = self.get_stratify()
         if stratify:
             if stratifyNode is not None:
-                print("Stratifying the data")
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
 
         if csv_name:
