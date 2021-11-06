@@ -242,13 +242,12 @@ class Graph:
             file.write(dot_str)
 
         s = Source(dot_str, filename=self.name, format="png")
-        return s
-        #try:
-        #    s.view(cleanup=True, quiet_view=True)
-        #except (TypeError, FileNotFoundError):
-        #    from IPython.display import display
-        #    s.render()
-        #    display(Source(dot_str))
+        try:
+            s.view(cleanup=True, quiet_view=True)
+        except (TypeError, FileNotFoundError):
+            from IPython.display import display
+            s.render()
+            display(Source(dot_str))
 
     def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
 
