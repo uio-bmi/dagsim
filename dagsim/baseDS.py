@@ -5,6 +5,7 @@ import pandas as pd
 import igraph as ig
 from dagsim.utils.processPlates import get_plate_dot
 import time
+from inspect import getfullargspec
 
 # https://graphviz.org/doc/info/attrs.html#d:shape
 # https://networkx.org/documentation/stable//reference/drawing.html
@@ -38,16 +39,19 @@ class Node:
             main_str += "\tparents: None"
         return main_str
 
-    def forward(self, idx):
-        temp_dict = {}
+    def forward(self, idx, temp_dict):
         if self.parents is not None:
             temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
         temp_dict = {**temp_dict, **self.additional_parameters}
         return self.function(**temp_dict)
 
-    def node_simulate(self, num_samples):
+    def node_simulate(self, num_samples, output_path):
+        try:
+            temp_dict = {"output_path": output_path} if "output_path" in getfullargspec(self.function).args else {}
+        except TypeError:
+            temp_dict = {}
         if self.size_field is None:
-            self.output = [self.forward(i) for i in range(num_samples)]
+            self.output = [self.forward(i, temp_dict) for i in range(num_samples)]
         else:
             self.output = self.vectorize_forward(num_samples)
 
@@ -249,13 +253,13 @@ class Graph:
             s.render()
             display(Source(dot_str))
 
-    def simulate(self, num_samples, selection=True, stratify=False, csv_name=""):
+    def simulate(self, num_samples, output_path="./", selection=True, stratify=False, csv_name=""):
 
         def traverse_graph(num_samples):
             output_dict = {}
             for node in self.top_order:
                 node = self.get_node_by_name(node)
-                node.node_simulate(num_samples)
+                node.node_simulate(num_samples, output_path)
                 if node.__class__.__name__ == "Selection":
                     assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
                                                                           "a boolean"
@@ -286,9 +290,9 @@ class Graph:
         if csv_name:
             if stratifyNode is not None:
                 for key in output_dict.keys():
-                    pd.DataFrame(output_dict[key]).to_csv(csv_name + '_' + key + '.csv', index=False)
+                    pd.DataFrame(output_dict[key]).to_csv(output_path + csv_name + '_' + key + '.csv', index=False)
             else:
-                pd.DataFrame(output_dict).to_csv(csv_name + '.csv', index=False)
+                pd.DataFrame(output_dict).to_csv(output_path + csv_name + '.csv', index=False)
 
         toc = time.perf_counter()
         print(f"Simulation finished in {toc - tic:0.4f} seconds")
