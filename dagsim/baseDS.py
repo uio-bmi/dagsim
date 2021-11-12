@@ -220,7 +220,7 @@ class Graph:
 
     def update_adj_mat(self):
         nodes_names = [node.name for node in self.nodes]
-        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=np.int,
+        matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=int,
                               columns=nodes_names,
                               index=nodes_names)
         for node in self.nodes:
@@ -280,7 +280,7 @@ class Graph:
             s.render()
             display(Source(dot_str))
 
-    def simulate(self, num_samples, output_path="./", selection=True, stratify=False, missing=True, csv_name=""):
+    def simulate(self, num_samples, output_path="./", selection=True, stratify=True, missing=True, csv_name=""):
 
         def traverse_graph(num_samples):
             output_dict = {}
@@ -312,22 +312,12 @@ class Graph:
                     temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
+        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
+
         stratifyNode = self.get_stratify()
         if stratify:
             if stratifyNode is not None:
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
-
-        # missingnessNodes = self.get_missing()
-        # if missing:
-        #     if missingnessNodes is not None:
-        #         for node in missingnessNodes:
-        #             parents_names = [parent.name for parent in node.underlying_value]
-        #             print("->", parents_names)
-        #             node_output = node.filter_output()
-        #             for parent in parents_names:
-        #                 output_dict[parent] = node_output[parent]
-
-        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
 
         if csv_name:
             if stratifyNode is not None:
