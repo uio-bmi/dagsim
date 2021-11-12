@@ -121,6 +121,28 @@ class Stratify(Node):
         return new_dict
 
 
+class Missing(Node):
+    def __init__(self, name: str, underlying_value: Generic, index_node: Generic):
+        super().__init__(name=name, arguments=None, function=self.filter_output)
+        self.underlying_value = underlying_value
+        self.parents = [underlying_value, index_node]
+        self.index_node = index_node
+
+    @staticmethod
+    def build_object(**kwargs):
+        # check params
+        missing = Missing(**kwargs)
+        return missing
+
+    def filter_output(self):
+        # parent_output = pd.DataFrame.from_dict({self.underlying_value.name: self.underlying_value.output})
+        index_output = self.index_node.output
+        # output = {key: [x if y == 1 else 'NaN' for x, y in zip(value, index_output)] for key, value in
+        #           parent_output.items()}
+        output = [x if y == 1 else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
+        self.output = output
+
+
 class Graph:
     def __init__(self, name, list_nodes):
         self.name = name
@@ -168,6 +190,7 @@ class Graph:
         self.update_topol_order()
 
     def get_selection(self):
+        # todo change to missing way
         check_for_selection = next((item for item in self.nodes if item.__class__.__name__ == "Selection"), None)
         if check_for_selection is not None:
             return self.nodes.index(check_for_selection)
@@ -180,6 +203,10 @@ class Graph:
             return self.nodes.index(check_for_stratify)
         else:
             return None
+
+    def get_missing(self):
+        check_for_missing = [item for item in self.nodes if item.__class__.__name__ == "Missing"]
+        return check_for_missing if check_for_missing else None
 
     def get_node_by_name(self, name: str):
         if not isinstance(name, str):
@@ -217,7 +244,7 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon"}
+        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon", "Missing": "Mcircle"}
         dot_str = 'digraph G{\n'
         # add the visible nodes
         for child_node in range(len(self)):
@@ -253,13 +280,16 @@ class Graph:
             s.render()
             display(Source(dot_str))
 
-    def simulate(self, num_samples, output_path="./", selection=True, stratify=False, csv_name=""):
+    def simulate(self, num_samples, output_path="./", selection=True, stratify=False, missing=True, csv_name=""):
 
         def traverse_graph(num_samples):
             output_dict = {}
-            for node in self.top_order:
-                node = self.get_node_by_name(node)
-                node.node_simulate(num_samples, output_path)
+            for node_name in self.top_order:
+                node = self.get_node_by_name(node_name)
+                if node.__class__.__name__ == "Missing" and missing:
+                    node.filter_output()
+                else:
+                    node.node_simulate(num_samples, output_path)
                 if node.__class__.__name__ == "Selection":
                     assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
                                                                           "a boolean"
@@ -286,6 +316,18 @@ class Graph:
         if stratify:
             if stratifyNode is not None:
                 output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+
+        # missingnessNodes = self.get_missing()
+        # if missing:
+        #     if missingnessNodes is not None:
+        #         for node in missingnessNodes:
+        #             parents_names = [parent.name for parent in node.underlying_value]
+        #             print("->", parents_names)
+        #             node_output = node.filter_output()
+        #             for parent in parents_names:
+        #                 output_dict[parent] = node_output[parent]
+
+        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
 
         if csv_name:
             if stratifyNode is not None:
