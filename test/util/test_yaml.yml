@@ -1,0 +1,15 @@
+graph:
+  python_file: "functions_for_parser_test"
+  name: "my_graph"
+  nodes:
+    result:
+      function: "square(param=source, add_param=2)"
+    source:
+      function: "numpy.random.normal"
+      arguments:
+        scale: 1
+        loc: 0
+instructions:
+  simulation:
+    num_samples: 2
+    csv_name: "parser"

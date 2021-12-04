@@ -22,6 +22,7 @@ class TestVectorize(unittest.TestCase):
         print(data)
         self.assertEqual([0, 1, 2, 3, 4], data["Normal"])
         self.assertEqual([0, 1, 2, 3, 4], list(data["Vectorized"]))
+        self.assertEqual(data["Normal"], list(data["Vectorized"]))
 
 
 if __name__ == '__main__':

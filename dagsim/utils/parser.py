@@ -24,7 +24,6 @@ class Parser:
         assert self._check_acyclicity(self.adj_matrix), "The graph is not acyclic."
 
         self._find_top_order(self.adj_matrix, self.node_names)
-        print(self.top_order)
 
         functions_file = importlib.import_module(self.yaml_file["graph"]["python_file"])
         functions_list = getmembers(functions_file, isfunction)
@@ -37,9 +36,9 @@ class Parser:
         return data
 
     def _parse_string_args(self, nodes):
+
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
-                print(key)
                 nodes[key]["function"], nodes[key]["arguments"] = self._split_func_and_args(
                     nodes[key]["function"])
         return nodes
@@ -135,5 +134,4 @@ class Parser:
 if __name__ == "__main__":
     parser = Parser(file_name="testyml.yml")
     data = parser.parse()
-    # data = graph.simulate(2)
     print(data)
