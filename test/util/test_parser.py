@@ -11,7 +11,7 @@ class TestStratify(unittest.TestCase):
         parser = Parser(file_name="test_yaml.yml")
         data = parser.parse()
         self.assertEqual([5.1, 2.2], data["result"])
-        np.testing.assert_almost_equal([1.764052345967664, 0.4001572083672233], data["source"])
+        np.testing.assert_almost_equal([1.7640, 0.4001], data["source"], decimal=4)
 
 
 if __name__ == '__main__':

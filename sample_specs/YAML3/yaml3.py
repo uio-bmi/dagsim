@@ -1,4 +1,4 @@
-from dagsim.baseDS import Graph, Generic, Selection
+from dagsim.base import Graph, Generic, Selection
 from scipy.stats import norm, bernoulli
 
 

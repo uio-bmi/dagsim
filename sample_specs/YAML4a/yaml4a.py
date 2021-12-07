@@ -1,4 +1,4 @@
-from dagsim.baseDS import Graph, Generic
+from dagsim.base import Graph, Generic
 from scipy.stats import beta, binom
 
 

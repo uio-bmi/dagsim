@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.baseDS import Graph, Generic
+from dagsim.base import Graph, Generic
 import numpy as np
 
 
