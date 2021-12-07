@@ -25,7 +25,7 @@ train = my_graph.simulate(num_samples=70, csv_name="train")
 test = my_graph.simulate(num_samples=30, csv_name="test")
 
 # import the saved training data
-train_data = pd.read_csv("train.csv")
+train_data = pd.read_csv("../train.csv")
 print(train_data.head())
 
 x_train = train_data.iloc[:, 0].to_numpy().reshape([-1, 1])
@@ -42,7 +42,7 @@ print("Coefficient: ", LR.coef_)
 print("Intercept: ", LR.intercept_)
 
 # import the saved testing data
-test_data = pd.read_csv("test.csv")
+test_data = pd.read_csv("../test.csv")
 x_test = test_data.iloc[:, 0].to_numpy().reshape([-1, 1])
 print("x_test", x_test.shape)
 y_test = test_data.iloc[:, 1].to_numpy().reshape([-1, 1])
