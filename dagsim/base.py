@@ -7,9 +7,6 @@ from dagsim.utils.processPlates import get_plate_dot
 import time
 from inspect import getfullargspec
 
-# https://graphviz.org/doc/info/attrs.html#d:shape
-# https://networkx.org/documentation/stable//reference/drawing.html
-
 
 class Node:
     def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None, visible=True):
@@ -135,10 +132,7 @@ class Missing(Node):
         return missing
 
     def filter_output(self):
-        # parent_output = pd.DataFrame.from_dict({self.underlying_value.name: self.underlying_value.output})
         index_output = self.index_node.output
-        # output = {key: [x if y == 1 else 'NaN' for x, y in zip(value, index_output)] for key, value in
-        #           parent_output.items()}
         output = [x if y == 1 else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
         self.output = output
 
@@ -183,7 +177,7 @@ class Graph:
                 plateDict[0][1].append(node.name)
         return plateDict
 
-    def add_node(self, node: Union[Generic, Selection, Stratify]):
+    def add_node(self, node: Union[Generic, Selection, Stratify, Missing]):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
