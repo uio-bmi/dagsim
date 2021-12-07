@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.baseDS import Graph, Generic, Stratify
+from dagsim.base import Graph, Generic, Stratify
 import random
 
 

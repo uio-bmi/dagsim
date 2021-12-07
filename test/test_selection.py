@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.baseDS import Graph, Generic, Selection
+from dagsim.base import Graph, Generic, Selection
 import random
 
 

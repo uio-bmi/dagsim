@@ -1,5 +1,5 @@
 import yaml
-from dagsim.baseDS import Graph, Generic, Selection, Stratify
+from dagsim.base import Graph, Generic, Selection, Stratify
 from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
