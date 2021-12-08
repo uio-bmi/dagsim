@@ -15,8 +15,13 @@ setup(
     license='AGPL-3.0 License',
     author='Ghadi Al Hajj',
     author_email='ghadia@uio.no.com',
-    description='A framework and specification language for simulating data based on graphical models',
+    description='A framework and specification language for simulating data based on user-defined graphical models',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    install_requires=import_requirements(filename="requirements.txt")
+    install_requires=import_requirements(filename="requirements.txt"),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Operating System :: OS Independent",
+    ],
 )
