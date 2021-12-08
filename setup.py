@@ -18,7 +18,12 @@ setup(
     description='A framework and specification language for simulating data based on user-defined graphical models',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    install_requires=import_requirements(filename="requirements.txt"),
+    install_requires=["graphviz>=0.16",
+                      "numpy>=1.20.2",
+                      "pandas>=1.2.4",
+                      "python-igraph>=0.9.6",
+                      "scikit-learn>=0.24.2",
+                      "ipython>=7.27.0"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Affero General Public License v3",

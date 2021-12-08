@@ -5,19 +5,30 @@
 A framework and specification language for simulating data based on graphical models.
 
 ## Installation
-DagSim can be installed directly using pip. immuneML uses Python 3.7 or 3.8, we recommend installing immuneML inside a virtual environment with one of these Python versions.
+DagSim can be installed directly using pip.
 
 ### Installing DagSim using pip
-To install the DagSim package, run:
+To install the DagSim package using `pip`, run:
 
 ```bash
 pip install dagsim
 ```
 
-### Installing graphviz
-In order to use the drawing functionality in DagSim, you need graphviz on the system level. Please follow the instrcutions [here](https://graphviz.org/download/) on how to install graphviz depending on the 
+#### Installing graphviz
+If you use `pip`, you need to install graphviz on the system level in order to use the drawing functionality in DagSim. Please follow the instrcutions [here](https://graphviz.org/download/) on how to install graphviz depending on the 
 operating system.
 
+[//]: # (### Installing DagSim using conda)
+
+[//]: # (To install the DagSim package using `conda`, run:)
+
+[//]: # (```bash)
+
+[//]: # (conda install dagsim)
+
+[//]: # (```)
+
+[//]: # (With `conda`, graphviz is automatically installed, both, as a python package and at the system level.)
 
 ## Simple example
 Suppose we are interested in simulating two variables, X and Y, where X follows a standard Gaussian distribution, and Y 
