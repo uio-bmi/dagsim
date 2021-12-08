@@ -7,7 +7,7 @@ A framework and specification language for simulating data based on graphical mo
 ## Installation
 DagSim can be installed directly using pip.
 
-### Installing DagSim using pip
+### Installing DagSim using [pip](https://pypi.org/project/dagsim/)
 To install the DagSim package using `pip`, run:
 
 ```bash
@@ -36,8 +36,8 @@ is the square of X.
 
 For each node we need a function to simulate the node's values:
 
-- For X, we can use the numpy.random.normal function
-- For Y, we can use either numpy.power or define our own function. We will use the second to show how you can use user-define functions.
+- For X, we can use the `numpy.random.normal function`
+- For Y, we can use either `numpy.power` or define our own function. We will use the second to show how you can use user-define functions.
 
 ```python
 # needed imports
