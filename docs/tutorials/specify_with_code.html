@@ -185,18 +185,21 @@
 <ol class="arabic simple">
 <li><p><strong>Functions:</strong></p></li>
 </ol>
-<p>These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters. Each function would return a value that represents the value of a given node. The returned value can be of any data type depending on the problem at hand.</p>
+<p>These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.</p>
+<p>For a <code class="code docutils literal notranslate"><span class="pre">(Generic)</span></code> node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
+For the other nodes, the return value has a different significance depending on the type of the corresponding node.</p>
 <ol class="arabic simple" start="2">
 <li><p><strong>Nodes and Graph:</strong></p></li>
 </ol>
-<p>The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of three possible types:</p>
+<p>The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of four possible types:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>Generic node</strong> <code class="code docutils literal notranslate"><span class="pre">(Generic)</span></code>: a node that can receive values from its parents, if any, in addition to optional additional parameters.</p></li>
+<li><p><strong>Generic node</strong> <code class="code docutils literal notranslate"><span class="pre">(Generic)</span></code>: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.</p></li>
 <li><p><strong>Selection node</strong> <code class="code docutils literal notranslate"><span class="pre">(Selection)</span></code>: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.</p></li>
-<li><p><strong>Stratify node</strong> <code class="code docutils literal notranslate"><span class="pre">(Stratify)</span></code>: a node that stratifies the simulation output into different files depending on criteria defined by the user in the form of a function.</p></li>
+<li><p><strong>Stratify node</strong> <code class="code docutils literal notranslate"><span class="pre">(Stratify)</span></code>: a node that stratifies the simulation output into different files depending on criteria defined by the user.</p></li>
+<li><p><strong>Missing node</strong> <code class="code docutils literal notranslate"><span class="pre">(Missing)</span></code>: a node that simulates missing entries in the data based on criteria defined by the user.</p></li>
 </ul>
-<p>Please check this tutorial for more information on how to use <strong>Selection</strong> and <strong>Stratify</strong>.</p>
+<p>Please check this tutorial for more information on how to use <strong>Selection</strong>, <strong>Stratify</strong>, and <strong>Missing</strong> nodes.</p>
 </div></blockquote>
 <p>To define a node, you need to specify the following things:</p>
 <blockquote>
