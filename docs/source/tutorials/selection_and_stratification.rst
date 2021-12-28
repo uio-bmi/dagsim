@@ -13,7 +13,6 @@ Selection
 
 Similar to a :code:`Generic` node, to define a :code:`Selection` node, you need to specify the following:
 
- * :code:`weight (ndarray)`: The learned weight matrix from NOTEARS.
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`arguments (dict)`: A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument. At least one :code:`value`: in the dictionary should be a node in the graph.
@@ -99,6 +98,31 @@ The following code shows an example where the samples are split into three categ
 	my_graph = Graph("Graph1", listNodes)
 	output = my_graph.simulate(num_samples=20, csv_name="testing")	
 
- 
+
+
+Missing
+---------------------------------------------
+
+To define a :code:`(Missing)` node, we specify the following:
+
+Note that this type of nodes does not have a :code:`(function)` attribute to specify how the entries would go missing. Instead, the values of another :code:`(Generic)` node would control that process.
+We chose this design in order to keep the process of specifying which node would have missing entries and that of how it they would go missing, separate.
+
+ * :code:`name (str)`: A name for the node.
+ * :code:`underlying_value (Generic)`: The node whose values will have missing entries down the simulation
+ * :code:`index_node (Generic)`: Another node whose value would specify which entries would go missing. The output of this node should be :code:`1` to keep a value, and :code:`0` to remove it.
+
+Note that in the output of the simulation, the original output without missing entries would be saved as values of the :code:`underlying_value (Generic)` node. Those with missing entries would be saved in the corresponding :code:`Missing` node having that node as its :code:`underlying_value` attribute.
+
+.. code-block:: python
+
+    from dagsim.base import Graph, Generic, Missing
+    import random
+
+    index = Generic("i", function=random.choice, arguments={"seq": [0,1]})
+    toBeMissed = Generic(name="toBeMissed", function=random.normalvariate, arguments={"mu":0, "sigma": 1})
+    missingNode = Missing(name="M1", underlying_value=toBeMissed, index_node=index)
+    my_graph = Graph(name="graph1", list_nodes=[index, toBeMissed, missingNode])
+
 .. toctree::
    :maxdepth: 2
