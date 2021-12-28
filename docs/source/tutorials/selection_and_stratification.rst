@@ -13,7 +13,6 @@ Selection
 
 Similar to a :code:`Generic` node, to define a :code:`Selection` node, you need to specify the following:
 
- * :code:`weight (ndarray)`: The learned weight matrix from NOTEARS.
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`arguments (dict)`: A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument. At least one :code:`value`: in the dictionary should be a node in the graph.
@@ -24,34 +23,34 @@ The following code shows an example where only the samples that have a value of 
 
 .. code-block:: python
    
-	from baseDS import Graph, Generic, Selection
-	import numpy as np
+    import dagsim.base as ds
+    import numpy as np
 
 
-	def add(param1, param2):
-	    return param1 + param2
+    def add(param1, param2):
+        return param1 + param2
 
 
-	def square(param):
-	    return np.square(param)
+    def square(param):
+        return np.square(param)
 
 
-	def is_greater_than2(node, threshold):
-	    if node < threshold:
-		return True
-	    else:
-		return False 
+    def is_greater_than2(node, threshold):
+        if node < threshold:
+        return True
+        else:
+        return False
 
 
-	Node1 = Generic(name="A", function=np.random.normal)
-	Node2 = Generic(name="B", function=np.random.normal)
-	Node3 = Generic(name="C", arguments={"param1": Node1, "param2": Node2}, function=add)
-	Node4 = Generic(name="D", function=square, arguments={"param": Node3})
-	Node5 = Selection(name="SB", function=is_greater_than2, arguments={"node": Node3, "threshold":2})
+    Node1 = ds.Generic(name="A", function=np.random.normal)
+    Node2 = ds.Generic(name="B", function=np.random.normal)
+    Node3 = ds.Generic(name="C", arguments={"param1": Node1, "param2": Node2}, function=add)
+    Node4 = ds.Generic(name="D", function=square, arguments={"param": Node3})
+    Node5 = ds.Selection(name="SB", function=is_greater_than2, arguments={"node": Node3, "threshold":2})
 
-	listNodes = [Node1, Node2, Node3, Node4, Node5]
-	my_graph = Graph("Graph1", listNodes)
-	output = my_graph.simulate(num_samples=20, csv_name="SelectionExample")
+    listNodes = [Node1, Node2, Node3, Node4, Node5]
+    my_graph = ds.Graph("SelectionExample", listNodes)
+    output = my_graph.simulate(num_samples=20, csv_name="SelectionExample")
 
 
 Stratification
@@ -66,39 +65,131 @@ The following code shows an example where the samples are split into three categ
 
 .. code-block:: python
 
-	
-	from baseDS import Graph, Generic, Stratify
-	import numpy as np
+
+    import dagsim.base as ds
+    import numpy as np
 
 
-	def add(param1, param2):
-	    return param1 + param2
+    def add(param1, param2):
+        return param1 + param2
 
 
-	def square(param):
-	    return np.square(param)
+    def square(param):
+        return np.square(param)
 
 
-	def check_strata(node):
-	    if node < -1:
-		return "<-1"
-	    else:
-		if node > 1:
-		    return ">1"
-		else:
-		    return ">-1|<+1"
+    def check_strata(node):
+        if node < -1:
+        return "<-1"
+        else:
+        if node > 1:
+            return ">1"
+        else:
+            return ">-1|<+1"
 
 
-	Node1 = Generic(name="A", function=np.random.normal)
-	Node2 = Generic(name="B", function=np.random.normal)
-	Node3 = Generic(name="C", function=add, arguments={"param1": Node1, "param2": Node2})
-	Node4 = Generic(name="D", function=square, arguments={"param": Node3})
-	Node5 = Stratify(name="St", function=check_strata, arguments={"node": Node3})
+    Node1 = ds.Generic(name="A", function=np.random.normal)
+    Node2 = ds.Generic(name="B", function=np.random.normal)
+    Node3 = ds.Generic(name="C", function=add, arguments={"param1": Node1, "param2": Node2})
+    Node4 = ds.Generic(name="D", function=square, arguments={"param": Node3})
+    Node5 = ds.Stratify(name="St", function=check_strata, arguments={"node": Node3})
 
-	listNodes = [Node1, Node2, Node3, Node4, Node5]
-	my_graph = Graph("Graph1", listNodes)
-	output = my_graph.simulate(num_samples=20, csv_name="testing")	
+    listNodes = [Node1, Node2, Node3, Node4, Node5]
+    my_graph = ds.Graph("StratificationExample", listNodes)
+    output = my_graph.simulate(num_samples=20, csv_name="StratificationExample")
 
- 
+
+Missing
+---------------------------------------------
+
+To specify a :code:`Missing` node, the user provides the following:
+
+ * :code:`name (str)`: A name for the node,
+ * :code:`underlying_value (Generic)`: The node that will eventually have missing values
+ * :code:`index_node (Generic)`: A :code:`Generic` node that will provide the indices of the entries that will go missing: :code:`0` for remove, :code:`1` for keep.
+
+We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.
+
+Note that the data with the missing entries would be saved as the output of the :code:`Missing` node itself rather than that of the :code:`underlying_value` node itself.
+The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the :code:`observed=False` argument when defining the :code:`underlying_value` node.
+
+In the following, we explore how you can simulate missing values according to the three types of missing data models defined in `Rubin (1976) <http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf>`_
+
+Missing Completely At Random (MCAR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+
+    import dagsim.base as ds
+    import numpy as np
+
+
+    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
+    index_node = ds.Generic(name="index_node", function=np.random.randint, arguments={"low":0, "high":2})
+    MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
+
+    list_nodes = [underlying_value, index_node, MCAR]
+    my_graph = ds.Graph(name="MCAR", list_nodes=list_nodes)
+
+    data = my_graph.simulate(num_samples=10, csv_name="MCAR")
+
+
+Missing At Random (MAR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+
+    import dagsim.base as ds
+    import numpy as np
+
+     def get_index(Y_observed):
+        val = 0
+        if Y_observed > 0:
+            val = 1
+        return val
+
+
+    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
+    Y_observed = ds.Generic(name="Y_observed", , function=np.random.normal)
+    index_node = ds.Generic(name="index_node", function=get_index, arguments={"Y_observed": Y_observed})
+    MAR = ds.Missing(name="MAR", underlying_value=underlying_value, index_node=index_node)
+
+    list_nodes = [underlying_value, index_node, Y_observed, MAR]
+    my_graph = ds.Graph(name="MAR", list_nodes=list_nodes)
+
+    data = my_graph.simulate(num_samples=10, csv_name="MAR")
+
+Missing Not At Random (MNAR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+
+    import dagsim.base as ds
+    import numpy as np
+
+     def get_index(Y_observed, Y_missing):
+        val = 0
+        if Y_observed + Y_missing > 0.5:
+            val = 1
+        return val
+
+
+
+    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
+    Y_observed = ds.Generic(name="Y_observed", function=np.random.normal)
+    Y_missing = ds.Generic(name="Y_missing", function=np.random.normal)
+    index_node_Y = ds.Generic(name="index_node_Y", function=np.random.randint, arguments={"low":0, "high":2})
+    index_node = ds.Generic(name="index_node", function=get_index, arguments={"Y_observed":Y_observed, "Y_missing":Y_missing})
+    MNAR = ds.Missing(name="MNAR", underlying_value=underlying_value, index_node=index_node)
+
+    list_nodes = [underlying_value, Y_observed, Y_missing, index_node, index_node_Y, MNAR]
+    my_graph = ds.Graph(name="MNAR", list_nodes=list_nodes)
+
+    data = my_graph.simulate(num_samples=10, csv_name="MNAR")
+
+
 .. toctree::
    :maxdepth: 2
