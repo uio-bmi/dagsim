@@ -152,7 +152,7 @@ Missing At Random (MAR)
 
 
     underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
-    Y_observed = ds.Generic(name="Y_observed", , function=np.random.normal)
+    Y_observed = ds.Generic(name="Y_observed", function=np.random.normal)
     index_node = ds.Generic(name="index_node", function=get_index, arguments={"Y_observed": Y_observed})
     MAR = ds.Missing(name="MAR", underlying_value=underlying_value, index_node=index_node)
 
