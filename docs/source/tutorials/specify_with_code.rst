@@ -15,20 +15,16 @@ How to specify a simulation using python code
 
 1. **Functions:**
 
-These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.
-
-For a :code:`(Generic)` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
-For the other nodes, the return value has a different significance depending on the type of the corresponding node.
+These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters. Each function would return a value that represents the value of a given node. The returned value can be of any data type depending on the problem at hand.
 
 2. **Nodes and Graph:**
 
-The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of four possible types:
+The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of three possible types:
 
- * **Generic node** :code:`(Generic)`: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.
+ * **Generic node** :code:`(Generic)`: a node that can receive values from its parents, if any, in addition to optional additional parameters.
  * **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
- * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user.
- * **Missing node** :code:`(Missing)`: a node that simulates missing entries in the data based on criteria defined by the user.
- Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
+ * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user in the form of a function.
+ Please check this tutorial for more information on how to use **Selection** and **Stratify**.
 
 To define a node, you need to specify the following things:
  
