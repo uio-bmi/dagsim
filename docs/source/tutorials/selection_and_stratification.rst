@@ -113,10 +113,17 @@ We decided on this way of defining the node to keep the processes of specifying 
 Note that the data with the missing entries would be saved as the output of the :code:`Missing` node itself rather than that of the :code:`underlying_value` node itself.
 The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the :code:`observed=False` argument when defining the :code:`underlying_value` node.
 
-In the following, we explore how you can simulate missing values according to the three types of missing data models defined in `Rubin (1976) <http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf>`_
+In the following, we explore how you can simulate missing values according to the three types of missing data models defined in `Rubin (1976) <http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf>`_.
+Here, the observed data are collectively denoted by :math:`Y_\mathrm{obs}`, and the missing, would-have-been, data are collectively denoted as
+:math:`Y_\mathrm{mis}`, and :math:`\psi` refers to the parameters of the missing data model.
 
 Missing Completely At Random (MCAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In this case, the missingness pattern is random and the probability of an entry going missing, :math:`Pr(M=1)`, is independent
+of any missing or non-missing values of other variables in the data-generating process. In other words,
+
+.. math::
+    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|\psi)
 
 .. code-block:: python
 
@@ -137,6 +144,13 @@ Missing Completely At Random (MCAR)
 
 Missing At Random (MAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In this case, the probability of an entry going missing depends on other observed values in the model, but
+does not depend on any unobserved quantities:
+
+.. math::
+    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},\psi)
+
+In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`{\mbox{Y_\mathrm{obs}}}`.
 
 .. code-block:: python
 
@@ -163,6 +177,14 @@ Missing At Random (MAR)
 
 Missing Not At Random (MNAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the MNAR case, the probability that an entry is missing depends not only on observed quantities but also on missing ones,
+so the conditional probability does not simplify:
+
+.. math::
+    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi)
+
+In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`{\mbox{Y_\mathrm{obs}}}` and the, possibly, unobserved,
+would-have-been value of :math:`{\mbox{Y_\mathrm{mis}}}`.
 
 .. code-block:: python
 

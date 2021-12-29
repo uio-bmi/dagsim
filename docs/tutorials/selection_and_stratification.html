@@ -35,6 +35,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"extensions": ["tex2jax.js"], "jax": ["input/TeX", "output/HTML-CSS"]})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -274,9 +276,15 @@
 <p>We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.</p>
 <p>Note that the data with the missing entries would be saved as the output of the <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node itself rather than that of the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node itself.
 The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the <code class="code docutils literal notranslate"><span class="pre">observed=False</span></code> argument when defining the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node.</p>
-<p>In the following, we explore how you can simulate missing values according to the three types of missing data models defined in <a class="reference external" href="http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf">Rubin (1976)</a></p>
+<p>In the following, we explore how you can simulate missing values according to the three types of missing data models defined in <a class="reference external" href="http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf">Rubin (1976)</a>.
+Here, the observed data are collectively denoted by <span class="math notranslate nohighlight">\(Y_\mathrm{obs}\)</span>, and the missing, would-have-been, data are collectively denoted as
+<span class="math notranslate nohighlight">\(Y_\mathrm{mis}\)</span>, and <span class="math notranslate nohighlight">\(\psi\)</span> refers to the parameters of the missing data model.</p>
 <div class="section" id="missing-completely-at-random-mcar">
 <h3>Missing Completely At Random (MCAR)<a class="headerlink" href="#missing-completely-at-random-mcar" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the missingness pattern is random and the probability of an entry going missing, <span class="math notranslate nohighlight">\(Pr(M=1)\)</span>, is independent
+of any missing or non-missing values of other variables in the data-generating process. In other words,</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|\psi)\]</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -294,6 +302,11 @@ The output of the latter would be the complete data without any missing entries.
 </div>
 <div class="section" id="missing-at-random-mar">
 <h3>Missing At Random (MAR)<a class="headerlink" href="#missing-at-random-mar" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the probability of an entry going missing depends on other observed values in the model, but
+does not depend on any unobserved quantities:</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=1)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{obs}}}\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -318,6 +331,12 @@ The output of the latter would be the complete data without any missing entries.
 </div>
 <div class="section" id="missing-not-at-random-mnar">
 <h3>Missing Not At Random (MNAR)<a class="headerlink" href="#missing-not-at-random-mnar" title="Permalink to this headline">¶</a></h3>
+<p>In the MNAR case, the probability that an entry is missing depends not only on observed quantities but also on missing ones,
+so the conditional probability does not simplify:</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=1)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{obs}}}\)</span> and the, possibly, unobserved,
+would-have-been value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{mis}}}\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
