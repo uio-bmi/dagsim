@@ -37,9 +37,9 @@ The following code shows an example where only the samples that have a value of 
 
     def is_greater_than2(node, threshold):
         if node < threshold:
-        return True
+            return True
         else:
-        return False
+            return False
 
 
     Node1 = ds.Generic(name="A", function=np.random.normal)
@@ -123,7 +123,7 @@ In this case, the missingness pattern is random and the probability of an entry 
 of any missing or non-missing values of other variables in the data-generating process. In other words,
 
 .. math::
-    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|\psi)
+    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|\psi)
 
 .. code-block:: python
 
@@ -148,9 +148,9 @@ In this case, the probability of an entry going missing depends on other observe
 does not depend on any unobserved quantities:
 
 .. math::
-    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},\psi)
+    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|Y_obs,\psi)
 
-In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`{\mbox{Y_\mathrm{obs}}}`.
+In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`Y_obs`.
 
 .. code-block:: python
 
@@ -181,10 +181,10 @@ In the MNAR case, the probability that an entry is missing depends not only on o
 so the conditional probability does not simplify:
 
 .. math::
-    \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi)
+    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|Y_obs,Y_mis,\psi)
 
-In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`{\mbox{Y_\mathrm{obs}}}` and the, possibly, unobserved,
-would-have-been value of :math:`{\mbox{Y_\mathrm{mis}}}`.
+In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`Y_obs` and the, possibly, unobserved,
+would-have-been value of :math:`Y_mis`.
 
 .. code-block:: python
 
