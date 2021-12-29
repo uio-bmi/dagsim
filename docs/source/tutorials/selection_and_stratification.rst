@@ -119,11 +119,11 @@ Here, the observed data are collectively denoted by :math:`Y_\mathrm{obs}`, and 
 
 Missing Completely At Random (MCAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In this case, the missingness pattern is random and the probability of an entry going missing, :math:`Pr(M=1)`, is independent
+In this case, the missingness pattern is random and the probability of an entry going missing, :math:`Pr(M=0)`, is independent
 of any missing or non-missing values of other variables in the data-generating process. In other words,
 
 .. math::
-    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|\psi)
+    \Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)
 
 .. code-block:: python
 
@@ -148,9 +148,9 @@ In this case, the probability of an entry going missing depends on other observe
 does not depend on any unobserved quantities:
 
 .. math::
-    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|Y_obs,\psi)
+    \Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,\psi)
 
-In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`Y_obs`.
+In this case, :math:`\Pr(M=0)` depends on the observed value of :math:`Y_obs`.
 
 .. code-block:: python
 
@@ -181,9 +181,9 @@ In the MNAR case, the probability that an entry is missing depends not only on o
 so the conditional probability does not simplify:
 
 .. math::
-    \Pr(M=1|Y_obs,Y_mis,\psi) = \Pr(M=1|Y_obs,Y_mis,\psi)
+    \Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,Y_mis,\psi)
 
-In this case, :math:`\Pr(M=1)` depends on the observed value of :math:`Y_obs` and the, possibly, unobserved,
+In this case, :math:`\Pr(M=0)` depends on the observed value of :math:`Y_obs` and the, possibly, unobserved,
 would-have-been value of :math:`Y_mis`.
 
 .. code-block:: python

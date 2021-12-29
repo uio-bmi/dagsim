@@ -30,12 +30,16 @@ The nodes represent variables in the model that interact with each other based o
  * **Missing node** :code:`(Missing)`: a node that simulates missing entries in the data based on criteria defined by the user.
  Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
 
-To define a node, you need to specify the following things:
+To define a :code:`(Generic)` node, you need to specify the following things:
  
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`arguments (dict)` (Optional): A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
  * :code:`plates (list of str)` (Optional): The names of the plates in which the node resides.
+ * :code:`visible (boolean)` (Optional): Default is :code:`TRUE` to show the node when drawing the graph. :code:`FALSE` hides the node in the graph.
+ * :code:`observed (boolean)` (Optional): Default is :code:`TRUE` to show the output of the node when drawing the graph. :code:`FALSE` hides the node in the graph.
+ * :code:`size_field (str)` (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when
+the used function comes with a vectorized implementation.
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
