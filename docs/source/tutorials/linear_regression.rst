@@ -11,7 +11,7 @@ We begin by importing the following:
 .. highlight:: python
 .. code-block:: python
 
-  from baseDS import Graph, Generic
+  import dagsim.base as ds
   import numpy as np
   from sklearn.linear_model import LinearRegression as lr
   import pandas as pd
@@ -41,8 +41,8 @@ For the node of the variable :math:`x` we only need to give it a name and the fu
 .. highlight:: python
 .. code-block:: python
 
-  Nodex = Generic(name="x", function=np.random.normal)
-  Nodey = Generic(name="y", function=ground_truth, arguemnts={"x": Nodex, "add_param": 1})
+  Nodex = ds.Generic(name="x", function=np.random.normal)
+  Nodey = ds.Generic(name="y", function=ground_truth, arguemnts={"x": Nodex, "add_param": 1})
   
 At this stage, we can simply compile the graph as follows:
 
@@ -51,7 +51,7 @@ At this stage, we can simply compile the graph as follows:
 .. code-block:: python
 
   listNodes = [Nodex, Nodey]
-  my_graph = Graph("Graph1", listNodes)
+  my_graph = ds.Graph("Graph1", listNodes)
   
 Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model:
 

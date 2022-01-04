@@ -8,7 +8,7 @@ Simulations using DagSim can be specified either using a YAML specification file
 3. The simulation details.
 
 
-In this tutorial, you will learn how to specify a simulation using either method.
+In this section, you will learn how to specify a simulation using either method.
 
 How to specify a simulation using python code
 ---------------------------------------------
@@ -17,7 +17,7 @@ How to specify a simulation using python code
 
 These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.
 
-For a :code:`(Generic)` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
+For a :code:`Generic` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
 For the other nodes, the return value has a different significance depending on the type of the corresponding node.
 
 2. **Nodes and Graph:**
@@ -28,28 +28,35 @@ The nodes represent variables in the model that interact with each other based o
  * **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
  * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user.
  * **Missing node** :code:`(Missing)`: a node that simulates missing entries in the data based on criteria defined by the user.
- Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
 
-To define a node, you need to specify the following things:
+Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
+
+To define a :code:`(Generic)` node, you need to specify the following things:
  
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`arguments (dict)` (Optional): A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
  * :code:`plates (list of str)` (Optional): The names of the plates in which the node resides.
+ * :code:`visible (boolean)` (Optional): Default is :code:`TRUE` to show the node when drawing the graph. :code:`FALSE` hides the node in the graph.
+ * :code:`observed (boolean)` (Optional): Default is :code:`TRUE` to show the output of the node when drawing the graph. :code:`FALSE` hides the node in the graph.
+ * :code:`size_field (str)` (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when the used function comes with a vectorized implementation.
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
- - :code:`name (str)`: A name for the graph.
- - :code:`list_nodes (list)`: A list of all the nodes that you have defined.
+ * :code:`name (str)`: A name for the graph. This would be used as the name of the .png drawing of the graph.
+ * :code:`list_nodes (list)`: A list of all the nodes that you have defined.
  
 3. **Simulation details:**
  
-Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph and giving it two arguments:
+Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph using these arguments:
 
  * :code:`num_samples (int)`: The number of samples to simulate.
  * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data. If not provided, the data will not be saved, only returned in the code.
- 
+ * :code:`output_path (str)` (Optional): The path where the CSV file would be saved. This path would be automatically passed to any used function that defines :code:`output_path` as one of its arguments, if that is needed. Default is :code:`None`, and the CSV file is saved to the current working directory when running the simulation.
+
 This method will return a Python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
+
+For an example of defining a simulation using Python code, please check this tutorial.
 
 How to specify a simulation using YAML
 --------------------------------------
@@ -63,32 +70,31 @@ Within the graph component, you provide a name for that graph, the path to the p
 
     :code:`numpy` and :code:`scipy` are automatically installed when you install DagSim. Should you need another library, please install it manually.
 
-Each key inside "nodes" would correspond to a node in the graph, with the name of that node being the key itself. For each node, you need to specify the name of the function to use, the arguments needed by that function, if any, in addition to other optional keys.
 
 .. note::
     The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.
-# TODO add explanation of each component in each main component + fix the sample YAML + add sample YAML for Linear Regression
+# TODO add sample YAML for Hello World
 The general structure of the YAML file would look like this:
 
 .. highlight:: yaml
 .. code-block:: yaml
 
     graph:
-      python_file: path/to/file
-      name: "user-defined name"
-      nodes:
+      python_file: path/to/file # (optional) A .py file containing the user-defined functions, if any, to be used in the simulation.
+      name: "user-defined name" # A name for the graph.
+      nodes: # A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.
         name_of_node1:
           function: function_name # user-defined or one provided by an external library
           arguments:
-            name_of_argument1: value_of_argument1 # an appropriate python object or the name of a parent node
+            name_of_argument1: value_of_argument1 # The name and value of an argument. This could be an appropriate python object or another node
             name_of_argument2: value_of_argument2
-          type: Generic
-        ⋮
+          type: Generic # This would be Generic, Selection, Stratify, or Missing
+          ⋮(other optional arguments)
 
     instructions:
       simulation:
-        num_samples: 4
-        csv_name: "parser"
+        num_samples: 4 # The number of samples to simulate
+        csv_name: "parser" # The name of the CSV file to which to save the file, if desired.
 
 For a sample simulation definition using a YAML file, please see :ref:`Define the simulation using a YAML file`.
 

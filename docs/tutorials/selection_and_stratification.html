@@ -208,9 +208,9 @@
 
 <span class="k">def</span> <span class="nf">is_greater_than2</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">node</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
 
 <span class="n">Node1</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
@@ -281,10 +281,10 @@ Here, the observed data are collectively denoted by <span class="math notranslat
 <span class="math notranslate nohighlight">\(Y_\mathrm{mis}\)</span>, and <span class="math notranslate nohighlight">\(\psi\)</span> refers to the parameters of the missing data model.</p>
 <div class="section" id="missing-completely-at-random-mcar">
 <h3>Missing Completely At Random (MCAR)<a class="headerlink" href="#missing-completely-at-random-mcar" title="Permalink to this headline">¶</a></h3>
-<p>In this case, the missingness pattern is random and the probability of an entry going missing, <span class="math notranslate nohighlight">\(Pr(M=1)\)</span>, is independent
+<p>In this case, the missingness pattern is random and the probability of an entry going missing, <span class="math notranslate nohighlight">\(Pr(M=0)\)</span>, is independent
 of any missing or non-missing values of other variables in the data-generating process. In other words,</p>
 <div class="math notranslate nohighlight">
-\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|\psi)\]</div>
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)\]</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -305,8 +305,8 @@ of any missing or non-missing values of other variables in the data-generating p
 <p>In this case, the probability of an entry going missing depends on other observed values in the model, but
 does not depend on any unobserved quantities:</p>
 <div class="math notranslate nohighlight">
-\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},\psi)\]</div>
-<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=1)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{obs}}}\)</span>.</p>
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -334,9 +334,9 @@ does not depend on any unobserved quantities:</p>
 <p>In the MNAR case, the probability that an entry is missing depends not only on observed quantities but also on missing ones,
 so the conditional probability does not simplify:</p>
 <div class="math notranslate nohighlight">
-\[\Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi) = \Pr(M=1|{\mbox{Y_\mathrm{obs}}},{\mbox{Y_\mathrm{mis}}},\psi)\]</div>
-<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=1)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{obs}}}\)</span> and the, possibly, unobserved,
-would-have-been value of <span class="math notranslate nohighlight">\({\mbox{Y_\mathrm{mis}}}\)</span>.</p>
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,Y_mis,\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span> and the, possibly, unobserved,
+would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
