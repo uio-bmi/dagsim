@@ -88,8 +88,11 @@ The general structure of the YAML file would look like this:
           arguments:
             name_of_argument1: value_of_argument1 # The name and value of an argument. This could be an appropriate python object or another node
             name_of_argument2: value_of_argument2
-          type: Generic # This would be Generic, Selection, Stratify, or Missing
+          type: Generic # This could be Generic, Selection, Stratify, or Missing
           ⋮(other optional arguments)
+        name_of_node2:
+          function: function_name(kwargs) # This is another way of defining a function, witout separately defining the arguments.
+          type: Generic
 
     instructions:
       simulation:

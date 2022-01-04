@@ -28,8 +28,8 @@ We can then define such a function in python as the following:
 .. highlight:: python
 .. code-block:: python
 
-  def ground_truth(x, add_param):
-    y = 2 * x + 1 + np.random.normal(0, add_param)
+  def ground_truth(x, std_dev):
+    y = 2 * x + 1 + np.random.normal(0, std_dev)
     return y
     
 This function would inform DagSim how to simulate the value :math:`y` for each value of :math:`x`.
@@ -42,7 +42,7 @@ For the node of the variable :math:`x` we only need to give it a name and the fu
 .. code-block:: python
 
   Nodex = ds.Generic(name="x", function=np.random.normal)
-  Nodey = ds.Generic(name="y", function=ground_truth, arguemnts={"x": Nodex, "add_param": 1})
+  Nodey = ds.Generic(name="y", function=ground_truth, arguments={"x": Nodex, "std_dev": 1})
   
 At this stage, we can simply compile the graph as follows:
 
@@ -117,7 +117,7 @@ The complete code can be found on GitHub.
 
 Define the simulation using a YAML file
 ---------------------------------------
-where script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
+Here, script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
 
 .. highlight:: yaml
 .. code-block:: yaml
@@ -126,18 +126,30 @@ where script_of_functions is a python file (.py) containing the user-defined fun
       python_file: "script_of_functions"
       name: "my_graph"
       nodes:
-        result:
-          function: "square"
+        Y:
+          function: "ground_truth"
           arguments:
-            param: "source"
-            add_param: 2
+            param: "X"
+            std_dev: 2
           type: Generic
-        source:
-          function: "numpy.random.normal"
-          arguments:
-            scale: 1
-            loc: 0
+        X:
+          function: "numpy.random.normal(scale=1, loc=0)"
+          type: Generic
+
     instructions:
       simulation:
         num_samples: 4
         csv_name: "parser"
+
+
+To run the simulation define in the YAML file, you would use the built-in parser as follows:
+
+.. highlight:: python
+.. code-block:: python
+
+  from dagsim.utils.parser import Parser
+  parser = Parser("name∕or/path/to/YAML∕file")
+
+  data = parser.parse()
+
+The method :code:`parse` would build the graph as defined in the YAML file, and then run the instructions given in the :code:`instructions` part.
