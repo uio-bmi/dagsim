@@ -153,3 +153,4 @@ To run the simulation define in the YAML file, you would use the built-in parser
   data = parser.parse()
 
 The method :code:`parse` would build the graph as defined in the YAML file, and then run the instructions given in the :code:`instructions` part.
+By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set :code:`verbose` and/or :code:`draw` to :code:`False`, respectively.

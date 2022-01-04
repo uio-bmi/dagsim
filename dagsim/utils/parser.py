@@ -15,7 +15,7 @@ class Parser:
         with open(file_name, 'r') as stream:
             self.yaml_file = yaml.safe_load(stream)
 
-    def parse(self):
+    def parse(self, verbose: bool = True, draw: bool = True):
 
         nodes_dict = self._parse_string_args(self.yaml_file["graph"]["nodes"])
 
@@ -29,9 +29,11 @@ class Parser:
         functions_list = getmembers(functions_file, isfunction)
 
         self._build_graph_from_nodes(nodes_dict, functions_list)
-        print(self.graph)
+        if verbose:
+            print(self.graph)
 
-        self.graph.draw()
+        if draw:
+            self.graph.draw()
         data = self._simulate_data()
         return data
 
