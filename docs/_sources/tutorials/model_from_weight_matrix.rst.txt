@@ -44,7 +44,7 @@ This will create a python file, gaussDagSim.py that has the following script:
 
 .. code-block:: python
 
-	from baseDS import Graph, Selection, Stratify, Generic
+	import dagsim.base as ds
 	import numpy as np 
 	
 	
@@ -53,12 +53,12 @@ This will create a python file, gaussDagSim.py that has the following script:
 	  return x2
 
 
-	Node_x0 = Generic(name='x0', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
-	Node_x1 = Generic(name='x1', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
-	Node_x2 = Generic(name='x2', function=func_x2, arguments={'x0': Node_x0, 'x1': Node_x1})
+	Node_x0 = ds.Generic(name='x0', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
+	Node_x1 = ds.Generic(name='x1', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
+	Node_x2 = ds.Generic(name='x2', function=func_x2, arguments={'x0': Node_x0, 'x1': Node_x1})
 
 	listNodes = [Node_x0, Node_x1, Node_x2]
-	graph = Graph('myGraph', listNodes) 
+	graph = ds.Graph('myGraph', listNodes)
 
 Create a DagSim model from a file
 ------------------------------------------------------

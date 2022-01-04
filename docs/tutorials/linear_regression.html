@@ -177,7 +177,7 @@
 <div class="section" id="define-the-simulation-using-python-code">
 <h2>Define the simulation using python code<a class="headerlink" href="#define-the-simulation-using-python-code" title="Permalink to this headline">¶</a></h2>
 <p>We begin by importing the following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">baseDS</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Generic</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span> <span class="k">as</span> <span class="n">lr</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -190,8 +190,8 @@
 <p>For simplicity, we will simulate x to follow a standard normal distribution. For <span class="math notranslate nohighlight">\(y\)</span>, suppose that the ground truth relation is:
 <span class="math notranslate nohighlight">\(y = 2x + 1 + \epsilon\)</span>, where <span class="math notranslate nohighlight">\(\epsilon\)</span> is a white noise error term . Suppose that we also want to have control of the standard deviation of this error term from DagSim.</p>
 <p>We can then define such a function in python as the following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ground_truth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">add_param</span><span class="p">):</span>
-  <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">add_param</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ground_truth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">):</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">y</span>
 </pre></div>
 </div>
@@ -200,13 +200,13 @@
 <li><p><strong>Defining the graph:</strong></p></li>
 </ol>
 <p>For the node of the variable <span class="math notranslate nohighlight">\(x\)</span> we only need to give it a name and the function to evaluate. This is because it has no parents, i.e. it is a root node, and the function to evaluate <span class="math notranslate nohighlight">\(x\)</span> does not need any arguments in our case. For the node of the variable <span class="math notranslate nohighlight">\(y\)</span>, we need to give it a name, the function to evaluate, and the values of the arguments needed to evaluate that function, in the form of a dictionary, as shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Nodex</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Nodey</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">arguemnts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">Nodex</span><span class="p">,</span> <span class="s2">&quot;add_param&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Nodex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Nodey</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">Nodex</span><span class="p">,</span> <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>At this stage, we can simply compile the graph as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Nodex</span><span class="p">,</span> <span class="n">Nodey</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;Graph1&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;Graph1&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model:</p>
@@ -259,28 +259,36 @@
 </div>
 <div class="section" id="define-the-simulation-using-a-yaml-file">
 <h2>Define the simulation using a YAML file<a class="headerlink" href="#define-the-simulation-using-a-yaml-file" title="Permalink to this headline">¶</a></h2>
-<p>where script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
+<p>Here, script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
   <span class="nt">python_file</span><span class="p">:</span> <span class="s">&quot;script_of_functions&quot;</span>
   <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;my_graph&quot;</span>
   <span class="nt">nodes</span><span class="p">:</span>
-    <span class="nt">result</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;square&quot;</span>
+    <span class="nt">Y</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;ground_truth&quot;</span>
       <span class="nt">arguments</span><span class="p">:</span>
-        <span class="nt">param</span><span class="p">:</span> <span class="s">&quot;source&quot;</span>
-        <span class="nt">add_param</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+        <span class="nt">param</span><span class="p">:</span> <span class="s">&quot;X&quot;</span>
+        <span class="nt">std_dev</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
       <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span>
-    <span class="nt">source</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;numpy.random.normal&quot;</span>
-      <span class="nt">arguments</span><span class="p">:</span>
-        <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-        <span class="nt">loc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+    <span class="nt">X</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;numpy.random.normal(scale=1,</span><span class="nv"> </span><span class="s">loc=0)&quot;</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span>
+
 <span class="nt">instructions</span><span class="p">:</span>
   <span class="nt">simulation</span><span class="p">:</span>
     <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
     <span class="nt">csv_name</span><span class="p">:</span> <span class="s">&quot;parser&quot;</span>
 </pre></div>
 </div>
+<p>To run the simulation define in the YAML file, you would use the built-in parser as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dagsim.utils.parser</span> <span class="kn">import</span> <span class="n">Parser</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="s2">&quot;name∕or/path/to/YAML∕file&quot;</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The method <code class="code docutils literal notranslate"><span class="pre">parse</span></code> would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.
+By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> and/or <code class="code docutils literal notranslate"><span class="pre">draw</span></code> to <code class="code docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
 </div>
 </div>
 

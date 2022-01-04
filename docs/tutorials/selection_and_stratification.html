@@ -274,7 +274,7 @@
 </ul>
 </div></blockquote>
 <p>We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.</p>
-<p>Note that the data with the missing entries would be saved as the output of the <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node itself rather than that of the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node itself.
+<p>Note that the data with the missing entries would be saved as the output of the <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node itself rather than that of the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node.
 The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the <code class="code docutils literal notranslate"><span class="pre">observed=False</span></code> argument when defining the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node.</p>
 <p>In the following, we explore how you can simulate missing values according to the three types of missing data models defined in <a class="reference external" href="http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf">Rubin (1976)</a>.
 Here, the observed data are collectively denoted by <span class="math notranslate nohighlight">\(Y_\mathrm{obs}\)</span>, and the missing, would-have-been, data are collectively denoted as

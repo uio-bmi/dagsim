@@ -110,7 +110,7 @@ To specify a :code:`Missing` node, the user provides the following:
 
 We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.
 
-Note that the data with the missing entries would be saved as the output of the :code:`Missing` node itself rather than that of the :code:`underlying_value` node itself.
+Note that the data with the missing entries would be saved as the output of the :code:`Missing` node itself rather than that of the :code:`underlying_value` node.
 The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the :code:`observed=False` argument when defining the :code:`underlying_value` node.
 
 In the following, we explore how you can simulate missing values according to the three types of missing data models defined in `Rubin (1976) <http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf>`_.

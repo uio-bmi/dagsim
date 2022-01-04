@@ -258,8 +258,11 @@ The general structure of the YAML file would look like this:</p>
       <span class="nt">arguments</span><span class="p">:</span>
         <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># The name and value of an argument. This could be an appropriate python object or another node</span>
         <span class="nt">name_of_argument2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument2</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span> <span class="c1"># This would be Generic, Selection, Stratify, or Missing</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span> <span class="c1"># This could be Generic, Selection, Stratify, or Missing</span>
       <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments)</span>
+    <span class="nt">name_of_node2</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name(kwargs)</span> <span class="c1"># This is another way of defining a function, witout separately defining the arguments.</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Generic</span>
 
 <span class="nt">instructions</span><span class="p">:</span>
   <span class="nt">simulation</span><span class="p">:</span>
