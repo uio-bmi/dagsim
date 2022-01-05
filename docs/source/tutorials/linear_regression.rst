@@ -122,13 +122,18 @@ The complete code can be found on GitHub.
 
 Define the simulation using a YAML file
 ---------------------------------------
-Here, script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
+To run this tutorial on binder, click on this badge:
+
+.. image:: https://mybinder.org/badge_logo.svg
+ :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FParser.ipynb
+
+Here, LinReg_example_function is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
 
 .. highlight:: yaml
 .. code-block:: yaml
 
     graph:
-      python_file: "script_of_functions"
+      python_file: "LinReg_example_function"
       name: "my_graph"
       nodes:
         Y:

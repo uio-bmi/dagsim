@@ -261,9 +261,11 @@
 </div>
 <div class="section" id="define-the-simulation-using-a-yaml-file">
 <h2>Define the simulation using a YAML file<a class="headerlink" href="#define-the-simulation-using-a-yaml-file" title="Permalink to this headline">¶</a></h2>
-<p>Here, script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
+<p>To run this tutorial on binder, click on this badge:</p>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FParser.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
+<p>Here, LinReg_example_function is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
-  <span class="nt">python_file</span><span class="p">:</span> <span class="s">&quot;script_of_functions&quot;</span>
+  <span class="nt">python_file</span><span class="p">:</span> <span class="s">&quot;LinReg_example_function&quot;</span>
   <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;my_graph&quot;</span>
   <span class="nt">nodes</span><span class="p">:</span>
     <span class="nt">Y</span><span class="p">:</span>
