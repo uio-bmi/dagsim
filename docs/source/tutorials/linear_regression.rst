@@ -3,8 +3,13 @@ Simulate data for a simple linear regression problem
 
 In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see :ref:`How to specify a simulation`.
 
+
 Define the simulation using python code
 ---------------------------------------
+To run this tutorial on binder, click on this badge:
+
+.. image:: https://mybinder.org/badge_logo.svg
+ :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FLinear%20Regression.ipynb
 
 We begin by importing the following:
 
@@ -153,4 +158,5 @@ To run the simulation define in the YAML file, you would use the built-in parser
   data = parser.parse()
 
 The method :code:`parse` would build the graph as defined in the YAML file, and then run the instructions given in the :code:`instructions` part.
+
 By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set :code:`verbose` and/or :code:`draw` to :code:`False`, respectively.

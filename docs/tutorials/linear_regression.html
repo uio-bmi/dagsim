@@ -176,6 +176,8 @@
 <p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation"><span class="std std-ref">How to specify a simulation</span></a>.</p>
 <div class="section" id="define-the-simulation-using-python-code">
 <h2>Define the simulation using python code<a class="headerlink" href="#define-the-simulation-using-python-code" title="Permalink to this headline">¶</a></h2>
+<p>To run this tutorial on binder, click on this badge:</p>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FLinear%20Regression.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
 <p>We begin by importing the following:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -287,8 +289,8 @@
 <span class="n">data</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The method <code class="code docutils literal notranslate"><span class="pre">parse</span></code> would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.
-By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> and/or <code class="code docutils literal notranslate"><span class="pre">draw</span></code> to <code class="code docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
+<p>The method <code class="code docutils literal notranslate"><span class="pre">parse</span></code> would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.</p>
+<p>By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> and/or <code class="code docutils literal notranslate"><span class="pre">draw</span></code> to <code class="code docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
 </div>
 </div>
 
