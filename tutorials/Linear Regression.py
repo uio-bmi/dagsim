@@ -1,4 +1,4 @@
-from dagsim.base import Graph, Generic
+import dagsim.base as ds
 import numpy as np
 from sklearn.linear_model import LinearRegression as LinReg
 import pandas as pd
@@ -11,12 +11,12 @@ def ground_truth(x, add_param):
 
 
 # define a node for the input feature, and another node for the outcome of a linear regression model
-Nodex = Generic(name="x", function=np.random.normal)
-Nodey = Generic(name="y", function=ground_truth, arguments={"add_param":1, "x": Nodex})
+Nodex = ds.Generic(name="x", function=np.random.normal)
+Nodey = ds.Generic(name="y", function=ground_truth, arguments={"add_param":1, "x": Nodex})
 
 # define a list of all nodes, then instantiate the graph
 listNodes = [Nodex, Nodey]
-my_graph = Graph("Linear Regression", listNodes)
+my_graph = ds.Graph("Linear Regression", listNodes)
 
 my_graph.draw()
 
