@@ -64,9 +64,12 @@ class Node:
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True, visible=True):
+    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True, visible=True,
+                 handle_multi_cols=False, handle_multi_return=None):
         super().__init__(name=name, function=function, arguments=arguments,
                          plates=plates, observed=observed, visible=visible, size_field=size_field)
+        self.handle_multi_cols = handle_multi_cols
+        self.handle_multi_return = handle_multi_return
 
     @staticmethod
     def build_object(**kwargs):
@@ -238,7 +241,8 @@ class Graph:
 
     def generate_dot(self):
 
-        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon", "Missing": "Mcircle"}
+        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon",
+                      "Missing": "Mcircle"}
         dot_str = 'digraph G{\n'
         # add the visible nodes
         for child_node in range(len(self)):
@@ -294,6 +298,38 @@ class Graph:
                     output_dict[node.name] = node.output
             return output_dict
 
+        def prettify_output(output_dict: dict):
+            keys_to_remove = []
+            for key in output_dict:
+                node = self.get_node_by_name(key)
+                # check if subscriptible
+                if node.handle_multi_cols:
+                    node_output = output_dict[key]
+                    keys_to_remove.append(key)
+                    try:
+                        unfolded_output = vec2dict(key, node_output)
+                        output_dict = {**output_dict, **unfolded_output}
+                    except IndexError:
+                        raise RuntimeError("All vectors returned by " + node.function.__name__ + " must be of the same "
+                                                                                                 "length")
+                    except TypeError:
+                        raise RuntimeError("The output of " + node.function.__name__ + " either is not subscriptable "
+                                                                                       "or has no len()")
+                elif node.handle_multi_return is not None:
+                    output_dict[key] = [node.handle_multi_return(elem) for elem in node.output]
+            for key in keys_to_remove:
+                output_dict.pop(key)
+
+            return output_dict
+
+        def vec2dict(key: str, node_output):
+            num_reps = len(node_output[0])
+            node_dict = {key + "_" + str(rep): [] for rep in range(num_reps)}
+            for sample in range(num_samples):
+                for rep in range(num_reps):
+                    node_dict[key + "_" + str(rep)].append(node_output[sample][rep])
+            return node_dict
+
         tic = time.perf_counter()
         print("Simulation started")
         output_dict = traverse_graph(num_samples)
@@ -307,6 +343,7 @@ class Graph:
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
+        output_dict = prettify_output(output_dict)
 
         stratifyNode = self.get_stratify()
         if stratify:
