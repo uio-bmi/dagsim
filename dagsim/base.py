@@ -29,20 +29,14 @@ class Node:
     def _parse_func_arguments(self, args, kwargs):
         # args = [lambda index: a.output[index] if isinstance(a, Generic) else lambda _: a for a in args]
         # args = [(lambda x:(lambda index:x))(a) for a in args]
-        args = [self._factory_func(a, generic=isinstance(a, Generic)) for a in args]
+        # args = [self._factory_func(a, generic=isinstance(a, Generic)) for a in args]
+        args = [
+            (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Generic) else (lambda x: (lambda index: x))(
+                a) for a in args]
         kwargs = dict(
-            [(k, self._factory_func(v, generic=isinstance(v, Generic))) for k, v in
-             kwargs.items()])
+            [(k, (lambda x: (lambda index: x.output[index]))(v)) if isinstance(v, Generic) else (
+                k, (lambda x: (lambda index: x))(v)) for k, v in kwargs.items()])
         return args, kwargs
-
-    def _factory_func(self, a, generic: bool = False):
-        if generic:
-            def func(index):
-                return a.output[index]
-        else:
-            def func(_):
-                return a
-        return func
 
     def _get_func_args(self, index):
         return [a(index) for a in self._args]
