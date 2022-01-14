@@ -38,32 +38,51 @@ class Parser:
         return data
 
     def _parse_string_args(self, nodes):
-
+        # For each node, separate the function's name from its arguments
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
-                nodes[key]["function"], nodes[key]["arguments"] = self._split_func_and_args(
-                    nodes[key]["function"])
+                if "kwargs" in nodes[key]:
+                    raise RuntimeError("Using a python-like definition with separate kwargs is not allowed. Please "
+                                       "use either way")
+                else:
+                    nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = self._split_func_and_args(
+                        nodes[key]["function"])
+            else:
+                nodes[key]["args"] = []
         return nodes
 
     def _split_func_and_args(self, func_expression: str):
         func_expression = func_expression.replace(" ", "")
-        args_str = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
-        args_str = args_str.split(",")
-        args_dict = {}
-        for arg in args_str:
-            arg_name = arg[:arg.find("=")]
-            args_dict[arg_name] = arg[arg.find("=") + 1:]
+        inputs = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
+        first_kwarg_index = self._check_args_order(inputs)
+        inputs = inputs.split(",")
+        args = inputs[:first_kwarg_index]
+        inputs = inputs[first_kwarg_index:]
+        kwargs = {}
+        for kwarg in inputs:
+            arg_name = kwarg[:kwarg.find("=")]
+            kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
             try:
-                args_dict[arg_name] = float(args_dict[arg_name])
+                kwargs[arg_name] = float(kwargs[arg_name])
             except ValueError:
                 pass
         func_name = func_expression[:func_expression.find("(")]
-        return func_name, args_dict
+        return func_name, args, kwargs
+
+    def _check_args_order(self, all_args_str: str):
+        all_args_str = all_args_str.split(",")
+        first_kwarg_index = next((all_args_str.index(x) for x in all_args_str if "=" in x), None)
+        if first_kwarg_index is not None:
+            for kwargs in range(first_kwarg_index, len(all_args_str)):
+                if "=" not in all_args_str[kwargs]:
+                    raise RuntimeError("Positional argument after keyword argument")
+        return first_kwarg_index
 
     def _build_adj_matrix(self, nodes: dict):
         # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
-        parents_dict = {k: [v for v in nodes[k]["arguments"].values() if v in node_names] for k in node_names}
+        parents_dict = {k: [v for v in nodes[k]["kwargs"].values() if v in node_names] for k in node_names}
+        # parents_dict = {**parents_dict, }
         pd_dict = pd.DataFrame(0, columns=node_names, index=node_names)
         for child in node_names:
             for parent in parents_dict[child]:
@@ -86,9 +105,13 @@ class Parser:
         for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
             nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
-            nodes[key]["arguments"] = {
+            nodes[key]["kwargs"] = {
                 k: self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for k, v in
-                nodes[key]["arguments"].items()}
+                nodes[key]["kwargs"].items()}
+
+            nodes[key]["args"] = [
+                self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for v in
+                nodes[key]["args"]]
 
             node_type = nodes[key].get("type")
             if node_type is not None:
