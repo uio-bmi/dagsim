@@ -43,7 +43,7 @@ class Parser:
         return data
 
     def _parse_string_args(self, nodes):
-        # For each node, separate the function's name from its arguments
+        # For each node, separate the function's name from its arguments, if not separated already
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
                 if "kwargs" in nodes[key]:
@@ -57,6 +57,8 @@ class Parser:
         return nodes
 
     def _split_func_and_args(self, func_expression: str):
+        # Split a string of the form "func_name(arg1, arg2,.., kwarg1=val1, kwarg2=val2,..)" into
+        # func_name, [arg1, arg2,..], {kwarg1=val1, kwarg2=val2,..}
         func_expression = func_expression.replace(" ", "")
         inputs = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
         first_kwarg_index = self._check_args_order(inputs)
@@ -77,10 +79,6 @@ class Parser:
             kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
             if kwargs[arg_name].startswith(("'", '"')):
                 kwargs[arg_name] = kwargs[arg_name][1:-1]
-            # print("ka", kwargs[arg_name])
-            # print("kat", type(kwargs[arg_name]))
-            # print("st'", kwargs[arg_name].startswith("'"))
-            # print('st"', kwargs[arg_name].startswith('"'))
             else:
                 try:
                     kwargs[arg_name] = float(kwargs[arg_name])
@@ -90,6 +88,7 @@ class Parser:
         return func_name, args, kwargs
 
     def _check_args_order(self, all_args_str: str):
+        # Check that no positional args come after kwargs
         all_args_str = all_args_str.split(",")
         first_kwarg_index = next((all_args_str.index(x) for x in all_args_str if "=" in x), None)
         if first_kwarg_index is not None:
