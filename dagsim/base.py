@@ -27,9 +27,6 @@ class Node:
         self.size_field = size_field
 
     def _parse_func_arguments(self, args, kwargs):
-        # args = [lambda index: a.output[index] if isinstance(a, Generic) else lambda _: a for a in args]
-        # args = [(lambda x:(lambda index:x))(a) for a in args]
-        # args = [self._factory_func(a, generic=isinstance(a, Generic)) for a in args]
         args = [
             (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Generic) else (lambda x: (lambda index: x))(
                 a) for a in args]
@@ -43,7 +40,7 @@ class Node:
 
     def _get_func_kwrgs(self, index, output_path):
         d = dict([(k, v(index)) for k, v in self._kwargs.items()])
-        try:
+        try:  # in case the function is ufunc
             if "output_path" in getfullargspec(self.function).args:
                 d["output_path"] = output_path
         except TypeError:
@@ -55,17 +52,13 @@ class Node:
         main_str += "\tname: " + self.name + "\n"
         main_str += "\ttype: " + self.__class__.__name__ + "\n"
         main_str += "\tfunction: " + self.function.__name__ + "\n"
-        # main_str += "\targuments: " + str(
-        #     {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
-        # if self.parents:
-        #     main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
-        # else:
-        #     main_str += "\tparents: None"
+        if self.parents:
+            main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
+        else:
+            main_str += "\tparents: None"
         return main_str
 
     def forward(self, idx, output_path):
-        # print(*self._get_func_args(idx))
-        # print(**self._get_func_kwrgs(idx, output_path))
         return self.function(*self._get_func_args(idx), **self._get_func_kwrgs(idx, output_path))
 
     def node_simulate(self, num_samples, output_path):
@@ -75,7 +68,7 @@ class Node:
             self.output = self.vectorize_forward(num_samples, output_path)
 
     def vectorize_forward(self, size, output_path):
-        # pass
+        #  Args and KwArgs would be used once. Index just for convenience
         return self.function(*self._get_func_args(0), **self._get_func_kwrgs(0, output_path),
                              **{self.size_field: size})  # .tolist()
 
