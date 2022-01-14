@@ -19,11 +19,11 @@ class TestStratify(unittest.TestCase):
                 return "Odd"
 
         Node = Generic(name="Normal", function=get_normal)
-        StratifyNode = Stratify(name="Stratify", function=stratify, arguments={"val": Node})
+        StratifyNode = Stratify(name="Stratify", function=stratify, kwargs={"val": Node})
         my_graph = Graph(name="graph1", list_nodes=[Node, StratifyNode])
         return my_graph
 
-    def test_selection(self):
+    def test_stratify(self):
         data = self.setUp().simulate(5, stratify=True)
         self.assertEqual({'Normal': [1, 3]}, data["Odd"])
         self.assertEqual({'Normal': [0, 2, 4]}, data["Even"])

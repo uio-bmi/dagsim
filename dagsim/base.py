@@ -221,6 +221,7 @@ class Graph:
             return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
+            # todo remove with retrun Node
             if node is None:
                 print("No node with the name '" + name + "' was found")
             else:

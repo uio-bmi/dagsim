@@ -4,16 +4,21 @@ from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
 import igraph as ig
+from typing import Union
 
 
 class Parser:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: Union[str, dict]):
         self.top_order = []
         self.graph = None
         self.node_names = []
         self.adj_matrix = None
-        with open(file_name, 'r') as stream:
-            self.yaml_file = yaml.safe_load(stream)
+        if isinstance(file_name, str):
+            with open(file_name, 'r') as stream:
+                self.yaml_file = yaml.safe_load(stream)
+        else:
+            self.yaml_file = file_name
+            # todo add in docs that file_name can be a dict
 
     def parse(self, verbose: bool = True, draw: bool = True):
 
@@ -42,8 +47,8 @@ class Parser:
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
                 if "kwargs" in nodes[key]:
-                    raise RuntimeError("Using a python-like definition with separate kwargs is not allowed. Please "
-                                       "use either way")
+                    raise SyntaxError("Using a python-like definition with separate kwargs is not allowed. "
+                                      "Use one way or the other.")
                 else:
                     nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = self._split_func_and_args(
                         nodes[key]["function"])
@@ -57,6 +62,11 @@ class Parser:
         first_kwarg_index = self._check_args_order(inputs)
         inputs = inputs.split(",")
         args = inputs[:first_kwarg_index]
+        for arg_idx in range(len(args)):
+            try:
+                args[arg_idx] = float(args[arg_idx])
+            except (ValueError, TypeError):
+                pass
         inputs = inputs[first_kwarg_index:]
         kwargs = {}
         for kwarg in inputs:
@@ -64,7 +74,7 @@ class Parser:
             kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
             try:
                 kwargs[arg_name] = float(kwargs[arg_name])
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
         func_name = func_expression[:func_expression.find("(")]
         return func_name, args, kwargs
