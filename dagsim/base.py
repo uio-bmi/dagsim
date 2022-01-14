@@ -9,13 +9,16 @@ from inspect import getfullargspec
 
 
 class Node:
-    def __init__(self, name: str, function, plates=None, observed=True, arguments=None, size_field=None, visible=True):
-        if arguments is None:
-            arguments = {}
+    def __init__(self, name: str, function, plates=None, observed=True, args=None, kwargs=None, size_field=None,
+                 visible=True):
+        if kwargs is None:
+            kwargs = {}
+        if args is None:
+            args = []
+        self._args, self._kwargs = self._parse_func_arguments(args, kwargs)
         self.name = name
-        self.parents_dict = {k: v for k, v in arguments.items() if v.__class__.__name__ == "Generic"}
-        self.parents = [value for value in self.parents_dict.values()]
-        self.additional_parameters = {k: v for k, v in arguments.items() if k not in self.parents_dict}
+        self.parents = list(set([v for v in args if isinstance(v, Generic)] + list(
+            v for v in kwargs.values() if isinstance(v, Generic))))
         self.function = function
         self.output = None
         self.observed = observed
@@ -23,50 +26,61 @@ class Node:
         self.plates = plates
         self.size_field = size_field
 
+    def _parse_func_arguments(self, args, kwargs):
+        args = [
+            (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Generic) else (lambda x: (lambda index: x))(
+                a) for a in args]
+        kwargs = dict(
+            [(k, (lambda x: (lambda index: x.output[index]))(v)) if isinstance(v, Generic) else (
+                k, (lambda x: (lambda index: x))(v)) for k, v in kwargs.items()])
+        return args, kwargs
+
+    def _get_func_args(self, index):
+        return [a(index) for a in self._args]
+
+    def _get_func_kwrgs(self, index, output_path):
+        d = dict([(k, v(index)) for k, v in self._kwargs.items()])
+        try:  # in case the function is ufunc
+            if "output_path" in getfullargspec(self.function).args:
+                d["output_path"] = output_path
+        except TypeError:
+            pass
+        return d
+
     def __str__(self):
         main_str = ""
         main_str += "\tname: " + self.name + "\n"
         main_str += "\ttype: " + self.__class__.__name__ + "\n"
         main_str += "\tfunction: " + self.function.__name__ + "\n"
-        main_str += "\targuments: " + str(
-            {**{k: v.name for k, v in self.parents_dict.items()}, **self.additional_parameters}) + "\n"
         if self.parents:
             main_str += "\tparents: " + ", ".join([par.name for par in self.parents]) + "\n"
         else:
             main_str += "\tparents: None"
         return main_str
 
-    def forward(self, idx, temp_dict):
-        if self.parents is not None:
-            temp_dict = {**temp_dict, **{k: v.output[idx] for k, v in self.parents_dict.items()}}
-        temp_dict = {**temp_dict, **self.additional_parameters}
-        return self.function(**temp_dict)
+    def forward(self, idx, output_path):
+        return self.function(*self._get_func_args(idx), **self._get_func_kwrgs(idx, output_path))
 
     def node_simulate(self, num_samples, output_path):
-        try:
-            temp_dict = {"output_path": output_path} if "output_path" in getfullargspec(self.function).args else {}
-        except TypeError:
-            temp_dict = {}
         if self.size_field is None:
-            self.output = [self.forward(i, temp_dict) for i in range(num_samples)]
+            self.output = [self.forward(i, output_path) for i in range(num_samples)]
         else:
-            self.output = self.vectorize_forward(num_samples)
+            self.output = self.vectorize_forward(num_samples, output_path)
 
-    def vectorize_forward(self, size):
-        temp_dict = {self.size_field: size}
-        if self.parents is not None:
-            temp_dict = {**temp_dict, **{k: v.output for k, v in self.parents_dict.items()}}
-        temp_dict = {**temp_dict, **self.additional_parameters}
-        return self.function(**temp_dict)  # .tolist()
+    def vectorize_forward(self, size, output_path):
+        #  Args and KwArgs would be used once. Index just for convenience
+        return self.function(*self._get_func_args(0), **self._get_func_kwrgs(0, output_path),
+                             **{self.size_field: size})  # .tolist()
 
     def __len__(self):
         return len(self.parents)
 
 
 class Generic(Node):
-    def __init__(self, name: str, function, arguments=None, plates=None, size_field=None, observed=True, visible=True,
+    def __init__(self, name: str, function, args=None, kwargs=None, plates=None, size_field=None, observed=True,
+                 visible=True,
                  handle_multi_cols=False, handle_multi_return=None):
-        super().__init__(name=name, function=function, arguments=arguments,
+        super().__init__(name=name, function=function, args=args, kwargs=kwargs,
                          plates=plates, observed=observed, visible=visible, size_field=size_field)
         self.handle_multi_cols = handle_multi_cols
         self.handle_multi_return = handle_multi_return
@@ -79,10 +93,8 @@ class Generic(Node):
 
 
 class Selection(Node):
-    def __init__(self, name: str, function, arguments=None):
-        super().__init__(name=name, function=function, arguments=arguments)
-        if arguments is None:
-            arguments = []
+    def __init__(self, name: str, function, args=None, kwargs=None):
+        super().__init__(name=name, function=function, args=args, kwargs=kwargs)
 
     @staticmethod
     def build_object(**kwargs):
@@ -97,10 +109,8 @@ class Selection(Node):
 
 
 class Stratify(Node):
-    def __init__(self, name: str, function, arguments=None):
-        super().__init__(name=name, function=function, arguments=arguments)
-        if arguments is None:
-            arguments = []
+    def __init__(self, name: str, function, args=None, kwargs=None):
+        super().__init__(name=name, function=function, args=args, kwargs=kwargs)
 
     @staticmethod
     def build_object(**kwargs):
@@ -123,7 +133,8 @@ class Stratify(Node):
 
 class Missing(Node):
     def __init__(self, name: str, underlying_value: Generic, index_node: Generic):
-        super().__init__(name=name, arguments=None, function=self.filter_output)
+        # todo remove arguments from missing
+        super().__init__(name=name, function=self.filter_output)
         self.underlying_value = underlying_value
         self.parents = [underlying_value, index_node]
         self.index_node = index_node
@@ -210,6 +221,7 @@ class Graph:
             return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
+            # todo remove with retrun Node
             if node is None:
                 print("No node with the name '" + name + "' was found")
             else:

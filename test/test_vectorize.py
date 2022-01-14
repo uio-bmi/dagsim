@@ -13,7 +13,7 @@ class TestVectorize(unittest.TestCase):
             return index_list[counter[0] - 1]
 
         Normal = Generic(name="Normal", function=get_normal)
-        Vectorized = Generic(name="Vectorized", function=np.arange, arguments={"start": 0}, size_field="stop")
+        Vectorized = Generic(name="Vectorized", function=np.arange, kwargs={"start": 0}, size_field="stop")
         my_graph = Graph(name="graph1", list_nodes=[Normal, Vectorized])
         return my_graph
 
