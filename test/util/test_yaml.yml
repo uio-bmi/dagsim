@@ -3,10 +3,10 @@ graph:
   name: "my_graph"
   nodes:
     result:
-      function: "square(param=source, add_param=2)"
+      function: printing(num=source, phra="a")
     source:
       function: "numpy.random.normal"
-      arguments:
+      kwargs:
         scale: 1
         loc: 0
 instructions:

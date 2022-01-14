@@ -63,19 +63,29 @@ class Parser:
         inputs = inputs.split(",")
         args = inputs[:first_kwarg_index]
         for arg_idx in range(len(args)):
-            try:
-                args[arg_idx] = float(args[arg_idx])
-            except (ValueError, TypeError):
-                pass
+            if args[arg_idx].startswith(("'", '"')):
+                args[arg_idx] = args[arg_idx][1:-1]
+            else:
+                try:
+                    args[arg_idx] = float(args[arg_idx])
+                except (ValueError, TypeError):
+                    pass
         inputs = inputs[first_kwarg_index:]
         kwargs = {}
         for kwarg in inputs:
             arg_name = kwarg[:kwarg.find("=")]
             kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
-            try:
-                kwargs[arg_name] = float(kwargs[arg_name])
-            except (ValueError, TypeError):
-                pass
+            if kwargs[arg_name].startswith(("'", '"')):
+                kwargs[arg_name] = kwargs[arg_name][1:-1]
+            # print("ka", kwargs[arg_name])
+            # print("kat", type(kwargs[arg_name]))
+            # print("st'", kwargs[arg_name].startswith("'"))
+            # print('st"', kwargs[arg_name].startswith('"'))
+            else:
+                try:
+                    kwargs[arg_name] = float(kwargs[arg_name])
+                except (ValueError, TypeError):
+                    pass
         func_name = func_expression[:func_expression.find("(")]
         return func_name, args, kwargs
 
