@@ -9,7 +9,7 @@ def square(arg):
 def main():
 
     X = ds.Generic(name="X", function=np.random.normal)
-    Y = ds.Generic(name="Y", function=square, arguments={"arg": X})
+    Y = ds.Generic(name="Y", function=square, kwargs={"arg": X})
     graph = ds.Graph(name="demo_graph", list_nodes=[X, Y])
 
     data = graph.simulate(num_samples=2)
