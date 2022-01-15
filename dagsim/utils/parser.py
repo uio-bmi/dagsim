@@ -95,6 +95,8 @@ class Parser:
             for kwargs in range(first_kwarg_index, len(all_args_str)):
                 if "=" not in all_args_str[kwargs]:
                     raise RuntimeError("Positional argument after keyword argument")
+        else:
+            first_kwarg_index = len(all_args_str)
         return first_kwarg_index
 
     def _build_adj_matrix(self, nodes: dict):

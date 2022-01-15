@@ -13,11 +13,11 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
         if sem_type not in ["logistic", "poisson"]:
             func_str += linear_equation + " + "
             if sem_type == "gauss":
-                func_str += "np.random.normal(loc=1, scale=0)"
+                func_str += "np.random.normal(loc=0, scale=1)"
             elif sem_type == 'exp':
-                func_str += "np.random.exponential(loc=1, scale=0)"
+                func_str += "np.random.exponential(loc=0, scale=1)"
             elif sem_type == 'gumbel':
-                func_str += "np.random.gumbel(loc=1, scale=0)"
+                func_str += "np.random.gumbel(loc=0, scale=1)"
             elif sem_type == 'uniform':
                 func_str += "np.random.uniform(low=-1, high=1)"
         elif sem_type == 'logistic':
@@ -32,15 +32,15 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
 
     def create_node(name: str, parents: list = None):
         # args_str = {"x" + str(i): "Node_x" + str(i) for i in parents}
-        node_def = "Node_" + name + " = Generic(name='" + name + "', function="
+        node_def = "Node_" + name + " = ds.Generic(name='" + name + "', function="
         if parents:
             arg_string = "{"
             for i in parents:
                 arg_string += "'x" + str(i) + "': Node_" + "x" + str(i) + ", "
             arg_string = arg_string[:-2] + "}"
-            node_def += "func_" + name + ", arguments=" + arg_string + ")"
+            node_def += "func_" + name + ", kwargs=" + arg_string + ")"
         else:
-            node_def += "np.random.normal, arguments={'loc': 1, 'scale': 0})"
+            node_def += "np.random.normal, kwargs={'loc': 0, 'scale': 1})"
         return node_def
 
     assert weight_matrix.shape[0] == weight_matrix.shape[1], "The weight matrix should be a square matrix"
@@ -48,7 +48,7 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
     G = ig.Graph.Weighted_Adjacency(weight_matrix.tolist())
     top_order = G.topological_sorting()
 
-    imports = "from baseDS import Graph, Selection, Stratify, Generic \n" \
+    imports = "import dagsim.base as ds \n" \
               "import numpy as np \n"
 
     if sem_type == "logistic":
@@ -76,7 +76,7 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
     for node_index in top_order:
         graph_def += "Node_x" + str(node_index) + ", "
     graph_def = graph_def[:-2] + "]\n"
-    graph_def += "graph = Graph('myGraph', listNodes) \n"
+    graph_def += "graph = ds.Graph('myGraph', listNodes) \n"
 
     script = imports + functions + nodes + graph_def
     with open(script_name + ".py", "w") as file:

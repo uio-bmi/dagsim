@@ -10,7 +10,7 @@ not_working = {'graph':
                         {'result':
                              {'function': 'square(param=source, add_param=2)',
                               'kwargs':
-                                  {'scale': 1}},
+                                  {'param': 1}},
                          'source':
                              {'function': 'numpy.random.normal',
                               'kwargs':

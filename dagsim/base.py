@@ -40,7 +40,7 @@ class Node:
 
     def _get_func_kwrgs(self, index, output_path):
         d = dict([(k, v(index)) for k, v in self._kwargs.items()])
-        try:  # in case the function is ufunc
+        try:  # This would throw a TypeError in case the function is ufunc
             if "output_path" in getfullargspec(self.function).args:
                 d["output_path"] = output_path
         except TypeError:
@@ -133,11 +133,12 @@ class Stratify(Node):
 
 class Missing(Node):
     def __init__(self, name: str, underlying_value: Generic, index_node: Generic):
-        # todo remove arguments from missing
         super().__init__(name=name, function=self.filter_output)
         self.underlying_value = underlying_value
         self.parents = [underlying_value, index_node]
         self.index_node = index_node
+        self.handle_multi_cols = underlying_value.handle_multi_cols
+        self.handle_multi_return = underlying_value.handle_multi_return
 
     @staticmethod
     def build_object(**kwargs):
@@ -221,11 +222,7 @@ class Graph:
             return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
-            # todo remove with retrun Node
-            if node is None:
-                print("No node with the name '" + name + "' was found")
-            else:
-                return node
+            return node
 
     def update_adj_mat(self):
         nodes_names = [node.name for node in self.nodes]
