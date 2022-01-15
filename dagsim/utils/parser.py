@@ -102,7 +102,7 @@ class Parser:
     def _build_adj_matrix(self, nodes: dict):
         # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
-        parents_dict = {k: [v for v in nodes[k]["kwargs"].values() if v in node_names] for k in node_names}
+        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values())+nodes[k]["args"]) if v in node_names] for k in node_names}
         # parents_dict = {**parents_dict, }
         pd_dict = pd.DataFrame(0, columns=node_names, index=node_names)
         for child in node_names:
