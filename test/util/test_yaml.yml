@@ -3,7 +3,7 @@ graph:
   name: "my_graph"
   nodes:
     result:
-      function: printing(num=source, phra="a")
+      function: printing(source, phra="a")
     source:
       function: "numpy.random.normal"
       kwargs:
