@@ -17,21 +17,21 @@ How to specify a simulation using python code
 
 These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.
 
-For a :code:`Node` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
+For a standard :code:`Node`, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
 For the other nodes, the return value has a different significance depending on the type of the corresponding node.
 
 2. **Nodes and Graph:**
 
 The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of four possible types:
 
- * **Node node** :code:`(Node)`: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.
+ * **Standard node** :code:`(Node)`: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.
  * **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
  * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user.
  * **Missing node** :code:`(Missing)`: a node that simulates missing entries in the data based on criteria defined by the user.
 
-Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
+Please check :ref:`this tutorial<Special nodes>` for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
 
-To define a :code:`(Node)` node, you need to specify the following things:
+To define a standard :code:`Node`, you need to specify the following things:
  
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
@@ -77,6 +77,7 @@ Within the graph component, you provide a name for that graph, the path to the p
 .. note::
     The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.
 # TODO add sample YAML for Hello World
+
 The general structure of the YAML file would look like this:
 
 .. highlight:: yaml

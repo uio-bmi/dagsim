@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='dagsim',
-    version='1.0.1',
+    version='1.0.2',
     packages=find_packages(),
     url='https://github.com/uio-bmi/dagsim',
     license='AGPL-3.0 License',
     author='Ghadi S. Al Hajj',
-    author_email='ghadia@uio.no.com',
+    author_email='ghadia@uio.no',
     description='A framework and specification language for simulating data based on user-defined graphical models',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -17,6 +17,7 @@ setup(
                       'pandas>=1.2.4',
                       'python-igraph>=0.9.6',
                       'scikit-learn>=0.24.2',
+                      'pyyaml',
                       'ipython>=7.27.0'],
     classifiers=[
         "Programming Language :: Python :: 3",
