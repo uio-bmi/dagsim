@@ -32,7 +32,7 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
 
     def create_node(name: str, parents: list = None):
         # args_str = {"x" + str(i): "Node_x" + str(i) for i in parents}
-        node_def = "Node_" + name + " = ds.Generic(name='" + name + "', function="
+        node_def = "Node_" + name + " = ds.Node(name='" + name + "', function="
         if parents:
             arg_string = "{"
             for i in parents:

@@ -11,13 +11,14 @@ In this tutorial, you will learn how to use each of these nodes.
 Selection
 ---------------------------------------------
 
-Similar to a :code:`Generic` node, to define a :code:`Selection` node, you need to specify the following:
+Similar to a :code:`Node` node, to define a :code:`Selection` node, you need to specify the following:
 
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
- * :code:`arguments (dict)`: A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument. At least one :code:`value`: in the dictionary should be a node in the graph.
+ * :code:`args (list)` (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.
+ * :code:`kwargs (dict)` (Optional): A dictionary of key word arguments with key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
 
-The difference from a :code:`Generic` node is that the function here should return a boolean; :code:`True` to include a sample, and :code:`False` to discard a sample.
+The difference from a :code:`Node` node is that the function here should return a boolean; :code:`True` to include a sample, and :code:`False` to discard a sample.
 
 The following code shows an example where only the samples that have a value of node Y greater than a certain threshold are included in the data set.
 
@@ -42,11 +43,11 @@ The following code shows an example where only the samples that have a value of 
             return False
 
 
-    Node1 = ds.Generic(name="A", function=np.random.normal)
-    Node2 = ds.Generic(name="B", function=np.random.normal)
-    Node3 = ds.Generic(name="C", arguments={"param1": Node1, "param2": Node2}, function=add)
-    Node4 = ds.Generic(name="D", function=square, arguments={"param": Node3})
-    Node5 = ds.Selection(name="SB", function=is_greater_than2, arguments={"node": Node3, "threshold":2})
+    Node1 = ds.Node(name="A", function=np.random.normal)
+    Node2 = ds.Node(name="B", function=np.random.normal)
+    Node3 = ds.Node(name="C", args={"param1": Node1, "param2": Node2}, function=add)
+    Node4 = ds.Node(name="D", function=square, kwargs={"param": Node3})
+    Node5 = ds.Selection(name="SB", function=is_greater_than2, kwargs={"node": Node3, "threshold":2})
 
     listNodes = [Node1, Node2, Node3, Node4, Node5]
     my_graph = ds.Graph("SelectionExample", listNodes)
@@ -88,11 +89,11 @@ The following code shows an example where the samples are split into three categ
             return ">-1|<+1"
 
 
-    Node1 = ds.Generic(name="A", function=np.random.normal)
-    Node2 = ds.Generic(name="B", function=np.random.normal)
-    Node3 = ds.Generic(name="C", function=add, arguments={"param1": Node1, "param2": Node2})
-    Node4 = ds.Generic(name="D", function=square, arguments={"param": Node3})
-    Node5 = ds.Stratify(name="St", function=check_strata, arguments={"node": Node3})
+    Node1 = ds.Node(name="A", function=np.random.normal)
+    Node2 = ds.Node(name="B", function=np.random.normal)
+    Node3 = ds.Node(name="C", function=add, kwargs={"param1": Node1, "param2": Node2})
+    Node4 = ds.Node(name="D", function=square, kwargs={"param": Node3})
+    Node5 = ds.Stratify(name="St", function=check_strata, kwargs={"node": Node3})
 
     listNodes = [Node1, Node2, Node3, Node4, Node5]
     my_graph = ds.Graph("StratificationExample", listNodes)
@@ -105,8 +106,8 @@ Missing
 To specify a :code:`Missing` node, the user provides the following:
 
  * :code:`name (str)`: A name for the node,
- * :code:`underlying_value (Generic)`: The node that will eventually have missing values
- * :code:`index_node (Generic)`: A :code:`Generic` node that will provide the indices of the entries that will go missing: :code:`0` for remove, :code:`1` for keep.
+ * :code:`underlying_value (Node)`: The node that will eventually have missing values
+ * :code:`index_node (Node)`: A :code:`Node` node that will provide the indices of the entries that will go missing: :code:`0` for remove, :code:`1` for keep.
 
 We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.
 
@@ -132,8 +133,8 @@ of any missing or non-missing values of other variables in the data-generating p
     import numpy as np
 
 
-    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
-    index_node = ds.Generic(name="index_node", function=np.random.randint, arguments={"low":0, "high":2})
+    underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
+    index_node = ds.Node(name="index_node", function=np.random.randint, kwargs={"low":0, "high":2})
     MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, index_node, MCAR]
@@ -165,9 +166,9 @@ In this case, :math:`\Pr(M=0)` depends on the observed value of :math:`Y_obs`.
         return val
 
 
-    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
-    Y_observed = ds.Generic(name="Y_observed", function=np.random.normal)
-    index_node = ds.Generic(name="index_node", function=get_index, arguments={"Y_observed": Y_observed})
+    underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
+    Y_observed = ds.Node(name="Y_observed", function=np.random.normal)
+    index_node = ds.Node(name="index_node", function=get_index, kwargs={"Y_observed": Y_observed})
     MAR = ds.Missing(name="MAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, index_node, Y_observed, MAR]
@@ -200,11 +201,11 @@ would-have-been value of :math:`Y_mis`.
 
 
 
-    underlying_value = ds.Generic(name="underlying_value", function=np.random.normal)
-    Y_observed = ds.Generic(name="Y_observed", function=np.random.normal)
-    Y_missing = ds.Generic(name="Y_missing", function=np.random.normal)
-    index_node_Y = ds.Generic(name="index_node_Y", function=np.random.randint, arguments={"low":0, "high":2})
-    index_node = ds.Generic(name="index_node", function=get_index, arguments={"Y_observed":Y_observed, "Y_missing":Y_missing})
+    underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
+    Y_observed = ds.Node(name="Y_observed", function=np.random.normal)
+    Y_missing = ds.Node(name="Y_missing", function=np.random.normal)
+    index_node_Y = ds.Node(name="index_node_Y", function=np.random.randint, kwargs={"low":0, "high":2})
+    index_node = ds.Node(name="index_node", function=get_index, kwargs={"Y_observed":Y_observed, "Y_missing":Y_missing})
     MNAR = ds.Missing(name="MNAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, Y_observed, Y_missing, index_node, index_node_Y, MNAR]

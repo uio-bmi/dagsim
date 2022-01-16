@@ -20,7 +20,7 @@
 		// For CommonJS and CommonJS-like environments where a proper `window`
 		// is present, execute the factory and get jQuery.
 		// For environments that do not have a `window` with a `document`
-		// (such as Node.js), expose a factory as module.exports.
+		// (such as _Node.js), expose a factory as module.exports.
 		// This accentuates the need for the creation of a real `window`.
 		// e.g. var jQuery = require("jquery")(window);
 		// See ticket #14549 for more info.
@@ -4218,9 +4218,9 @@ function camelCase( string ) {
 var acceptData = function( owner ) {
 
 	// Accepts only:
-	//  - Node
-	//    - Node.ELEMENT_NODE
-	//    - Node.DOCUMENT_NODE
+	//  - _Node
+	//    - _Node.ELEMENT_NODE
+	//    - _Node.DOCUMENT_NODE
 	//  - Object
 	//    - Any
 	return owner.nodeType === 1 || owner.nodeType === 9 || !( +owner.nodeType );
@@ -6888,7 +6888,7 @@ jQuery.extend( {
 	// setting or getting the value
 	cssProps: {},
 
-	// Get and set the style property on a DOM Node
+	// Get and set the style property on a DOM _Node
 	style: function( elem, name, value, extra ) {
 
 		// Don't set styles on text and comment nodes

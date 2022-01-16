@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.base import Graph, Generic, Selection
+from dagsim.base import Graph, Node, Selection
 import random
 
 
@@ -18,9 +18,9 @@ class TestSelection(unittest.TestCase):
             else:
                 return False
 
-        Node = Generic(name="Normal", function=get_normal)
-        Select = Selection(name="Select", function=select, kwargs={"val": Node})
-        my_graph = Graph(name="graph1", list_nodes=[Node, Select])
+        Normal = Node(name="Normal", function=get_normal)
+        Select = Selection(name="Select", function=select, kwargs={"val": Normal})
+        my_graph = Graph(name="graph1", list_nodes=[Normal, Select])
         return my_graph
 
     def test_selection(self):

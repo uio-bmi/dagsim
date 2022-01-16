@@ -2033,7 +2033,7 @@
 
   // Add all of the Underscore functions to the wrapper object.
   var _ = mixin(allExports);
-  // Legacy Node.js API.
+  // Legacy _Node.js API.
   _._ = _;
 
   return _;

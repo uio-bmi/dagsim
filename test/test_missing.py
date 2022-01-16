@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.base import Graph, Generic, Missing
+from dagsim.base import Graph, Node, Missing
 import random
 
 
@@ -18,8 +18,8 @@ class TestMissing(unittest.TestCase):
             counter[0] += 1
             return index_list[counter[0] - 1]
 
-        index = Generic("i", function=get_index)
-        toBeMissed = Generic(name="toBeMissed", function=get_val)
+        index = Node("i", function=get_index)
+        toBeMissed = Node(name="toBeMissed", function=get_val)
         missingNode = Missing(name="M1", underlying_value=toBeMissed, index_node=index)
         my_graph = Graph(name="graph1", list_nodes=[index, toBeMissed, missingNode])
         return my_graph

@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.base import Graph, Generic
+from dagsim.base import Graph, Node
 import numpy as np
 
 
@@ -12,8 +12,8 @@ class TestVectorize(unittest.TestCase):
             counter[0] += 1
             return index_list[counter[0] - 1]
 
-        Normal = Generic(name="Normal", function=get_normal)
-        Vectorized = Generic(name="Vectorized", function=np.arange, kwargs={"start": 0}, size_field="stop")
+        Normal = Node(name="Normal", function=get_normal)
+        Vectorized = Node(name="Vectorized", function=np.arange, kwargs={"start": 0}, size_field="stop")
         my_graph = Graph(name="graph1", list_nodes=[Normal, Vectorized])
         return my_graph
 

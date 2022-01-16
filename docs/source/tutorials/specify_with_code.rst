@@ -17,29 +17,32 @@ How to specify a simulation using python code
 
 These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.
 
-For a :code:`Generic` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
+For a :code:`Node` node, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
 For the other nodes, the return value has a different significance depending on the type of the corresponding node.
 
 2. **Nodes and Graph:**
 
 The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of four possible types:
 
- * **Generic node** :code:`(Generic)`: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.
+ * **Node node** :code:`(Node)`: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.
  * **Selection node** :code:`(Selection)`: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.
  * **Stratify node** :code:`(Stratify)`: a node that stratifies the simulation output into different files depending on criteria defined by the user.
  * **Missing node** :code:`(Missing)`: a node that simulates missing entries in the data based on criteria defined by the user.
 
 Please check this tutorial for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
 
-To define a :code:`(Generic)` node, you need to specify the following things:
+To define a :code:`(Node)` node, you need to specify the following things:
  
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
- * :code:`arguments (dict)` (Optional): A dictionary of key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
- * :code:`plates (list of str)` (Optional): The names of the plates in which the node resides.
- * :code:`visible (boolean)` (Optional): Default is :code:`TRUE` to show the node when drawing the graph. :code:`FALSE` hides the node in the graph.
- * :code:`observed (boolean)` (Optional): Default is :code:`TRUE` to show the output of the node when drawing the graph. :code:`FALSE` hides the node in the graph.
+ * :code:`args (list)` (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.
+ * :code:`kwargs (dict)` (Optional): A dictionary of key word arguments with key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
+ * :code:`visible (boolean)` (Optional): Default is :code:`True` to show the node when drawing the graph. :code:`False` hides the node in the graph.
+ * :code:`observed (boolean)` (Optional): Default is :code:`True` to show the output of the node when drawing the graph. :code:`False` hides the node in the graph.
  * :code:`size_field (str)` (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when the used function comes with a vectorized implementation.
+ * :code:`handle_multi_cols (bool)` (Optional): Default is :code:`False`. If :code:`True`, vector-valued outputs will be split into different columns, each with the name of the original node appended by its index.
+ * :code:`handle_multi_return (function)` (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.
+ * :code:`plates (list)` (Optional): The names of the plates in which the node resides.
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
@@ -85,14 +88,13 @@ The general structure of the YAML file would look like this:
       nodes: # A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.
         name_of_node1:
           function: function_name # user-defined or one provided by an external library
-          arguments:
+          kwargs:
             name_of_argument1: value_of_argument1 # The name and value of an argument. This could be an appropriate python object or another node
             name_of_argument2: value_of_argument2
-          type: Generic # This could be Generic, Selection, Stratify, or Missing
+          type: Node # This could be Node, Selection, Stratify, or Missing. No need to specify it if the node is Node.
           ⋮(other optional arguments)
         name_of_node2:
-          function: function_name(kwargs) # This is another way of defining a function, witout separately defining the arguments.
-          type: Generic
+          function: function_name(*args, **kwargs) # This is another way of defining a function, without separately defining the arguments.
 
     instructions:
       simulation:

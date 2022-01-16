@@ -11,8 +11,8 @@ def ground_truth(x, add_param):
 
 
 # define a node for the input feature, and another node for the outcome of a linear regression model
-Nodex = ds.Generic(name="x", function=np.random.normal)
-Nodey = ds.Generic(name="y", function=ground_truth, kwargs={"add_param":1, "x": Nodex})
+Nodex = ds.Node(name="x", function=np.random.normal)
+Nodey = ds.Node(name="y", function=ground_truth, kwargs={"add_param":1, "x": Nodex})
 
 # define a list of all nodes, then instantiate the graph
 listNodes = [Nodex, Nodey]

@@ -52,9 +52,10 @@ def square(arg):
 ```
 
 Then, we define the nodes in our graph/model by giving each one a name, the function to use in order to evaluate its value, and the arguments of the function, if any:
+
 ```python
-X = ds.Generic(name="X", function=np.random.normal)
-Y = ds.Generic(name="Y", function=square, kwargs={"arg": X})
+X = ds.Node(name="X", function=np.random.normal)
+Y = ds.Node(name="Y", function=square, kwargs={"arg": X})
 ```
 
 After that, we define the graph by giving it a name and a list containing all the nodes to be included:

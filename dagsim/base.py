@@ -8,7 +8,7 @@ import time
 from inspect import getfullargspec
 
 
-class Node:
+class _Node:
     def __init__(self, name: str, function, plates=None, observed=True, args=None, kwargs=None, size_field=None,
                  visible=True):
         if kwargs is None:
@@ -17,8 +17,8 @@ class Node:
             args = []
         self._args, self._kwargs = self._parse_func_arguments(args, kwargs)
         self.name = name
-        self.parents = list(set([v for v in args if isinstance(v, Generic)] + list(
-            v for v in kwargs.values() if isinstance(v, Generic))))
+        self.parents = list(set([v for v in args if isinstance(v, Node)] + list(
+            v for v in kwargs.values() if isinstance(v, Node))))
         self.function = function
         self.output = None
         self.observed = observed
@@ -28,10 +28,10 @@ class Node:
 
     def _parse_func_arguments(self, args, kwargs):
         args = [
-            (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Generic) else (lambda x: (lambda index: x))(
+            (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Node) else (lambda x: (lambda index: x))(
                 a) for a in args]
         kwargs = dict(
-            [(k, (lambda x: (lambda index: x.output[index]))(v)) if isinstance(v, Generic) else (
+            [(k, (lambda x: (lambda index: x.output[index]))(v)) if isinstance(v, Node) else (
                 k, (lambda x: (lambda index: x))(v)) for k, v in kwargs.items()])
         return args, kwargs
 
@@ -58,16 +58,16 @@ class Node:
             main_str += "\tparents: None"
         return main_str
 
-    def forward(self, idx, output_path):
+    def _forward(self, idx, output_path):
         return self.function(*self._get_func_args(idx), **self._get_func_kwrgs(idx, output_path))
 
-    def node_simulate(self, num_samples, output_path):
+    def _node_simulate(self, num_samples, output_path):
         if self.size_field is None:
-            self.output = [self.forward(i, output_path) for i in range(num_samples)]
+            self.output = [self._forward(i, output_path) for i in range(num_samples)]
         else:
-            self.output = self.vectorize_forward(num_samples, output_path)
+            self.output = self._vectorize_forward(num_samples, output_path)
 
-    def vectorize_forward(self, size, output_path):
+    def _vectorize_forward(self, size, output_path):
         #  Args and KwArgs would be used once. Index just for convenience
         return self.function(*self._get_func_args(0), **self._get_func_kwrgs(0, output_path),
                              **{self.size_field: size})  # .tolist()
@@ -76,7 +76,7 @@ class Node:
         return len(self.parents)
 
 
-class Generic(Node):
+class Node(_Node):
     def __init__(self, name: str, function, args=None, kwargs=None, plates=None, size_field=None, observed=True,
                  visible=True,
                  handle_multi_cols=False, handle_multi_return=None):
@@ -86,39 +86,39 @@ class Generic(Node):
         self.handle_multi_return = handle_multi_return
 
     @staticmethod
-    def build_object(**kwargs):
+    def _build_object(**kwargs):
         # check params
-        generic = Generic(**kwargs)
+        generic = Node(**kwargs)
         return generic
 
 
-class Selection(Node):
+class Selection(_Node):
     def __init__(self, name: str, function, args=None, kwargs=None):
         super().__init__(name=name, function=function, args=args, kwargs=kwargs)
 
     @staticmethod
-    def build_object(**kwargs):
+    def _build_object(**kwargs):
         # check params
         selection = Selection(**kwargs)
         return selection
 
-    def filter_output(self, output_dict):
+    def _filter_output(self, output_dict):
         for key, value in output_dict.items():
             output_dict[key] = [value[i] for i in range(len(value)) if self.output[i]]
         return output_dict
 
 
-class Stratify(Node):
+class Stratify(_Node):
     def __init__(self, name: str, function, args=None, kwargs=None):
         super().__init__(name=name, function=function, args=args, kwargs=kwargs)
 
     @staticmethod
-    def build_object(**kwargs):
+    def _build_object(**kwargs):
         # check params
         stratify = Stratify(**kwargs)
         return stratify
 
-    def filter_output(self, output_dict):
+    def _filter_output(self, output_dict):
         node_names = output_dict.keys()
         strata = list(set(self.output))
         # A dictionary of dictionaries. Outer dictionary with keys=strata, and inner dictionaries with keys=node_names
@@ -131,9 +131,9 @@ class Stratify(Node):
         return new_dict
 
 
-class Missing(Node):
-    def __init__(self, name: str, underlying_value: Generic, index_node: Generic):
-        super().__init__(name=name, function=self.filter_output)
+class Missing(_Node):
+    def __init__(self, name: str, underlying_value: Node, index_node: Node):
+        super().__init__(name=name, function=self._filter_output)
         self.underlying_value = underlying_value
         self.parents = [underlying_value, index_node]
         self.index_node = index_node
@@ -141,12 +141,12 @@ class Missing(Node):
         self.handle_multi_return = underlying_value.handle_multi_return
 
     @staticmethod
-    def build_object(**kwargs):
+    def _build_object(**kwargs):
         # check params
         missing = Missing(**kwargs)
         return missing
 
-    def filter_output(self):
+    def _filter_output(self):
         index_output = self.index_node.output
         output = [x if y == 1 else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
         self.output = output
@@ -157,21 +157,18 @@ class Graph:
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_mat = pd.DataFrame()
-        self.plates = self.plate_embedding()
+        self.plates = self._plate_embedding()
         self.top_order = []
-        self.update_topol_order()
-        # TODO add build graph where you call the updates once.
-        # TODO Add a function to check that no node has a non-Generic node as a parent, as the adj_mat excludes such
-        #  nodes.
+        self._update_topol_order()
 
     def __str__(self):
         main_str = ""
         for idx, node in enumerate(self.nodes):
-            main_str += "Node " + str(idx + 1) + ":\n"
+            main_str += "_Node " + str(idx + 1) + ":\n"
             main_str += node.__str__() + "\n"
         return main_str[:-1]
 
-    def plate_embedding(self):
+    def _plate_embedding(self):
         def get_key_by_label(label):
             for key in plateDict.keys():
                 if plateDict[key][0] == label:
@@ -192,13 +189,13 @@ class Graph:
                 plateDict[0][1].append(node.name)
         return plateDict
 
-    def add_node(self, node: Union[Generic, Selection, Stratify, Missing]):
+    def _add_node(self, node: Union[Node, Selection, Stratify, Missing]):
         if node not in self.nodes:
             self.nodes.append(node)
         # update the topological order whenever a new node is added
-        self.update_topol_order()
+        self._update_topol_order()
 
-    def get_selection(self):
+    def _get_selection(self):
         # todo change to missing way
         check_for_selection = next((item for item in self.nodes if item.__class__.__name__ == "Selection"), None)
         if check_for_selection is not None:
@@ -206,25 +203,25 @@ class Graph:
         else:
             return None
 
-    def get_stratify(self):
+    def _get_stratify(self):
         check_for_stratify = next((item for item in self.nodes if item.__class__.__name__ == "Stratify"), None)
         if check_for_stratify is not None:
             return self.nodes.index(check_for_stratify)
         else:
             return None
 
-    def get_missing(self):
+    def _get_missing(self):
         check_for_missing = [item for item in self.nodes if item.__class__.__name__ == "Missing"]
         return check_for_missing if check_for_missing else None
 
-    def get_node_by_name(self, name: str):
+    def _get_node_by_name(self, name: str):
         if not isinstance(name, str):
             return None
         else:
             node = next((item for item in self.nodes if item.name == name), None)
             return node
 
-    def update_adj_mat(self):
+    def _update_adj_mat(self):
         nodes_names = [node.name for node in self.nodes]
         matrix = pd.DataFrame(data=np.zeros([len(self.nodes), len(self.nodes)]), dtype=int,
                               columns=nodes_names,
@@ -235,8 +232,8 @@ class Graph:
                     matrix[node.name][parent.name] = 1
         self.adj_mat = matrix
 
-    def update_topol_order(self):
-        self.update_adj_mat()
+    def _update_topol_order(self):
+        self._update_adj_mat()
         G = ig.Graph.Weighted_Adjacency(self.adj_mat.to_numpy().tolist())
         top_order = G.topological_sorting()
         top_order = [list(self.adj_mat.columns)[i] for i in top_order]
@@ -248,9 +245,9 @@ class Graph:
     def __len__(self):
         return len(self.nodes)
 
-    def generate_dot(self):
+    def _generate_dot(self):
 
-        shape_dict = {'Generic': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon",
+        shape_dict = {'Node': "ellipse", 'Selection': "doublecircle", 'Stratify': "doubleoctagon",
                       "Missing": "Mcircle"}
         dot_str = 'digraph G{\n'
         # add the visible nodes
@@ -261,10 +258,10 @@ class Graph:
 
         # add the edges of both vertices are visible
         for parent_node in self.adj_mat:
-            if self.get_node_by_name(parent_node).visible:
+            if self._get_node_by_name(parent_node).visible:
                 for child_node in self.adj_mat.loc[parent_node].index:
                     if self.adj_mat.loc[parent_node].loc[child_node] == 1:
-                        if self.get_node_by_name(child_node).visible:
+                        if self._get_node_by_name(child_node).visible:
                             tmp_str = parent_node + "->" + child_node + ";\n"
                             dot_str += tmp_str
 
@@ -275,7 +272,7 @@ class Graph:
         return dot_str
 
     def draw(self):
-        dot_str = self.generate_dot()
+        dot_str = self._generate_dot()
         with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
@@ -289,75 +286,25 @@ class Graph:
 
     def simulate(self, num_samples, output_path="./", selection=True, stratify=True, missing=True, csv_name=""):
 
-        def traverse_graph(num_samples):
-            output_dict = {}
-            for node_name in self.top_order:
-                node = self.get_node_by_name(node_name)
-                if node.__class__.__name__ == "Missing" and missing:
-                    node.filter_output()
-                else:
-                    node.node_simulate(num_samples, output_path)
-                if node.__class__.__name__ == "Selection":
-                    assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
-                                                                          "a boolean"
-                elif node.__class__.__name__ == "Stratify":
-                    assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
-                                                                         "return a string"
-                else:
-                    output_dict[node.name] = node.output
-            return output_dict
-
-        def prettify_output(output_dict: dict):
-            keys_to_remove = []
-            for key in output_dict:
-                node = self.get_node_by_name(key)
-                # check if subscriptible
-                if node.handle_multi_cols:
-                    node_output = output_dict[key]
-                    keys_to_remove.append(key)
-                    try:
-                        unfolded_output = vec2dict(key, node_output)
-                        output_dict = {**output_dict, **unfolded_output}
-                    except IndexError:
-                        raise RuntimeError("All vectors returned by " + node.function.__name__ + " must be of the same "
-                                                                                                 "length")
-                    except TypeError:
-                        raise RuntimeError("The output of " + node.function.__name__ + " either is not subscriptable "
-                                                                                       "or has no len()")
-                elif node.handle_multi_return is not None:
-                    output_dict[key] = [node.handle_multi_return(elem) for elem in node.output]
-            for key in keys_to_remove:
-                output_dict.pop(key)
-
-            return output_dict
-
-        def vec2dict(key: str, node_output):
-            num_reps = len(node_output[0])
-            node_dict = {key + "_" + str(rep): [] for rep in range(num_reps)}
-            for sample in range(num_samples):
-                for rep in range(num_reps):
-                    node_dict[key + "_" + str(rep)].append(node_output[sample][rep])
-            return node_dict
-
         tic = time.perf_counter()
         print("Simulation started")
-        output_dict = traverse_graph(num_samples)
+        output_dict = self._traverse_graph(num_samples, output_path, missing)
 
-        selectionNode = self.get_selection()
+        selectionNode = self._get_selection()
         if selection:
             if selectionNode is not None:
-                output_dict = self.nodes[selectionNode].filter_output(output_dict=output_dict)
+                output_dict = self.nodes[selectionNode]._filter_output(output_dict=output_dict)
                 while len(list(output_dict.values())[0]) < num_samples:
-                    temp_output = self.nodes[selectionNode].filter_output(output_dict=traverse_graph(1))
+                    temp_output = self.nodes[selectionNode]._filter_output(output_dict=self._traverse_graph(1, output_path, missing))
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
-        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
-        output_dict = prettify_output(output_dict)
+        output_dict = {k: v for k, v in output_dict.items() if self._get_node_by_name(k).observed}
+        output_dict = self._prettify_output(output_dict)
 
-        stratifyNode = self.get_stratify()
+        stratifyNode = self._get_stratify()
         if stratify:
             if stratifyNode is not None:
-                output_dict = self.nodes[stratifyNode].filter_output(output_dict=output_dict)
+                output_dict = self.nodes[stratifyNode]._filter_output(output_dict=output_dict)
 
         if csv_name:
             if stratifyNode is not None:
@@ -369,6 +316,57 @@ class Graph:
         toc = time.perf_counter()
         print(f"Simulation finished in {toc - tic:0.4f} seconds")
         return output_dict
+
+    def _traverse_graph(self, num_samples, output_path, missing):
+        output_dict = {}
+        for node_name in self.top_order:
+            node = self._get_node_by_name(node_name)
+            if node.__class__.__name__ == "Missing" and missing:
+                node._filter_output()
+            else:
+                node._node_simulate(num_samples, output_path)
+            if node.__class__.__name__ == "Selection":
+                assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
+                                                                      "a boolean"
+            elif node.__class__.__name__ == "Stratify":
+                assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
+                                                                     "return a string"
+            else:
+                output_dict[node.name] = node.output
+        return output_dict
+    
+    def _prettify_output(self, output_dict: dict):
+        keys_to_remove = []
+        for key in output_dict:
+            node = self._get_node_by_name(key)
+            # check if subscriptible
+            if node.handle_multi_cols:
+                node_output = output_dict[key]
+                keys_to_remove.append(key)
+                try:
+                    unfolded_output = self._vec2dict(key, node_output)
+                    output_dict = {**output_dict, **unfolded_output}
+                except IndexError:
+                    raise RuntimeError("All vectors returned by " + node.function.__name__ + " must be of the same "
+                                                                                             "length")
+                except TypeError:
+                    raise RuntimeError("The output of " + node.function.__name__ + " either is not subscriptable "
+                                                                                   "or has no __len__ method")
+            elif node.handle_multi_return is not None:
+                output_dict[key] = [node.handle_multi_return(elem) for elem in node.output]
+        for key in keys_to_remove:
+            output_dict.pop(key)
+
+        return output_dict
+    
+    @staticmethod
+    def _vec2dict(key: str, node_output):
+        num_reps = len(node_output[0])
+        node_dict = {key + "_" + str(rep): [] for rep in range(num_reps)}
+        for sample in range(len(node_output)):
+            for rep in range(num_reps):
+                node_dict[key + "_" + str(rep)].append(node_output[sample][rep])
+        return node_dict
 
     def ml_simulation(self, num_samples, train_test_ratio, stratify=False, include_external=False, csv_prefix=""):
         if csv_prefix:

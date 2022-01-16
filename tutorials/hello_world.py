@@ -1,4 +1,4 @@
-from dagsim.base import Graph, Generic
+from dagsim.base import Graph, Node
 import numpy as np
 
 
@@ -14,12 +14,12 @@ def double(param, add1, add2):
     return np.square(param) + add1 - add2
 
 
-Prior1 = Generic(name="Prior1", function=np.random.normal)
-Prior2 = Generic(name="Prior2", function=np.random.normal)
-Node1 = Generic(name="Node1", kwargs={"param": Prior2, "add1": 2, "add2": 1}, function=double)
-Node2 = Generic(name="Node2", kwargs={"param": Prior1, "add1": 2, "add2": 1}, function=double)
-Node3 = Generic(name="Node3", kwargs={"param": Node1, "add_param": 1}, function=square)
-Node4 = Generic(name="Node4", kwargs={"params0": Node3, "params1": Prior1}, function=add)
+Prior1 = Node(name="Prior1", function=np.random.normal)
+Prior2 = Node(name="Prior2", function=np.random.normal)
+Node1 = Node(name="Node1", kwargs={"param": Prior2, "add1": 2, "add2": 1}, function=double)
+Node2 = Node(name="Node2", kwargs={"param": Prior1, "add1": 2, "add2": 1}, function=double)
+Node3 = Node(name="Node3", kwargs={"param": Node1, "add_param": 1}, function=square)
+Node4 = Node(name="Node4", kwargs={"params0": Node3, "params1": Prior1}, function=add)
 
 listNodes = [Prior1, Prior2, Node1, Node2, Node3, Node4]
 my_graph = Graph("Graph1", listNodes)

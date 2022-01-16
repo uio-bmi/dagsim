@@ -1,5 +1,5 @@
 import yaml
-from dagsim.base import Graph, Generic, Selection, Stratify
+from dagsim.base import Graph, Node, Selection, Stratify
 from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
@@ -126,31 +126,31 @@ class Parser:
             nodes[key] = {**nodes[key], **{"name": key}}
             nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
             nodes[key]["kwargs"] = {
-                k: self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for k, v in
+                k: self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for k, v in
                 nodes[key]["kwargs"].items()}
 
             nodes[key]["args"] = [
-                self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for v in
+                self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for v in
                 nodes[key]["args"]]
 
             node_type = nodes[key].get("type")
             if node_type is not None:
                 nodes[key].pop("type")
 
-            if node_type == "Generic" or node_type is None:
-                node = Generic.build_object(**nodes[key])
-                self.graph.add_node(node)
+            if node_type == "Node" or node_type is None:
+                node = Node._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             elif node_type == "Selection":
-                node = Selection.build_object(**nodes[key])
-                self.graph.add_node(node)
+                node = Selection._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             elif node_type == "Stratify":
-                node = Stratify.build_object(**nodes[key])
-                self.graph.add_node(node)
+                node = Stratify._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             else:
-                raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Generic, "
+                raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Node, "
                                                    "Selection, or Stratify.")
 
     def _get_func_by_name(self, functions_list: list, func_name: str):

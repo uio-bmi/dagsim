@@ -46,8 +46,8 @@ For the node of the variable :math:`x` we only need to give it a name and the fu
 .. highlight:: python
 .. code-block:: python
 
-  Nodex = ds.Generic(name="x", function=np.random.normal)
-  Nodey = ds.Generic(name="y", function=ground_truth, arguments={"x": Nodex, "std_dev": 1})
+  Nodex = ds.Node(name="x", function=np.random.normal)
+  Nodey = ds.Node(name="y", function=ground_truth, kwargs={"x": Nodex, "std_dev": 1})
   
 At this stage, we can simply compile the graph as follows:
 
@@ -138,13 +138,12 @@ Here, LinReg_example_function is a python (.py) file containing the user-defined
       nodes:
         Y:
           function: "ground_truth"
-          arguments:
+          kwargs:
             param: "X"
             std_dev: 2
-          type: Generic
+          type: Node
         X:
           function: "numpy.random.normal(scale=1, loc=0)"
-          type: Generic
 
     instructions:
       simulation:

@@ -1,6 +1,6 @@
 import unittest
 
-from dagsim.base import Graph, Generic, Stratify
+from dagsim.base import Graph, Node, Stratify
 import random
 
 
@@ -18,9 +18,9 @@ class TestStratify(unittest.TestCase):
             else:
                 return "Odd"
 
-        Node = Generic(name="Normal", function=get_normal)
-        StratifyNode = Stratify(name="Stratify", function=stratify, kwargs={"val": Node})
-        my_graph = Graph(name="graph1", list_nodes=[Node, StratifyNode])
+        Normal = Node(name="Normal", function=get_normal)
+        StratifyNode = Stratify(name="Stratify", function=stratify, kwargs={"val": Normal})
+        my_graph = Graph(name="graph1", list_nodes=[Normal, StratifyNode])
         return my_graph
 
     def test_stratify(self):
