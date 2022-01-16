@@ -203,7 +203,7 @@
 </ol>
 <p>For the node of the variable <span class="math notranslate nohighlight">\(x\)</span> we only need to give it a name and the function to evaluate. This is because it has no parents, i.e. it is a root node, and the function to evaluate <span class="math notranslate nohighlight">\(x\)</span> does not need any arguments in our case. For the node of the variable <span class="math notranslate nohighlight">\(y\)</span>, we need to give it a name, the function to evaluate, and the values of the arguments needed to evaluate that function, in the form of a dictionary, as shown below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Nodex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Nodey</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">Nodex</span><span class="p">,</span> <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="n">Nodey</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">Nodex</span><span class="p">,</span> <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>At this stage, we can simply compile the graph as follows:</p>
@@ -270,13 +270,12 @@
   <span class="nt">nodes</span><span class="p">:</span>
     <span class="nt">Y</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;ground_truth&quot;</span>
-      <span class="nt">arguments</span><span class="p">:</span>
+      <span class="nt">kwargs</span><span class="p">:</span>
         <span class="nt">param</span><span class="p">:</span> <span class="s">&quot;X&quot;</span>
         <span class="nt">std_dev</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
       <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span>
     <span class="nt">X</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;numpy.random.normal(scale=1,</span><span class="nv"> </span><span class="s">loc=0)&quot;</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span>
 
 <span class="nt">instructions</span><span class="p">:</span>
   <span class="nt">simulation</span><span class="p">:</span>

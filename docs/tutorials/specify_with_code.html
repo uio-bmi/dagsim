@@ -206,11 +206,14 @@ For the other nodes, the return value has a different significance depending on 
 <div><ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code>: A name for the node.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">function</span></code>: The function to evaluate to get the value of the node. Note that here you need to specify only the <strong>name</strong> of the function without any arguments.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">arguments</span> <span class="pre">(dict)</span></code> (Optional): A dictionary of key-value pairs in the form “name_of_argument”:value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">plates</span> <span class="pre">(list</span> <span class="pre">of</span> <span class="pre">str)</span></code> (Optional): The names of the plates in which the node resides.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">visible</span> <span class="pre">(boolean)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">TRUE</span></code> to show the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">FALSE</span></code> hides the node in the graph.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">observed</span> <span class="pre">(boolean)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">TRUE</span></code> to show the output of the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">FALSE</span></code> hides the node in the graph.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">args</span> <span class="pre">(list)</span></code> (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">kwargs</span> <span class="pre">(dict)</span></code> (Optional): A dictionary of key word arguments with key-value pairs in the form “name_of_argument”:value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">visible</span> <span class="pre">(boolean)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">observed</span> <span class="pre">(boolean)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the output of the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">size_field</span> <span class="pre">(str)</span></code> (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when the used function comes with a vectorized implementation.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">handle_multi_cols</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">False</span></code>. If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, vector-valued outputs will be split into different columns, each with the name of the original node appended by its index.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">handle_multi_return</span> <span class="pre">(function)</span></code> (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">plates</span> <span class="pre">(list)</span></code> (Optional): The names of the plates in which the node resides.</p></li>
 </ul>
 </div></blockquote>
 <p>After defining all the nodes in your model, you construct a graph by creating an instance of the class <code class="code docutils literal notranslate"><span class="pre">Graph</span></code> and giving it two arguments:</p>
@@ -255,14 +258,13 @@ The general structure of the YAML file would look like this:</p>
   <span class="nt">nodes</span><span class="p">:</span> <span class="c1"># A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.</span>
     <span class="nt">name_of_node1</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library</span>
-      <span class="nt">arguments</span><span class="p">:</span>
+      <span class="nt">kwargs</span><span class="p">:</span>
         <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># The name and value of an argument. This could be an appropriate python object or another node</span>
         <span class="nt">name_of_argument2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument2</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span> <span class="c1"># This could be Node, Selection, Stratify, or Missing</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span> <span class="c1"># This could be Node, Selection, Stratify, or Missing. No need to specify it if the node is Node.</span>
       <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments)</span>
     <span class="nt">name_of_node2</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name(kwargs)</span> <span class="c1"># This is another way of defining a function, witout separately defining the arguments.</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name(*args, **kwargs)</span> <span class="c1"># This is another way of defining a function, without separately defining the arguments.</span>
 
 <span class="nt">instructions</span><span class="p">:</span>
   <span class="nt">simulation</span><span class="p">:</span>
