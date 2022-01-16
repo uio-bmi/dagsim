@@ -4,33 +4,32 @@ from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
 import igraph as ig
-from typing import Union
+import os.path
 
 
 class Parser:
-    def __init__(self, file_name: Union[str, dict]):
+    def __init__(self, file_name: str):
         self.top_order = []
         self.graph = None
-        self.node_names = []
-        self.adj_matrix = None
-        if isinstance(file_name, str):
-            with open(file_name, 'r') as stream:
-                self.yaml_file = yaml.safe_load(stream)
-        else:
-            self.yaml_file = file_name
-            # todo add in docs that file_name can be a dict
+        with open(file_name, 'r') as stream:
+            self.yaml_file = yaml.safe_load(stream)
 
     def parse(self, verbose: bool = True, draw: bool = True):
 
         nodes_dict = self._parse_string_args(self.yaml_file["graph"]["nodes"])
 
-        self.adj_matrix, self.node_names = self._build_adj_matrix(nodes_dict)
+        adj_matrix, node_names = self._build_adj_matrix(nodes_dict)
 
-        assert self._check_acyclicity(self.adj_matrix), "The graph is not acyclic."
+        assert self._check_acyclicity(adj_matrix), "The graph is not acyclic."
 
-        self._find_top_order(self.adj_matrix, self.node_names)
+        self._find_top_order(adj_matrix, node_names)
 
-        functions_file = importlib.import_module(self.yaml_file["graph"]["python_file"])
+        python_file = self.yaml_file["graph"]["python_file"]
+        assert python_file.endswith(".py"), "Please use a proper python file."
+        assert os.path.isfile(python_file), "The file \"" + python_file + "\" doesn't exist."
+        python_file = python_file[:-3]
+
+        functions_file = importlib.import_module(python_file)
         functions_list = getmembers(functions_file, isfunction)
 
         self._build_graph_from_nodes(nodes_dict, functions_list)
@@ -165,6 +164,7 @@ class Parser:
             raise ImportError("Couldn't find the function \"" + func_name + "\"")
 
     def _get_implicit_func(self, func_name: str):
+        # For functions not define in the python file, but rather coming from external libraries, such as numpy.
         first_part = func_name.rfind(".")
         module_name = func_name[:first_part]
         func_name = func_name[first_part + 1:]

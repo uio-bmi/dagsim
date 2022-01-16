@@ -1,5 +1,5 @@
 graph:
-  python_file: "functions_for_parser_test"
+  python_file: "functions_for_parser_test.py"
   name: "my_graph"
   nodes:
     result:
