@@ -148,7 +148,7 @@ class Missing(_Node):
 
     def _filter_output(self):
         index_output = self.index_node.output
-        output = [x if y == 1 else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
+        output = [x if not y else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
         self.output = output
 
 
@@ -295,7 +295,8 @@ class Graph:
             if selectionNode is not None:
                 output_dict = self.nodes[selectionNode]._filter_output(output_dict=output_dict)
                 while len(list(output_dict.values())[0]) < num_samples:
-                    temp_output = self.nodes[selectionNode]._filter_output(output_dict=self._traverse_graph(1, output_path, missing))
+                    temp_output = self.nodes[selectionNode]._filter_output(
+                        output_dict=self._traverse_graph(1, output_path, missing))
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         output_dict = {k: v for k, v in output_dict.items() if self._get_node_by_name(k).observed}
@@ -322,19 +323,21 @@ class Graph:
         for node_name in self.top_order:
             node = self._get_node_by_name(node_name)
             if node.__class__.__name__ == "Missing" and missing:
+                assert all(isinstance(x, bool) for x in node.index_node.output), "The index node's function should " \
+                                                                                 "return a boolean"
                 node._filter_output()
             else:
                 node._node_simulate(num_samples, output_path)
             if node.__class__.__name__ == "Selection":
-                assert all(isinstance(x, bool) for x in node.output), "The selection node function should return " \
+                assert all(isinstance(x, bool) for x in node.output), "The selection node's function should return " \
                                                                       "a boolean"
             elif node.__class__.__name__ == "Stratify":
-                assert all(isinstance(x, str) for x in node.output), "The stratification node function should " \
+                assert all(isinstance(x, str) for x in node.output), "The stratification node's function should " \
                                                                      "return a string"
             else:
                 output_dict[node.name] = node.output
         return output_dict
-    
+
     def _prettify_output(self, output_dict: dict):
         keys_to_remove = []
         for key in output_dict:
@@ -358,7 +361,7 @@ class Graph:
             output_dict.pop(key)
 
         return output_dict
-    
+
     @staticmethod
     def _vec2dict(key: str, node_output):
         num_reps = len(node_output[0])

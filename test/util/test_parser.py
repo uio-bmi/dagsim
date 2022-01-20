@@ -11,8 +11,8 @@ class TestParser(unittest.TestCase):
         parser = DagSimSpec(file_name="test_yaml.yml")
         data = parser.parse(draw=False, verbose=False)
         print(data)
-        # self.assertEqual(['aaaaaa', ''], data["result"])
-        # np.testing.assert_almost_equal([1.7640, 0.4001], data["source"], decimal=4)
+        self.assertEqual(['aaaaaa', ''], data["result"])
+        np.testing.assert_almost_equal([1.7640, 0.4001], data["source"], decimal=4)
 
 
 if __name__ == '__main__':

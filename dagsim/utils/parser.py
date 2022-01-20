@@ -67,21 +67,15 @@ class DagSimSpec:
         inputs = inputs.split(",")
         args = inputs[:first_kwarg_index]
         for arg_idx in range(len(args)):
-            # if args[arg_idx].startswith(("'", '"')):
-            #     args[arg_idx] = args[arg_idx][1:-1]
-            # else:
-                try:
-                    args[arg_idx] = float(args[arg_idx])
-                except (ValueError, TypeError):
-                    pass
+            try:
+                args[arg_idx] = float(args[arg_idx])
+            except (ValueError, TypeError):
+                pass
         inputs = inputs[first_kwarg_index:]
         kwargs = {}
         for kwarg in inputs:
             arg_name = kwarg[:kwarg.find("=")]
             kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
-            # if kwargs[arg_name].startswith(("'", '"')):
-            #     kwargs[arg_name] = kwargs[arg_name][1:-1]
-            # else:
             try:
                 kwargs[arg_name] = float(kwargs[arg_name])
             except (ValueError, TypeError):
@@ -102,10 +96,9 @@ class DagSimSpec:
         return first_kwarg_index
 
     def _build_adj_matrix(self, nodes: dict):
-        # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
-        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values())+nodes[k]["args"]) if v in node_names] for k in node_names}
-        # parents_dict = {**parents_dict, }
+        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values()) + nodes[k]["args"]) if v in node_names] for k
+                        in node_names}
         pd_dict = pd.DataFrame(0, columns=node_names, index=node_names)
         for child in node_names:
             for parent in parents_dict[child]:
@@ -169,7 +162,7 @@ class DagSimSpec:
             raise ImportError("Couldn't find the function \"" + func_name + "\"")
 
     def _get_implicit_func(self, func_name: str):
-        # For functions not define in the python file, but rather coming from external libraries, such as numpy.
+        # For functions not defined in the python file, but rather coming from external libraries, such as numpy.
         first_part = func_name.rfind(".")
         module_name = func_name[:first_part]
         func_name = func_name[first_part + 1:]
