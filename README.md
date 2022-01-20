@@ -16,7 +16,7 @@ pip install dagsim
 #### Quickstart
 To check that DagSim is installed properly, run the following command in the console/terminal:
 ```bash
-pip install dagsim-quickstart
+dagsim-quickstart
 ```
 
 #### Installing graphviz
