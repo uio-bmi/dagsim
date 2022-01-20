@@ -6,6 +6,7 @@ import igraph as ig
 from dagsim.utils.processPlates import get_plate_dot
 import time
 from inspect import getfullargspec
+import datetime
 
 
 class _Node:
@@ -133,7 +134,7 @@ class Stratify(_Node):
 
 class Missing(_Node):
     def __init__(self, name: str, underlying_value: Node, index_node: Node, visible=True):
-        super().__init__(name=name, function=self._filter_output, visible=visible)
+        super().__init__(name=name, function=self._node_simulate, visible=visible)
         self.underlying_value = underlying_value
         self.parents = [underlying_value, index_node]
         self.index_node = index_node
@@ -146,7 +147,7 @@ class Missing(_Node):
         missing = Missing(**kwargs)
         return missing
 
-    def _filter_output(self):
+    def _node_simulate(self, *args):
         index_output = self.index_node.output
         output = [x if not y else 'NaN' for x, y in zip(self.underlying_value.output, index_output)]
         self.output = output
@@ -295,16 +296,17 @@ class Graph:
     def simulate(self, num_samples, output_path="./", selection=True, stratify=True, missing=True, csv_name=""):
 
         tic = time.perf_counter()
-        print("Simulation started")
-        output_dict = self._traverse_graph(num_samples, output_path, missing)
+        print(f"{datetime.datetime.now()}: Simulation started.", flush=True)
+        output_dict = self._traverse_graph(num_samples, output_path, missing, True)
 
         selectionNode = self._get_selection()
         if selection:
             if selectionNode is not None:
+                print(f"{datetime.datetime.now()}: Simulating selection bias.", flush=True)
                 output_dict = self.nodes[selectionNode]._filter_output(output_dict=output_dict)
                 while len(list(output_dict.values())[0]) < num_samples:
                     temp_output = self.nodes[selectionNode]._filter_output(
-                        output_dict=self._traverse_graph(1, output_path, missing))
+                        output_dict=self._traverse_graph(1, output_path, missing, False))
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
         output_dict = {k: v for k, v in output_dict.items() if self._get_node_by_name(k).observed}
@@ -313,6 +315,7 @@ class Graph:
         stratifyNode = self._get_stratify()
         if stratify:
             if stratifyNode is not None:
+                print(f"{datetime.datetime.now()}: Stratifying the data.", flush=True)
                 output_dict = self.nodes[stratifyNode]._filter_output(output_dict=output_dict)
 
         if csv_name:
@@ -323,23 +326,25 @@ class Graph:
                 pd.DataFrame(output_dict).to_csv(output_path + csv_name + '.csv', index=False)
 
         toc = time.perf_counter()
-        print(f"Simulation finished in {toc - tic:0.4f} seconds")
+        print(f"{datetime.datetime.now()}: Simulation finished in {toc - tic:0.4f} seconds.", flush=True)
         return output_dict
 
-    def _traverse_graph(self, num_samples, output_path, missing):
+    def _traverse_graph(self, num_samples, output_path, missing, show_log):
         output_dict = {}
         for node_name in self.top_order:
+
             node = self._get_node_by_name(node_name)
-            if node.__class__.__name__ == "Missing" and missing:
-                assert all(isinstance(x, bool) for x in node.index_node.output), "The index node's function should " \
-                                                                                 "return a boolean"
-                node._filter_output()
-            else:
-                node._node_simulate(num_samples, output_path)
-            if node.__class__.__name__ == "Selection":
+            if show_log and (isinstance(node, Missing) or isinstance(node, Node)):
+                print(f"{datetime.datetime.now()}: Simulating node \"{node.name}\".", flush=True)
+            node._node_simulate(num_samples, output_path)
+            if isinstance(node, Selection):
                 assert all(isinstance(x, bool) for x in node.output), "The selection node's function should return " \
                                                                       "a boolean"
-            elif node.__class__.__name__ == "Stratify":
+            elif isinstance(node, Missing) and missing:
+                assert all(isinstance(x, bool) for x in node.index_node.output), "The index node's function should " \
+                                                                                 "return a boolean"
+                output_dict[node.name] = node.output
+            elif isinstance(node, Stratify):
                 assert all(isinstance(x, str) for x in node.output), "The stratification node's function should " \
                                                                      "return a string"
             else:

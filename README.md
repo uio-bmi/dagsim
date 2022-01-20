@@ -13,10 +13,16 @@ To install the DagSim package using `pip`, run:
 ```bash
 pip install dagsim
 ```
+#### Quickstart
+To check that DagSim is installed properly, run the following command in the console/terminal:
+```bash
+pip install dagsim-quickstart
+```
 
 #### Installing graphviz
 If you use `pip`, you need to install graphviz on the system level in order to use the drawing functionality in DagSim. Please follow the instrcutions [here](https://graphviz.org/download/) on how to install graphviz depending on the 
 operating system.
+
 
 [//]: # (### Installing DagSim using conda)
 
