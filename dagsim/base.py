@@ -154,12 +154,20 @@ class Missing(_Node):
 
 class Graph:
     def __init__(self, name, list_nodes):
+        self._check_args(list_nodes)
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.adj_mat = pd.DataFrame()
         self.plates = self._plate_embedding()
         self.top_order = []
         self._update_topol_order()
+
+    @staticmethod
+    def _check_args(list_nodes):
+        assert len([select for select in list_nodes if isinstance(select, Selection)]) <= 1, "A graph can have at " \
+                                                                                             "most one Selection node. "
+        assert len([strat for strat in list_nodes if isinstance(strat, Stratify)]) <= 1, "A graph can have at most " \
+                                                                                         "one Stratify node. "
 
     def __str__(self):
         main_str = ""
