@@ -37,8 +37,8 @@ To define a standard :code:`Node`, you need to specify the following things:
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`args (list)` (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.
  * :code:`kwargs (dict)` (Optional): A dictionary of key word arguments with key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
- * :code:`visible (boolean)` (Optional): Default is :code:`True` to show the node when drawing the graph. :code:`False` hides the node in the graph.
- * :code:`observed (boolean)` (Optional): Default is :code:`True` to show the output of the node when drawing the graph. :code:`False` hides the node in the graph.
+ * :code:`visible (bool)` (Optional): Default is :code:`True` to show the node when drawing the graph. :code:`False` hides the node in the graph.
+ * :code:`observed (bool)` (Optional): Default is :code:`True` to show the output of the node when drawing the graph. :code:`False` hides the node in the graph.
  * :code:`size_field (str)` (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when the used function comes with a vectorized implementation.
  * :code:`handle_multi_cols (bool)` (Optional): Default is :code:`False`. If :code:`True`, vector-valued outputs will be split into different columns, each with the name of the original node appended by its index.
  * :code:`handle_multi_return (function)` (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.

@@ -156,8 +156,8 @@ To run the simulation define in the YAML file, you would use the built-in parser
 .. highlight:: python
 .. code-block:: python
 
-  from dagsim.utils.parser import Parser
-  parser = Parser("name∕or/path/to/YAML∕file")
+  from dagsim.utils.parser import DagSimSpec
+  parser = DagSimSpec("name∕or/path/to/YAML∕file")
 
   data = parser.parse()
 

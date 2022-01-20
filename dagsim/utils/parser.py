@@ -7,7 +7,7 @@ import igraph as ig
 import os.path
 
 
-class Parser:
+class DagSimSpec:
     def __init__(self, file_name: str):
         self.top_order = []
         self.graph = None
@@ -24,13 +24,16 @@ class Parser:
 
         self._find_top_order(adj_matrix, node_names)
 
-        python_file = self.yaml_file["graph"]["python_file"]
-        assert python_file.endswith(".py"), "Please use a proper python file."
-        assert os.path.isfile(python_file), "The file \"" + python_file + "\" doesn't exist."
-        python_file = python_file[:-3]
+        try:
+            python_file = self.yaml_file["graph"]["python_file"]
+            assert python_file.endswith(".py"), "Please use a proper python file."
+            assert os.path.isfile(python_file), "The file \"" + python_file + "\" doesn't exist."
+            python_file = python_file[:-3]
 
-        functions_file = importlib.import_module(python_file)
-        functions_list = getmembers(functions_file, isfunction)
+            functions_file = importlib.import_module(python_file)
+            functions_list = getmembers(functions_file, isfunction)
+        except KeyError:
+            functions_list = []
 
         self._build_graph_from_nodes(nodes_dict, functions_list)
         if verbose:
@@ -64,9 +67,9 @@ class Parser:
         inputs = inputs.split(",")
         args = inputs[:first_kwarg_index]
         for arg_idx in range(len(args)):
-            if args[arg_idx].startswith(("'", '"')):
-                args[arg_idx] = args[arg_idx][1:-1]
-            else:
+            # if args[arg_idx].startswith(("'", '"')):
+            #     args[arg_idx] = args[arg_idx][1:-1]
+            # else:
                 try:
                     args[arg_idx] = float(args[arg_idx])
                 except (ValueError, TypeError):
@@ -76,13 +79,13 @@ class Parser:
         for kwarg in inputs:
             arg_name = kwarg[:kwarg.find("=")]
             kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
-            if kwargs[arg_name].startswith(("'", '"')):
-                kwargs[arg_name] = kwargs[arg_name][1:-1]
-            else:
-                try:
-                    kwargs[arg_name] = float(kwargs[arg_name])
-                except (ValueError, TypeError):
-                    pass
+            # if kwargs[arg_name].startswith(("'", '"')):
+            #     kwargs[arg_name] = kwargs[arg_name][1:-1]
+            # else:
+            try:
+                kwargs[arg_name] = float(kwargs[arg_name])
+            except (ValueError, TypeError):
+                pass
         func_name = func_expression[:func_expression.find("(")]
         return func_name, args, kwargs
 
@@ -133,6 +136,8 @@ class Parser:
                 self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for v in
                 nodes[key]["args"]]
 
+            nodes[key] = self._clear_strs(nodes[key])
+
             node_type = nodes[key].get("type")
             if node_type is not None:
                 nodes[key].pop("type")
@@ -172,12 +177,23 @@ class Parser:
         func = getattr(module, func_name)
         return func
 
+    def _clear_strs(self, node):
+        for ind in range(len(node["args"])):
+            if isinstance(node["args"][ind], str):
+                if node["args"][ind].startswith(("'", '"')):
+                    node["args"][ind] = node["args"][ind][1:-1]
+        for k, v in node["kwargs"].items():
+            if isinstance(v, str):
+                if v.startswith(("'", '"')):
+                    node["kwargs"][k] = v[1:-1]
+        return node
+
     def _simulate_data(self):
         data = self.graph.simulate(**self.yaml_file["instructions"]["simulation"])
         return data
 
 
 if __name__ == "__main__":
-    parser = Parser(file_name="testyml.yml")
+    parser = DagSimSpec(file_name="testyml.yml")
     data = parser.parse()
     print(data)

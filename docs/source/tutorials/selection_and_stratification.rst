@@ -17,6 +17,7 @@ Similar to a :code:`Node` node, to define a :code:`Selection` node, you need to 
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
  * :code:`args (list)` (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.
  * :code:`kwargs (dict)` (Optional): A dictionary of key word arguments with key-value pairs in the form "name_of_argument":value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.
+ * :code:`visible (bool)` (Optional): Default is :code:`True` to show the node when drawing the graph. :code:`False` hides the node in the graph.
 
 The difference from a :code:`Node` node is that the function here should return a boolean; :code:`True` to include a sample, and :code:`False` to discard a sample.
 
@@ -108,6 +109,7 @@ To specify a :code:`Missing` node, the user provides the following:
  * :code:`name (str)`: A name for the node,
  * :code:`underlying_value (Node)`: The node that will eventually have missing values
  * :code:`index_node (Node)`: A :code:`Node` node that will provide the indices of the entries that will go missing: :code:`0` for remove, :code:`1` for keep.
+ * :code:`visible (bool)` (Optional): Default is :code:`True` to show the node when drawing the graph. :code:`False` hides the node in the graph.
 
 We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.
 

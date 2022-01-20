@@ -93,8 +93,8 @@ class Node(_Node):
 
 
 class Selection(_Node):
-    def __init__(self, name: str, function, args=None, kwargs=None):
-        super().__init__(name=name, function=function, args=args, kwargs=kwargs)
+    def __init__(self, name: str, function, args=None, kwargs=None, visible=True):
+        super().__init__(name=name, function=function, args=args, kwargs=kwargs, visible=visible)
 
     @staticmethod
     def _build_object(**kwargs):
@@ -109,8 +109,8 @@ class Selection(_Node):
 
 
 class Stratify(_Node):
-    def __init__(self, name: str, function, args=None, kwargs=None):
-        super().__init__(name=name, function=function, args=args, kwargs=kwargs)
+    def __init__(self, name: str, function, args=None, kwargs=None, visible=True):
+        super().__init__(name=name, function=function, args=args, kwargs=kwargs, visible=visible)
 
     @staticmethod
     def _build_object(**kwargs):
@@ -132,8 +132,8 @@ class Stratify(_Node):
 
 
 class Missing(_Node):
-    def __init__(self, name: str, underlying_value: Node, index_node: Node):
-        super().__init__(name=name, function=self._filter_output)
+    def __init__(self, name: str, underlying_value: Node, index_node: Node, visible=True):
+        super().__init__(name=name, function=self._filter_output, visible=visible)
         self.underlying_value = underlying_value
         self.parents = [underlying_value, index_node]
         self.index_node = index_node

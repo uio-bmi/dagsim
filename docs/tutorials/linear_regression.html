@@ -284,8 +284,8 @@
 </pre></div>
 </div>
 <p>To run the simulation define in the YAML file, you would use the built-in parser as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dagsim.utils.parser</span> <span class="kn">import</span> <span class="n">Parser</span>
-<span class="n">parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="s2">&quot;name∕or/path/to/YAML∕file&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dagsim.utils.parser</span> <span class="kn">import</span> <span class="n">DagSimSpec</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">DagSimSpec</span><span class="p">(</span><span class="s2">&quot;name∕or/path/to/YAML∕file&quot;</span><span class="p">)</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
 </pre></div>
