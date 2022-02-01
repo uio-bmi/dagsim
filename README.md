@@ -42,7 +42,7 @@ is the square of X.
 
 For each node we need a function to simulate the node's values:
 
-- For X, we can use the `numpy.random.normal function`
+- For X, we can use the `numpy.random.normal` function
 - For Y, we can use either `numpy.power` or define our own function. We will use the second to show how you can use user-define functions.
 
 ```python
