@@ -1,0 +1,16 @@
+graph:
+  name: my_graph
+  python_file: LinReg_example_function
+  nodes:
+    y:
+      function: ground_truth(x=x, std_dev=1)
+    x:
+      function: numpy.random.normal
+      arguments:
+        loc: 0
+        scale: 1
+
+instructions:
+  simulation:
+    csv_name: parser
+    num_samples: 4

@@ -35,6 +35,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"extensions": ["tex2jax.js"], "jax": ["input/TeX", "output/HTML-CSS"]})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -94,7 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Simulate data for a simple linear regression problem</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Special nodes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#selection">Selection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stratification">Stratification</a><ul class="simple">
+<li class="toctree-l3"><a class="reference internal" href="#stratification">Stratification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#missing">Missing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#missing-completely-at-random-mcar">Missing Completely At Random (MCAR)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#missing-at-random-mar">Missing At Random (MAR)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#missing-not-at-random-mnar">Missing Not At Random (MNAR)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,18 +184,19 @@
 <p>In this tutorial, you will learn how to use each of these nodes.</p>
 <div class="section" id="selection">
 <h2>Selection<a class="headerlink" href="#selection" title="Permalink to this headline">¶</a></h2>
-<p>Similar to a <code class="code docutils literal notranslate"><span class="pre">Generic</span></code> node, to define a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node, you need to specify the following:</p>
+<p>Similar to a <code class="code docutils literal notranslate"><span class="pre">Node</span></code> node, to define a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node, you need to specify the following:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">weight</span> <span class="pre">(ndarray)</span></code>: The learned weight matrix from NOTEARS.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code>: A name for the node.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">function</span></code>: The function to evaluate to get the value of the node. Note that here you need to specify only the <strong>name</strong> of the function without any arguments.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">arguments</span> <span class="pre">(dict)</span></code>: A dictionary of key-value pairs in the form “name_of_argument”:value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument. At least one <code class="code docutils literal notranslate"><span class="pre">value</span></code>: in the dictionary should be a node in the graph.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">function</span></code>: The function to evaluate to get the value of the node. This function should return <code class="code docutils literal notranslate"><span class="pre">True</span></code> to keep and <code class="code docutils literal notranslate"><span class="pre">False</span></code> to discard a sample. Note that here you need to specify only the <strong>name</strong> of the function without any arguments.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">args</span> <span class="pre">(list)</span></code> (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">kwargs</span> <span class="pre">(dict)</span></code> (Optional): A dictionary of key word arguments with key-value pairs in the form “name_of_argument”:value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">visible</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
 </ul>
 </div></blockquote>
-<p>The difference from a <code class="code docutils literal notranslate"><span class="pre">Generic</span></code> node is that the function here should return a boolean; <code class="code docutils literal notranslate"><span class="pre">True</span></code> to include a sample, and <code class="code docutils literal notranslate"><span class="pre">False</span></code> to discard a sample.</p>
+<p>The difference from a <code class="code docutils literal notranslate"><span class="pre">Node</span></code> node is that the function here should return a boolean; <code class="code docutils literal notranslate"><span class="pre">True</span></code> to include a sample, and <code class="code docutils literal notranslate"><span class="pre">False</span></code> to discard a sample.</p>
 <p>The following code shows an example where only the samples that have a value of node Y greater than a certain threshold are included in the data set.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">baseDS</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Selection</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
@@ -208,14 +215,14 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="n">Node1</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Node2</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Node3</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">Node1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">Node2</span><span class="p">},</span> <span class="n">function</span><span class="o">=</span><span class="n">add</span><span class="p">)</span>
-<span class="n">Node4</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">square</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
-<span class="n">Node5</span> <span class="o">=</span> <span class="n">Selection</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;SB&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">is_greater_than2</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">Node1</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Node2</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Node3</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">Node1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">Node2</span><span class="p">},</span> <span class="n">function</span><span class="o">=</span><span class="n">add</span><span class="p">)</span>
+<span class="n">Node4</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">square</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
+<span class="n">Node5</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Selection</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;SB&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">is_greater_than2</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
 
 <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node1</span><span class="p">,</span> <span class="n">Node2</span><span class="p">,</span> <span class="n">Node3</span><span class="p">,</span> <span class="n">Node4</span><span class="p">,</span> <span class="n">Node5</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;Graph1&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;SelectionExample&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;SelectionExample&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -224,7 +231,7 @@
 <h2>Stratification<a class="headerlink" href="#stratification" title="Permalink to this headline">¶</a></h2>
 <p>The arguments needed to specify a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node are exactly the same as for a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node. However, the function here should return the name <code class="code docutils literal notranslate"><span class="pre">(str)</span></code> of the stratum to which a given example should belong. These names will be used as suffixes to the main .csv file name.</p>
 <p>The following code shows an example where the samples are split into three categories, namely “less than -1”, “greater than +1”, and “between -1 and +1”.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">baseDS</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Stratify</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
@@ -238,26 +245,127 @@
 
 <span class="k">def</span> <span class="nf">check_strata</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">node</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;-1&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&lt;-1&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">node</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&gt;1&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&gt;-1|&lt;+1&quot;</span>
+    <span class="k">if</span> <span class="n">node</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&gt;1&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&gt;-1|&lt;+1&quot;</span>
 
 
-<span class="n">Node1</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Node2</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Node3</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">add</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">Node1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">Node2</span><span class="p">})</span>
-<span class="n">Node4</span> <span class="o">=</span> <span class="n">Generic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">square</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
-<span class="n">Node5</span> <span class="o">=</span> <span class="n">Stratify</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;St&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">check_strata</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
+<span class="n">Node1</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Node2</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Node3</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">add</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param1&quot;</span><span class="p">:</span> <span class="n">Node1</span><span class="p">,</span> <span class="s2">&quot;param2&quot;</span><span class="p">:</span> <span class="n">Node2</span><span class="p">})</span>
+<span class="n">Node4</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">square</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
+<span class="n">Node5</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Stratify</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;St&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">check_strata</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
 
 <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node1</span><span class="p">,</span> <span class="n">Node2</span><span class="p">,</span> <span class="n">Node3</span><span class="p">,</span> <span class="n">Node4</span><span class="p">,</span> <span class="n">Node5</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;Graph1&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;testing&quot;</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;StratificationExample&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;StratificationExample&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="missing">
+<h2>Missing<a class="headerlink" href="#missing" title="Permalink to this headline">¶</a></h2>
+<p>To specify a <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node, the user provides the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code>: A name for the node,</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">underlying_value</span> <span class="pre">(Node)</span></code>: The node that will eventually have missing values</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">index_node</span> <span class="pre">(Node)</span></code>: A <code class="code docutils literal notranslate"><span class="pre">Node</span></code> node that will provide the indices of the entries that will go missing: <code class="code docutils literal notranslate"><span class="pre">True</span></code> to consider the entry as missing and <code class="code docutils literal notranslate"><span class="pre">False</span></code> to keep it.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">visible</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
+</ul>
+</div></blockquote>
+<p>We decided on this way of defining the node to keep the processes of specifying the indices of the missing entries and removing the corresponding values separate.</p>
+<p>Note that the data with the missing entries would be saved as the output of the <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node itself rather than that of the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node.
+The output of the latter would be the complete data without any missing entries. If you with to discard the complete data, you can use the <code class="code docutils literal notranslate"><span class="pre">observed=False</span></code> argument when defining the <code class="code docutils literal notranslate"><span class="pre">underlying_value</span></code> node.</p>
+<p>In the following, we explore how you can simulate missing values according to the three types of missing data models defined in <a class="reference external" href="http://math.wsu.edu/faculty/xchen/stat115/lectureNotes3/Rubin%20Inference%20and%20Missing%20Data.pdf">Rubin (1976)</a>.
+Here, the observed data are collectively denoted by <span class="math notranslate nohighlight">\(Y_\mathrm{obs}\)</span>, and the missing, would-have-been, data are collectively denoted as
+<span class="math notranslate nohighlight">\(Y_\mathrm{mis}\)</span>, and <span class="math notranslate nohighlight">\(\psi\)</span> refers to the parameters of the missing data model.</p>
+<div class="section" id="missing-completely-at-random-mcar">
+<h3>Missing Completely At Random (MCAR)<a class="headerlink" href="#missing-completely-at-random-mcar" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the missingness pattern is random and the probability of an entry going missing, <span class="math notranslate nohighlight">\(Pr(M=0)\)</span>, is independent
+of any missing or non-missing values of other variables in the data-generating process. In other words,</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)\]</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="n">underlying_value</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;underlying_value&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">index_node</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;low&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">MCAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
+
+<span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">MCAR</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="missing-at-random-mar">
+<h3>Missing At Random (MAR)<a class="headerlink" href="#missing-at-random-mar" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the probability of an entry going missing depends on other observed values in the model, but
+does not depend on any unobserved quantities:</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+ <span class="k">def</span> <span class="nf">get_index</span><span class="p">(</span><span class="n">Y_observed</span><span class="p">):</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">Y_observed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+
+<span class="n">underlying_value</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;underlying_value&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Y_observed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">index_node</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">get_index</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">:</span> <span class="n">Y_observed</span><span class="p">})</span>
+<span class="n">MAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
+
+<span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">Y_observed</span><span class="p">,</span> <span class="n">MAR</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="missing-not-at-random-mnar">
+<h3>Missing Not At Random (MNAR)<a class="headerlink" href="#missing-not-at-random-mnar" title="Permalink to this headline">¶</a></h3>
+<p>In the MNAR case, the probability that an entry is missing depends not only on observed quantities but also on missing ones,
+so the conditional probability does not simplify:</p>
+<div class="math notranslate nohighlight">
+\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,Y_mis,\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span> and the, possibly, unobserved,
+would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+ <span class="k">def</span> <span class="nf">get_index</span><span class="p">(</span><span class="n">Y_observed</span><span class="p">,</span> <span class="n">Y_missing</span><span class="p">):</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">Y_observed</span> <span class="o">+</span> <span class="n">Y_missing</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+
+
+<span class="n">underlying_value</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;underlying_value&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Y_observed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Y_missing</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_missing&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">index_node_Y</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node_Y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;low&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">index_node</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">get_index</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">:</span><span class="n">Y_observed</span><span class="p">,</span> <span class="s2">&quot;Y_missing&quot;</span><span class="p">:</span><span class="n">Y_missing</span><span class="p">})</span>
+<span class="n">MNAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
+
+<span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">Y_observed</span><span class="p">,</span> <span class="n">Y_missing</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">index_node_Y</span><span class="p">,</span> <span class="n">MNAR</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 </div>

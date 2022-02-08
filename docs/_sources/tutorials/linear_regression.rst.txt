@@ -3,15 +3,20 @@ Simulate data for a simple linear regression problem
 
 In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see :ref:`How to specify a simulation`.
 
+
 Define the simulation using python code
 ---------------------------------------
+To run this tutorial on binder, click on this badge:
+
+.. image:: https://mybinder.org/badge_logo.svg
+ :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FLinear%20Regression.ipynb
 
 We begin by importing the following:
 
 .. highlight:: python
 .. code-block:: python
 
-  from baseDS import Graph, Generic
+  import dagsim.base as ds
   import numpy as np
   from sklearn.linear_model import LinearRegression as lr
   import pandas as pd
@@ -28,8 +33,8 @@ We can then define such a function in python as the following:
 .. highlight:: python
 .. code-block:: python
 
-  def ground_truth(x, add_param):
-    y = 2 * x + 1 + np.random.normal(0, add_param)
+  def ground_truth(x, std_dev):
+    y = 2 * x + 1 + np.random.normal(0, std_dev)
     return y
     
 This function would inform DagSim how to simulate the value :math:`y` for each value of :math:`x`.
@@ -41,8 +46,8 @@ For the node of the variable :math:`x` we only need to give it a name and the fu
 .. highlight:: python
 .. code-block:: python
 
-  Nodex = Generic(name="x", function=np.random.normal)
-  Nodey = Generic(name="y", function=ground_truth, arguemnts={"x": Nodex, "add_param": 1})
+  Nodex = ds.Node(name="x", function=np.random.normal)
+  Nodey = ds.Node(name="y", function=ground_truth, kwargs={"x": Nodex, "std_dev": 1})
   
 At this stage, we can simply compile the graph as follows:
 
@@ -51,7 +56,7 @@ At this stage, we can simply compile the graph as follows:
 .. code-block:: python
 
   listNodes = [Nodex, Nodey]
-  my_graph = Graph("Graph1", listNodes)
+  my_graph = ds.Graph("Graph1", listNodes)
   
 Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model:
 
@@ -117,27 +122,45 @@ The complete code can be found on GitHub.
 
 Define the simulation using a YAML file
 ---------------------------------------
-where script_of_functions is a python file (.py) containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
+To run this tutorial on binder, click on this badge:
+
+.. image:: https://mybinder.org/badge_logo.svg
+ :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FParser.ipynb
+
+Here, LinReg_example_function is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the "ground_truth" function.
 
 .. highlight:: yaml
 .. code-block:: yaml
 
     graph:
-      python_file: "script_of_functions"
+      python_file: "LinReg_example_function"
       name: "my_graph"
       nodes:
-        result:
-          function: "square"
-          arguments:
-            param: "source"
-            add_param: 2
-          type: Generic
-        source:
-          function: "numpy.random.normal"
-          arguments:
-            scale: 1
-            loc: 0
+        Y:
+          function: "ground_truth"
+          kwargs:
+            param: "X"
+            std_dev: 2
+          type: Node
+        X:
+          function: "numpy.random.normal(scale=1, loc=0)"
+
     instructions:
       simulation:
         num_samples: 4
         csv_name: "parser"
+
+
+To run the simulation define in the YAML file, you would use the built-in parser as follows:
+
+.. highlight:: python
+.. code-block:: python
+
+  from dagsim.utils.parser import DagSimSpec
+  parser = DagSimSpec("name∕or/path/to/YAML∕file")
+
+  data = parser.parse()
+
+The method :code:`parse` would build the graph as defined in the YAML file, and then run the instructions given in the :code:`instructions` part.
+
+By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set :code:`verbose` and/or :code:`draw` to :code:`False`, respectively.

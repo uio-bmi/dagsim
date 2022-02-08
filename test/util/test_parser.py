@@ -1,16 +1,17 @@
 import unittest
 
-from dagsim.utils.parser import Parser
+from dagsim.utils.parser import DagSimSpec
 import numpy as np
 
 
-class TestStratify(unittest.TestCase):
+class TestParser(unittest.TestCase):
 
-    def test_selection(self):
+    def test_working_file(self):
         np.random.seed(0)
-        parser = Parser(file_name="test_yaml.yml")
-        data = parser.parse()
-        self.assertEqual([5.1, 2.2], data["result"])
+        parser = DagSimSpec(file_name="test_yaml.yml")
+        data = parser.parse(draw=False, verbose=False)
+        print(data)
+        self.assertEqual(['aaaaaa', ''], data["result"])
         np.testing.assert_almost_equal([1.7640, 0.4001], data["source"], decimal=4)
 
 

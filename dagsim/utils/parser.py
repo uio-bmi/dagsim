@@ -1,67 +1,104 @@
 import yaml
-from dagsim.base import Graph, Generic, Selection, Stratify
+from dagsim.base import Graph, Node, Selection, Stratify
 from inspect import getmembers, isfunction
 import importlib
 import pandas as pd
 import igraph as ig
+import os.path
 
 
-class Parser:
+class DagSimSpec:
     def __init__(self, file_name: str):
         self.top_order = []
         self.graph = None
-        self.node_names = []
-        self.adj_matrix = None
         with open(file_name, 'r') as stream:
             self.yaml_file = yaml.safe_load(stream)
 
-    def parse(self):
+    def parse(self, verbose: bool = True, draw: bool = True):
 
         nodes_dict = self._parse_string_args(self.yaml_file["graph"]["nodes"])
 
-        self.adj_matrix, self.node_names = self._build_adj_matrix(nodes_dict)
+        adj_matrix, node_names = self._build_adj_matrix(nodes_dict)
 
-        assert self._check_acyclicity(self.adj_matrix), "The graph is not acyclic."
+        assert self._check_acyclicity(adj_matrix), "The graph is not acyclic."
 
-        self._find_top_order(self.adj_matrix, self.node_names)
+        self._find_top_order(adj_matrix, node_names)
 
-        functions_file = importlib.import_module(self.yaml_file["graph"]["python_file"])
-        functions_list = getmembers(functions_file, isfunction)
+        try:
+            python_file = self.yaml_file["graph"]["python_file"]
+            assert python_file.endswith(".py"), "Please use a proper python file."
+            assert os.path.isfile(python_file), "The file \"" + python_file + "\" doesn't exist."
+            python_file = python_file[:-3]
+
+            functions_file = importlib.import_module(python_file)
+            functions_list = getmembers(functions_file, isfunction)
+        except KeyError:
+            functions_list = []
 
         self._build_graph_from_nodes(nodes_dict, functions_list)
-        print(self.graph)
+        if verbose:
+            print(self.graph)
 
-        self.graph.draw()
+        if draw:
+            self.graph.draw()
         data = self._simulate_data()
         return data
 
     def _parse_string_args(self, nodes):
-
+        # For each node, separate the function's name from its arguments, if not separated already
         for key in nodes.keys():
             if "(" in nodes[key]["function"]:
-                nodes[key]["function"], nodes[key]["arguments"] = self._split_func_and_args(
-                    nodes[key]["function"])
+                if "kwargs" in nodes[key]:
+                    raise SyntaxError("Using a python-like definition with separate kwargs is not allowed. "
+                                      "Use one way or the other.")
+                else:
+                    nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = self._split_func_and_args(
+                        nodes[key]["function"])
+            else:
+                nodes[key]["args"] = []
         return nodes
 
     def _split_func_and_args(self, func_expression: str):
+        # Split a string of the form "func_name(arg1, arg2,.., kwarg1=val1, kwarg2=val2,..)" into
+        # func_name, [arg1, arg2,..], {kwarg1=val1, kwarg2=val2,..}
         func_expression = func_expression.replace(" ", "")
-        args_str = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
-        args_str = args_str.split(",")
-        args_dict = {}
-        for arg in args_str:
-            arg_name = arg[:arg.find("=")]
-            args_dict[arg_name] = arg[arg.find("=") + 1:]
+        inputs = func_expression[func_expression.find("(") + 1: func_expression.find(")")]
+        first_kwarg_index = self._check_args_order(inputs)
+        inputs = inputs.split(",")
+        args = inputs[:first_kwarg_index]
+        for arg_idx in range(len(args)):
             try:
-                args_dict[arg_name] = float(args_dict[arg_name])
-            except ValueError:
+                args[arg_idx] = float(args[arg_idx])
+            except (ValueError, TypeError):
+                pass
+        inputs = inputs[first_kwarg_index:]
+        kwargs = {}
+        for kwarg in inputs:
+            arg_name = kwarg[:kwarg.find("=")]
+            kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
+            try:
+                kwargs[arg_name] = float(kwargs[arg_name])
+            except (ValueError, TypeError):
                 pass
         func_name = func_expression[:func_expression.find("(")]
-        return func_name, args_dict
+        return func_name, args, kwargs
+
+    def _check_args_order(self, all_args_str: str):
+        # Check that no positional args come after kwargs
+        all_args_str = all_args_str.split(",")
+        first_kwarg_index = next((all_args_str.index(x) for x in all_args_str if "=" in x), None)
+        if first_kwarg_index is not None:
+            for kwargs in range(first_kwarg_index, len(all_args_str)):
+                if "=" not in all_args_str[kwargs]:
+                    raise RuntimeError("Positional argument after keyword argument")
+        else:
+            first_kwarg_index = len(all_args_str)
+        return first_kwarg_index
 
     def _build_adj_matrix(self, nodes: dict):
-        # TODO add a note to make sure that no string unintentionally has the same name as a node
         node_names = nodes.keys()
-        parents_dict = {k: [v for v in nodes[k]["arguments"].values() if v in node_names] for k in node_names}
+        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values()) + nodes[k]["args"]) if v in node_names] for k
+                        in node_names}
         pd_dict = pd.DataFrame(0, columns=node_names, index=node_names)
         for child in node_names:
             for parent in parents_dict[child]:
@@ -84,28 +121,34 @@ class Parser:
         for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
             nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
-            nodes[key]["arguments"] = {
-                k: self.graph.get_node_by_name(v) if self.graph.get_node_by_name(v) is not None else v for k, v in
-                nodes[key]["arguments"].items()}
+            nodes[key]["kwargs"] = {
+                k: self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for k, v in
+                nodes[key]["kwargs"].items()}
+
+            nodes[key]["args"] = [
+                self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for v in
+                nodes[key]["args"]]
+
+            nodes[key] = self._clear_strs(nodes[key])
 
             node_type = nodes[key].get("type")
             if node_type is not None:
                 nodes[key].pop("type")
 
-            if node_type == "Generic" or node_type is None:
-                node = Generic.build_object(**nodes[key])
-                self.graph.add_node(node)
+            if node_type == "Node" or node_type is None:
+                node = Node._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             elif node_type == "Selection":
-                node = Selection.build_object(**nodes[key])
-                self.graph.add_node(node)
+                node = Selection._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             elif node_type == "Stratify":
-                node = Stratify.build_object(**nodes[key])
-                self.graph.add_node(node)
+                node = Stratify._build_object(**nodes[key])
+                self.graph._add_node(node)
 
             else:
-                raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Generic, "
+                raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Node, "
                                                    "Selection, or Stratify.")
 
     def _get_func_by_name(self, functions_list: list, func_name: str):
@@ -119,6 +162,7 @@ class Parser:
             raise ImportError("Couldn't find the function \"" + func_name + "\"")
 
     def _get_implicit_func(self, func_name: str):
+        # For functions not defined in the python file, but rather coming from external libraries, such as numpy.
         first_part = func_name.rfind(".")
         module_name = func_name[:first_part]
         func_name = func_name[first_part + 1:]
@@ -126,12 +170,23 @@ class Parser:
         func = getattr(module, func_name)
         return func
 
+    def _clear_strs(self, node):
+        for ind in range(len(node["args"])):
+            if isinstance(node["args"][ind], str):
+                if node["args"][ind].startswith(("'", '"')):
+                    node["args"][ind] = node["args"][ind][1:-1]
+        for k, v in node["kwargs"].items():
+            if isinstance(v, str):
+                if v.startswith(("'", '"')):
+                    node["kwargs"][k] = v[1:-1]
+        return node
+
     def _simulate_data(self):
         data = self.graph.simulate(**self.yaml_file["instructions"]["simulation"])
         return data
 
 
 if __name__ == "__main__":
-    parser = Parser(file_name="testyml.yml")
+    parser = DagSimSpec(file_name="testyml.yml")
     data = parser.parse()
     print(data)

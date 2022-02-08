@@ -1,12 +1,12 @@
 graph:
-  python_file: "functions_for_parser_test"
+  python_file: "functions_for_parser_test.py"
   name: "my_graph"
   nodes:
     result:
-      function: "square(param=source, add_param=2)"
+      function: printing(source, phra="a")
     source:
       function: "numpy.random.normal"
-      arguments:
+      kwargs:
         scale: 1
         loc: 0
 instructions:
