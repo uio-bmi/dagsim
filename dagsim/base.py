@@ -262,7 +262,8 @@ class Graph:
         # add the visible nodes
         for child_node in range(len(self)):
             if self[child_node].visible:
-                my_str = self[child_node].name + " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
+                my_str = '"%s"' % self[child_node].name
+                my_str += " [shape=" + shape_dict[type(self[child_node]).__name__] + "];\n"
                 dot_str = dot_str + my_str
 
         # add the edges of both vertices are visible
@@ -271,7 +272,7 @@ class Graph:
                 for child_node in self.adj_mat.loc[parent_node].index:
                     if self.adj_mat.loc[parent_node].loc[child_node] == 1:
                         if self._get_node_by_name(child_node).visible:
-                            tmp_str = parent_node + "->" + child_node + ";\n"
+                            tmp_str = '"%s" -> "%s";\n' % (parent_node, child_node)
                             dot_str += tmp_str
 
         # check if there are any plates defined in the graph
