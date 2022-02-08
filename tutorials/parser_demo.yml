@@ -1,12 +1,12 @@
 graph:
   name: my_graph
-  python_file: LinReg_example_function
+  python_file: LinReg_example_function.py
   nodes:
     y:
       function: ground_truth(x=x, std_dev=1)
     x:
       function: numpy.random.normal
-      arguments:
+      kwargs:
         loc: 0
         scale: 1
 
