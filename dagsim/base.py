@@ -154,7 +154,7 @@ class Missing(_Node):
 
 
 class Graph:
-    def __init__(self, name, list_nodes):
+    def __init__(self, list_nodes, name="Graph"):
         self._check_args(list_nodes)
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
@@ -320,6 +320,8 @@ class Graph:
                 output_dict = self.nodes[stratifyNode]._filter_output(output_dict=output_dict)
 
         if csv_name:
+            if csv_name.endswith(".csv"):
+                csv_name = csv_name[:-4]
             if stratifyNode is not None:
                 for key in output_dict.keys():
                     pd.DataFrame(output_dict[key]).to_csv(output_path + csv_name + '_' + key + '.csv', index=False)

@@ -116,7 +116,10 @@ class DagSimSpec:
         self.top_order = top_order
 
     def _build_graph_from_nodes(self, nodes: dict, functions: list):
-        self.graph = Graph(self.yaml_file["graph"]["name"], [])
+        if "name" not in self.yaml_file["graph"]:
+            self.yaml_file["graph"]["name"] = "Graph"
+
+        self.graph = Graph(name=self.yaml_file["graph"]["name"], list_nodes=[])
 
         for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
