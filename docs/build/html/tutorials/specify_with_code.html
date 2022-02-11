@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>How to specify a simulation &mdash; DagSim  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Simulate data for a simple linear regression problem" href="linear_regression.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DagSim
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to specify a simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-specify-a-simulation-using-python-code">How to specify a simulation using python code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-specify-a-simulation-using-yaml">How to specify a simulation using YAML</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Simulate data for a simple linear regression problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="selection_and_stratification.html">Special nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_from_weight_matrix.html">Importing models from other libraries</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DagSim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>How to specify a simulation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/specify_with_code.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-specify-a-simulation">
+<h1>How to specify a simulation<a class="headerlink" href="#how-to-specify-a-simulation" title="Permalink to this headline">¶</a></h1>
+<p>Simulations using DagSim can be specified either using a YAML specification file or using python code directly. Nonetheless, the main components of a simulation are the same regardless of the used method. To run any simulation, the user needs to define three things:</p>
+<ol class="arabic simple">
+<li><p>The functions that encode how to simulate each node in the graph.</p></li>
+<li><p>The nodes that form the graph.</p></li>
+<li><p>The simulation details.</p></li>
+</ol>
+<p>In this section, you will learn how to specify a simulation using either method.</p>
+<div class="section" id="how-to-specify-a-simulation-using-python-code">
+<h2>How to specify a simulation using python code<a class="headerlink" href="#how-to-specify-a-simulation-using-python-code" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Functions:</strong></p></li>
+</ol>
+<p>These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.</p>
+<p>For a standard <code class="code docutils literal notranslate"><span class="pre">Node</span></code>, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
+For the other nodes, the return value has a different significance depending on the type of the corresponding node.</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>Nodes and Graph:</strong></p></li>
+</ol>
+<p>The nodes represent variables in the model that interact with each other based on functions specified by the user. A node can be one of four possible types:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Standard node</strong> <code class="code docutils literal notranslate"><span class="pre">(Node)</span></code>: a node that can receive values from its parents, if any, in addition to optional additional parameters, as arguments to its function.</p></li>
+<li><p><strong>Selection node</strong> <code class="code docutils literal notranslate"><span class="pre">(Selection)</span></code>: a node that simulates selection bias in the data by selecting which data points to keep according to some criteria defined by the user.</p></li>
+<li><p><strong>Stratify node</strong> <code class="code docutils literal notranslate"><span class="pre">(Stratify)</span></code>: a node that stratifies the simulation output into different files depending on criteria defined by the user.</p></li>
+<li><p><strong>Missing node</strong> <code class="code docutils literal notranslate"><span class="pre">(Missing)</span></code>: a node that simulates missing entries in the data based on criteria defined by the user.</p></li>
+</ul>
+</div></blockquote>
+<p>Please check <a class="reference internal" href="selection_and_stratification.html#special-nodes"><span class="std std-ref">this tutorial</span></a> for more information on how to use <strong>Selection</strong>, <strong>Stratify</strong>, and <strong>Missing</strong> nodes.</p>
+<p>To define a standard <code class="code docutils literal notranslate"><span class="pre">Node</span></code>, you need to specify the following things:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code>: A name for the node.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">function</span></code>: The function to evaluate to get the value of the node. Note that here you need to specify only the <strong>name</strong> of the function without any arguments.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">args</span> <span class="pre">(list)</span></code> (Optional): A list of positional arguments. An argument can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">kwargs</span> <span class="pre">(dict)</span></code> (Optional): A dictionary of key word arguments with key-value pairs in the form “name_of_argument”:value. A value can be either another node in the graph or an object of the correct data type for the corresponding argument.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">visible</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">observed</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">True</span></code> to show the output of the node when drawing the graph. <code class="code docutils literal notranslate"><span class="pre">False</span></code> hides the node in the graph.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">size_field</span> <span class="pre">(str)</span></code> (Optional): The name of the argument representing the size in the used function. This is used to speed up the simulation when the used function comes with a vectorized implementation.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">handle_multi_cols</span> <span class="pre">(bool)</span></code> (Optional): Default is <code class="code docutils literal notranslate"><span class="pre">False</span></code>. If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, vector-valued outputs will be split into different columns, each with the name of the original node appended by its index.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">handle_multi_return</span> <span class="pre">(function)</span></code> (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">plates</span> <span class="pre">(list)</span></code> (Optional): The names of the plates in which the node resides.</p></li>
+</ul>
+</div></blockquote>
+<p>After defining all the nodes in your model, you construct a graph by creating an instance of the class <code class="code docutils literal notranslate"><span class="pre">Graph</span></code> and giving it two arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">list_nodes</span> <span class="pre">(list)</span></code>: A list of all the nodes that you have defined.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code> (Optional): A name for the graph. This would be used as the name of the .png drawing of the graph.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p><strong>Simulation details:</strong></p></li>
+</ol>
+<p>Now that you have defined the functions and the graph, you can simulate data by calling the <code class="code docutils literal notranslate"><span class="pre">simulate</span></code> method of the graph using these arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">num_samples</span> <span class="pre">(int)</span></code>: The number of samples to simulate.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">csv_name</span> <span class="pre">(str)</span></code> (Optional): The name of the CSV file to which to save the simulated data. If not provided, the data will not be saved to a file, only returned in the code.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">output_path</span> <span class="pre">(str)</span></code> (Optional): The path where the CSV file would be saved. This path would be automatically passed to any used function that defines <code class="code docutils literal notranslate"><span class="pre">output_path</span></code> as one of its arguments, if that is needed. Default is <code class="code docutils literal notranslate"><span class="pre">None</span></code>, and the CSV file is saved to the current working directory when running the simulation.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">selection</span> <span class="pre">(bool)</span></code> (Optional): <code class="code docutils literal notranslate"><span class="pre">True</span></code> to simulate Selection bias, <code class="code docutils literal notranslate"><span class="pre">False</span></code> to do otherwise.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">stratify</span> <span class="pre">(bool)</span></code> (Optional): <code class="code docutils literal notranslate"><span class="pre">True</span></code> to stratify the data, <code class="code docutils literal notranslate"><span class="pre">False</span></code> to do otherwise.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">missing</span> <span class="pre">(bool)</span></code> (Optional): <code class="code docutils literal notranslate"><span class="pre">True</span></code> to simulate missing data, <code class="code docutils literal notranslate"><span class="pre">False</span></code> to do otherwise.</p></li>
+</ul>
+</div></blockquote>
+<p>This method will return a Python dictionary where the <code class="code docutils literal notranslate"><span class="pre">keys</span></code> are the names of the nodes and the <code class="code docutils literal notranslate"><span class="pre">values</span></code> are the simulated values of each node.</p>
+<p>For an example of defining a simulation using Python code, please check this tutorial.</p>
+</div>
+<div class="section" id="how-to-specify-a-simulation-using-yaml">
+<h2>How to specify a simulation using YAML<a class="headerlink" href="#how-to-specify-a-simulation-using-yaml" title="Permalink to this headline">¶</a></h2>
+<p>The YAML file has two main components, the definition of the graph itself including all the nodes and functions that connect them to each other, and the simulation details including the number of samples to be simulated and the name of the csv file to save the simulated data to.</p>
+<p>Within the graph component, you provide a name for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes within the “nodes” key.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Functions provided by standard libraries do not need to be included in the python file. However, these functions should use the whole library name instead of abbreviations, for example, <code class="code docutils literal notranslate"><span class="pre">numpy</span></code> instead of <code class="code docutils literal notranslate"><span class="pre">np</span></code>.</p>
+<p><code class="code docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="code docutils literal notranslate"><span class="pre">scipy</span></code> are automatically installed when you install DagSim. Should you need another library, please install it manually.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.</p>
+</div>
+<p>The general structure of the YAML file would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
+  <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path/to/file</span> <span class="c1"># (optional) A .py file containing the user-defined functions, if any, to be used in the simulation.</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;user-defined</span><span class="nv"> </span><span class="s">name&quot;</span> <span class="c1"># A optional name for the graph.</span>
+  <span class="nt">nodes</span><span class="p">:</span> <span class="c1"># A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.</span>
+    <span class="nt">name_of_node1</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, with default arguments</span>
+    <span class="nt">name_of_node2</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, along with the kwargs</span>
+      <span class="nt">kwargs</span><span class="p">:</span>
+        <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># The name and value of an argument. This could be an appropriate python object or another node</span>
+        <span class="nt">name_of_argument2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument2</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span> <span class="c1"># This could be :code:`Node`, :code:`Selection`, :code:`Stratify`, or :code:`Missing`. Specifying it as :code:`Node` is optional.</span>
+      <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments)</span>
+    <span class="nt">name_of_node3</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name(*args, **kwargs)</span> <span class="c1"># This is another way of defining a function, without separately defining the arguments.</span>
+
+<span class="nt">instructions</span><span class="p">:</span>
+  <span class="nt">simulation</span><span class="p">:</span>
+    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span> <span class="c1"># The number of samples to simulate</span>
+    <span class="nt">csv_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">parser</span> <span class="c1"># The name of the CSV file to which to save the file, if desired.</span>
+    <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments. See :ref:`Simulation details` above.)</span>
+</pre></div>
+</div>
+<p>For a sample simulation definition using a YAML file, please see <a class="reference internal" href="hello_world.html#define-the-simulation-using-a-yaml-file"><span class="std std-ref">Define the simulation using a YAML file</span></a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="linear_regression.html" class="btn btn-neutral float-right" title="Simulate data for a simple linear regression problem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Ghadi Al Hajj.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
