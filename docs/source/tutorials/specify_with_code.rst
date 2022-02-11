@@ -46,16 +46,19 @@ To define a standard :code:`Node`, you need to specify the following things:
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
- * :code:`name (str)`: A name for the graph. This would be used as the name of the .png drawing of the graph.
  * :code:`list_nodes (list)`: A list of all the nodes that you have defined.
- 
+ * :code:`name (str)` (Optional): A name for the graph. This would be used as the name of the .png drawing of the graph.
+
 3. **Simulation details:**
  
 Now that you have defined the functions and the graph, you can simulate data by calling the :code:`simulate` method of the graph using these arguments:
 
  * :code:`num_samples (int)`: The number of samples to simulate.
- * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data. If not provided, the data will not be saved, only returned in the code.
+ * :code:`csv_name (str)` (Optional): The name of the CSV file to which to save the simulated data. If not provided, the data will not be saved to a file, only returned in the code.
  * :code:`output_path (str)` (Optional): The path where the CSV file would be saved. This path would be automatically passed to any used function that defines :code:`output_path` as one of its arguments, if that is needed. Default is :code:`None`, and the CSV file is saved to the current working directory when running the simulation.
+ * :code:`selection (bool)` (Optional): :code:`True` to simulate Selection bias, :code:`False` to do otherwise.
+ * :code:`stratify (bool)` (Optional): :code:`True` to stratify the data, :code:`False` to do otherwise.
+ * :code:`missing (bool)` (Optional): :code:`True` to simulate missing data, :code:`False` to do otherwise.
 
 This method will return a Python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
 
@@ -85,22 +88,25 @@ The general structure of the YAML file would look like this:
 
     graph:
       python_file: path/to/file # (optional) A .py file containing the user-defined functions, if any, to be used in the simulation.
-      name: "user-defined name" # A name for the graph.
+      name: "user-defined name" # A optional name for the graph.
       nodes: # A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.
         name_of_node1:
-          function: function_name # user-defined or one provided by an external library
+          function: function_name # user-defined or one provided by an external library, with default arguments
+        name_of_node2:
+          function: function_name # user-defined or one provided by an external library, along with the kwargs
           kwargs:
             name_of_argument1: value_of_argument1 # The name and value of an argument. This could be an appropriate python object or another node
             name_of_argument2: value_of_argument2
-          type: Node # This could be Node, Selection, Stratify, or Missing. No need to specify it if the node is Node.
+          type: Node # This could be :code:`Node`, :code:`Selection`, :code:`Stratify`, or :code:`Missing`. Specifying it as :code:`Node` is optional.
           ⋮(other optional arguments)
-        name_of_node2:
+        name_of_node3:
           function: function_name(*args, **kwargs) # This is another way of defining a function, without separately defining the arguments.
 
     instructions:
       simulation:
         num_samples: 4 # The number of samples to simulate
-        csv_name: "parser" # The name of the CSV file to which to save the file, if desired.
+        csv_name: parser # The name of the CSV file to which to save the file, if desired.
+        ⋮(other optional arguments. See :ref:`Simulation details` above.)
 
 For a sample simulation definition using a YAML file, please see :ref:`Define the simulation using a YAML file`.
 

@@ -56,6 +56,8 @@ class DagSimSpec:
                         nodes[key]["function"])
             else:
                 nodes[key]["args"] = []
+                if "kwargs" not in nodes[key]:
+                    nodes[key]["kwargs"] = {}
         return nodes
 
     def _split_func_and_args(self, func_expression: str):

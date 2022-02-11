@@ -173,7 +173,7 @@ class Graph:
     def __str__(self):
         main_str = ""
         for idx, node in enumerate(self.nodes):
-            main_str += "_Node " + str(idx + 1) + ":\n"
+            main_str += "Node " + str(idx + 1) + ":\n"
             main_str += node.__str__() + "\n"
         return main_str[:-1]
 
