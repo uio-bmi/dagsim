@@ -47,17 +47,21 @@ class DagSimSpec:
     def _parse_string_args(self, nodes):
         # For each node, separate the function's name from its arguments, if not separated already
         for key in nodes.keys():
+            nodes[key]["args"] = []
+            if "kwargs" not in nodes[key]:
+                nodes[key]["kwargs"] = {}
+
             if "(" in nodes[key]["function"]:
-                if "kwargs" in nodes[key]:
+                if nodes[key]["kwargs"]:
                     raise SyntaxError("Using a python-like definition with separate kwargs is not allowed. "
                                       "Use one way or the other.")
+                elif "()" in nodes[key]["function"]:
+                    nodes[key]["function"] = nodes[key]["function"][:-2]
                 else:
                     nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = self._split_func_and_args(
                         nodes[key]["function"])
-            else:
-                nodes[key]["args"] = []
-                if "kwargs" not in nodes[key]:
-                    nodes[key]["kwargs"] = {}
+                    print(f"--> {key}")
+                    print(nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"])
         return nodes
 
     def _split_func_and_args(self, func_expression: str):
