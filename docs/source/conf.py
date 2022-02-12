@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'DagSim'
-copyright = '2021, Ghadi Al Hajj'
+copyright = '2022, Ghadi Al Hajj'
 author = 'Ghadi Al Hajj'
 
 

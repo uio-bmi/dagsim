@@ -8,8 +8,9 @@ Welcome to DagSim's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Content:
 
+   specify_with_code
    tutorials
 
 Indices and tables
