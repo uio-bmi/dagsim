@@ -44,7 +44,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Special nodes" href="selection_and_stratification.html" />
-    <link rel="prev" title="How to specify a simulation" href="specify_with_code.html" /> 
+    <link rel="prev" title="Simulate data from a simple model" href="hello_world.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,13 +89,13 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Content:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../specify_with_code.html">Specifying a simulation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specify_with_code.html">How to specify a simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Simulate data from a simple model</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Simulate data for a simple linear regression problem</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#define-the-simulation-using-python-code">Define the simulation using python code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#define-the-simulation-using-a-yaml-file">Define the simulation using a YAML file</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="selection_and_stratification.html">Special nodes</a></li>
@@ -173,7 +173,7 @@
             
   <div class="section" id="simulate-data-for-a-simple-linear-regression-problem">
 <h1>Simulate data for a simple linear regression problem<a class="headerlink" href="#simulate-data-for-a-simple-linear-regression-problem" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation"><span class="std std-ref">How to specify a simulation</span></a>.</p>
+<p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see <span class="xref std std-ref">How to specify a simulation</span>.</p>
 <div class="section" id="define-the-simulation-using-python-code">
 <h2>Define the simulation using python code<a class="headerlink" href="#define-the-simulation-using-python-code" title="Permalink to this headline">¶</a></h2>
 <p>To run this tutorial on binder, click on this badge:</p>
@@ -257,41 +257,6 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;R2 score on test data: &quot;</span><span class="p">,</span> <span class="n">LR</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>The complete code can be found on GitHub.</p>
-</div>
-<div class="section" id="define-the-simulation-using-a-yaml-file">
-<h2>Define the simulation using a YAML file<a class="headerlink" href="#define-the-simulation-using-a-yaml-file" title="Permalink to this headline">¶</a></h2>
-<p>To run this tutorial on binder, click on this badge:</p>
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FParser.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
-<p>Here, LinReg_example_function is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the “ground_truth” function.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
-  <span class="nt">python_file</span><span class="p">:</span> <span class="s">&quot;LinReg_example_function&quot;</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;my_graph&quot;</span>
-  <span class="nt">nodes</span><span class="p">:</span>
-    <span class="nt">Y</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;ground_truth&quot;</span>
-      <span class="nt">kwargs</span><span class="p">:</span>
-        <span class="nt">param</span><span class="p">:</span> <span class="s">&quot;X&quot;</span>
-        <span class="nt">std_dev</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span>
-    <span class="nt">X</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="s">&quot;numpy.random.normal(scale=1,</span><span class="nv"> </span><span class="s">loc=0)&quot;</span>
-
-<span class="nt">instructions</span><span class="p">:</span>
-  <span class="nt">simulation</span><span class="p">:</span>
-    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
-    <span class="nt">csv_name</span><span class="p">:</span> <span class="s">&quot;parser&quot;</span>
-</pre></div>
-</div>
-<p>To run the simulation define in the YAML file, you would use the built-in parser as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dagsim.utils.parser</span> <span class="kn">import</span> <span class="n">DagSimSpec</span>
-<span class="n">parser</span> <span class="o">=</span> <span class="n">DagSimSpec</span><span class="p">(</span><span class="s2">&quot;name∕or/path/to/YAML∕file&quot;</span><span class="p">)</span>
-
-<span class="n">data</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>The method <code class="code docutils literal notranslate"><span class="pre">parse</span></code> would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.</p>
-<p>By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> and/or <code class="code docutils literal notranslate"><span class="pre">draw</span></code> to <code class="code docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
 </div>
 </div>
 
@@ -302,14 +267,14 @@
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="selection_and_stratification.html" class="btn btn-neutral float-right" title="Special nodes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="specify_with_code.html" class="btn btn-neutral float-left" title="How to specify a simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hello_world.html" class="btn btn-neutral float-left" title="Simulate data from a simple model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2021, Ghadi Al Hajj.
+        &#169; Copyright 2022, Ghadi Al Hajj.
 
     </p>
   </div>

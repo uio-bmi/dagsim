@@ -89,10 +89,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Content:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../specify_with_code.html">Specifying a simulation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specify_with_code.html">How to specify a simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Simulate data from a simple model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Simulate data for a simple linear regression problem</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Special nodes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#selection">Selection</a></li>
@@ -222,7 +223,7 @@
 <span class="n">Node5</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Selection</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;SB&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">is_greater_than2</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
 
 <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node1</span><span class="p">,</span> <span class="n">Node2</span><span class="p">,</span> <span class="n">Node3</span><span class="p">,</span> <span class="n">Node4</span><span class="p">,</span> <span class="n">Node5</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;SelectionExample&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">listNodes</span><span class="p">,</span> <span class="s2">&quot;SelectionExample&quot;</span><span class="p">)</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;SelectionExample&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -260,7 +261,7 @@
 <span class="n">Node5</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Stratify</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;St&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">check_strata</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">Node3</span><span class="p">})</span>
 
 <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node1</span><span class="p">,</span> <span class="n">Node2</span><span class="p">,</span> <span class="n">Node3</span><span class="p">,</span> <span class="n">Node4</span><span class="p">,</span> <span class="n">Node5</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;StratificationExample&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">listNodes</span><span class="p">,</span> <span class="s2">&quot;StratificationExample&quot;</span><span class="p">)</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;StratificationExample&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -297,7 +298,7 @@ of any missing or non-missing values of other variables in the data-generating p
 <span class="n">MCAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
 
 <span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">MCAR</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">)</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">)</span>
 </pre></div>
@@ -326,7 +327,7 @@ does not depend on any unobserved quantities:</p>
 <span class="n">MAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
 
 <span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">Y_observed</span><span class="p">,</span> <span class="n">MAR</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">)</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MAR&quot;</span><span class="p">)</span>
 </pre></div>
@@ -359,7 +360,7 @@ would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</s
 <span class="n">MNAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
 
 <span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">Y_observed</span><span class="p">,</span> <span class="n">Y_missing</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">index_node_Y</span><span class="p">,</span> <span class="n">MNAR</span><span class="p">]</span>
-<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">,</span> <span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">)</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">)</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">)</span>
 </pre></div>
@@ -384,7 +385,7 @@ would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</s
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2021, Ghadi Al Hajj.
+        &#169; Copyright 2022, Ghadi Al Hajj.
 
     </p>
   </div>

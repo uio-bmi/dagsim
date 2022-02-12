@@ -51,7 +51,7 @@ The following code shows an example where only the samples that have a value of 
     Node5 = ds.Selection(name="SB", function=is_greater_than2, kwargs={"node": Node3, "threshold":2})
 
     listNodes = [Node1, Node2, Node3, Node4, Node5]
-    my_graph = ds.Graph("SelectionExample", listNodes)
+    my_graph = ds.Graph(listNodes, "SelectionExample")
     output = my_graph.simulate(num_samples=20, csv_name="SelectionExample")
 
 
@@ -97,7 +97,7 @@ The following code shows an example where the samples are split into three categ
     Node5 = ds.Stratify(name="St", function=check_strata, kwargs={"node": Node3})
 
     listNodes = [Node1, Node2, Node3, Node4, Node5]
-    my_graph = ds.Graph("StratificationExample", listNodes)
+    my_graph = ds.Graph(listNodes, "StratificationExample")
     output = my_graph.simulate(num_samples=20, csv_name="StratificationExample")
 
 
@@ -140,7 +140,7 @@ of any missing or non-missing values of other variables in the data-generating p
     MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, index_node, MCAR]
-    my_graph = ds.Graph(name="MCAR", list_nodes=list_nodes)
+    my_graph = ds.Graph(list_nodes=list_nodes, name="MCAR")
 
     data = my_graph.simulate(num_samples=10, csv_name="MCAR")
 
@@ -174,7 +174,7 @@ In this case, :math:`\Pr(M=0)` depends on the observed value of :math:`Y_obs`.
     MAR = ds.Missing(name="MAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, index_node, Y_observed, MAR]
-    my_graph = ds.Graph(name="MAR", list_nodes=list_nodes)
+    my_graph = ds.Graph(list_nodes=list_nodes, name="MAR")
 
     data = my_graph.simulate(num_samples=10, csv_name="MAR")
 
@@ -211,7 +211,7 @@ would-have-been value of :math:`Y_mis`.
     MNAR = ds.Missing(name="MNAR", underlying_value=underlying_value, index_node=index_node)
 
     list_nodes = [underlying_value, Y_observed, Y_missing, index_node, index_node_Y, MNAR]
-    my_graph = ds.Graph(name="MNAR", list_nodes=list_nodes)
+    my_graph = ds.Graph(list_nodes=list_nodes, name="MNAR")
 
     data = my_graph.simulate(num_samples=10, csv_name="MNAR")
 

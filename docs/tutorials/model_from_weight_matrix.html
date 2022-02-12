@@ -86,10 +86,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Content:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../specify_with_code.html">Specifying a simulation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="specify_with_code.html">How to specify a simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Simulate data from a simple model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Simulate data for a simple linear regression problem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="selection_and_stratification.html">Special nodes</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Importing models from other libraries</a><ul>
@@ -217,12 +218,12 @@
   <span class="k">return</span> <span class="n">x2</span>
 
 
-<span class="n">Node_x0</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x0&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
-<span class="n">Node_x1</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x1&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
-<span class="n">Node_x2</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x2&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">func_x2</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x0&#39;</span><span class="p">:</span> <span class="n">Node_x0</span><span class="p">,</span> <span class="s1">&#39;x1&#39;</span><span class="p">:</span> <span class="n">Node_x1</span><span class="p">})</span>
+<span class="n">Node_x0</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x0&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">Node_x1</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x1&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loc&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+<span class="n">Node_x2</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x2&#39;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">func_x2</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x0&#39;</span><span class="p">:</span> <span class="n">Node_x0</span><span class="p">,</span> <span class="s1">&#39;x1&#39;</span><span class="p">:</span> <span class="n">Node_x1</span><span class="p">})</span>
 
 <span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node_x0</span><span class="p">,</span> <span class="n">Node_x1</span><span class="p">,</span> <span class="n">Node_x2</span><span class="p">]</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s1">&#39;myGraph&#39;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">listNodes</span><span class="p">,</span> <span class="s1">&#39;myGraph&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -253,7 +254,7 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2021, Ghadi Al Hajj.
+        &#169; Copyright 2022, Ghadi Al Hajj.
 
     </p>
   </div>

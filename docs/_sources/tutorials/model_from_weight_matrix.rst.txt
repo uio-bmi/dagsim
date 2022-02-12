@@ -53,12 +53,12 @@ This will create a python file, gaussDagSim.py that has the following script:
 	  return x2
 
 
-	Node_x0 = ds.Node(name='x0', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
-	Node_x1 = ds.Node(name='x1', function=np.random.normal, arguments={'loc': 1, 'scale': 0})
-	Node_x2 = ds.Node(name='x2', function=func_x2, arguments={'x0': Node_x0, 'x1': Node_x1})
+	Node_x0 = ds.Node(name='x0', function=np.random.normal, kwargs={'loc': 1, 'scale': 0})
+	Node_x1 = ds.Node(name='x1', function=np.random.normal, kwargs={'loc': 1, 'scale': 0})
+	Node_x2 = ds.Node(name='x2', function=func_x2, kwargs={'x0': Node_x0, 'x1': Node_x1})
 
 	listNodes = [Node_x0, Node_x1, Node_x2]
-	graph = ds.Graph('myGraph', listNodes)
+	graph = ds.Graph(listNodes, 'myGraph')
 
 Create a DagSim model from a file
 ------------------------------------------------------

@@ -3,7 +3,7 @@ graph:
   python_file: hello_world_functions.py
   nodes:
     X:
-      function: numpy.random.normal
+      function: numpy.random.normal()
     Y:
       function: numpy.random.normal
       kwargs:
