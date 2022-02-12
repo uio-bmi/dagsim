@@ -1,4 +1,4 @@
-How to specify a simulation
+Specifying a simulation
 =========================================================================
 
 Simulations using DagSim can be specified either using a YAML specification file or using python code directly. Nonetheless, the main components of a simulation are the same regardless of the used method. To run any simulation, the user needs to define three things:
