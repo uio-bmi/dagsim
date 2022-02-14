@@ -33,7 +33,7 @@ The following code is an example showing how a weight matrix would be used:
 .. code-block:: python
 
 	import numpy as np
-	from utils.from_external import from_matrix
+	from utils.misc import from_matrix
 
 
 	weight = np.array([[0, 0, 2], [0, 0, 3], [0, 0, 0]])
@@ -67,7 +67,7 @@ In case you have a weighted adjacency matrix in the form of a csv file, you can 
 .. code-block:: python
    	
    	import numpy as np
-	from utils.from_external import from_csv
+	from utils.misc import from_csv
 
    	from_csv(csv_file_name, sem_type="gauss", script_name="gaussDagSim")
 

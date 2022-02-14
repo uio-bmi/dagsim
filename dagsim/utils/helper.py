@@ -1,6 +1,36 @@
 import numpy as np
 import igraph as ig
 from numpy import genfromtxt
+import yaml
+import os
+from dagsim.utils._misc import parse_string_args
+
+
+def create_functions_file(yaml_name: str):
+    if not yaml_name.endswith(".yml"):
+        yaml_name += ".yml"
+    with open(yaml_name, 'r') as stream:
+        yaml_file = yaml.safe_load(stream)
+
+    file_str = ""
+
+    nodes_dict = parse_string_args(yaml_file["graph"]["nodes"])
+    print(nodes_dict)
+
+    functions_dict = [val for val in nodes_dict.values() if "." not in val["function"]]
+    print(functions_dict)
+
+    for func in functions_dict:
+        arguments = ", ".join(func["args"]) + ", ".join([f'{key}={val}' for key, val in func["kwargs"]])
+        print(arguments)
+        file_str += "def " + func + arguments + ":\n    pass\n\n\n"
+    file_str = file_str[:-2]
+
+    # add extension if it does not exist
+    file_name = os.path.splitext(yaml_file["graph"]["python_file"])[0]+'.py'
+    print(file_name)
+    with open(file_name, 'w') as file:
+        file.write(file_str)
 
 
 def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name: str = "script"):
@@ -89,6 +119,8 @@ def from_csv(file_name: str, sem_type: str, script_name: str):
 
 
 if __name__ == "__main__":
-    matrix_example = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
+    # matrix_example = np.array([[0, 0, 2, 1], [0, 0, 3, 0], [0, 0, 0, 1], [0, 0, 0, 0]])
+    #
+    # from_matrix(matrix_example, sem_type="logistic", script_name="gaussDagSim")
 
-    from_matrix(matrix_example, sem_type="logistic", script_name="gaussDagSim")
+    create_functions_file("testyml.yml")
