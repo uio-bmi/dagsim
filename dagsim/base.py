@@ -33,9 +33,6 @@ class _Node:
 
     def _parse_func_arguments(self):
         args, kwargs = self._constructor.values()
-        if self.name == "n2_0_":
-            print(f'parsing the args of {self.name}:')
-            print(f'args: {args[0].name}') if isinstance(args[0], Node) else None
         args = [
             (lambda x: (lambda index: x.output[index]))(a) if isinstance(a, Node) else (lambda x: (lambda index: x))(
                 a) for a in args]
@@ -71,7 +68,6 @@ class _Node:
         return self.function(*self._get_func_args(idx), **self._get_func_kwrgs(idx, output_path))
 
     def _node_simulate(self, num_samples, output_path):
-        self._parse_func_arguments()
         if self.size_field is None:
             self.output = [self._forward(i, output_path) for i in range(num_samples)]
         else:
@@ -86,12 +82,8 @@ class _Node:
         return len(self.parents)
 
     def _update_parents(self):
-        # print(f'before update: parents: {[par.name for par in self.parents]}')
-        print(f'before update: parents: {[par.name for par in self.parents]}')
         self.parents = list(set([v for v in self._constructor["args"] if isinstance(v, Node)] + list(
             v for v in self._constructor["kwargs"].values() if isinstance(v, Node))))
-        # print(f'after update: parents: {[par.name for par in self.parents]}')
-        print(f'after  update: parents: {[par.name for par in self.parents]}')
 
 
 class Node(_Node):
@@ -171,33 +163,25 @@ class Missing(_Node):
 
 
 class Graph:
-    def __init__(self, list_nodes, name="Graph"):
+    def __init__(self, list_nodes, name="Graph", plates_reps: dict = None):
+        if plates_reps is not None:
+            self.plates_reps = plates_reps  # replication of each node
         self._check_args(list_nodes)
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
         self.plates = {}
-        self.plates_reps = {"1": 3}  # replication of each node
         self.adj_mat = pd.DataFrame()
         self.top_order = []
         self._update_topol_order()
+        self._update_plate_embedding()
+        self.folded_dot_str = self._generate_dot()
         self.removed_nodes = self._replicate_nodes()  # When a node is replicated, the original one is removed
         # todo reserve _agg names if there are plates in the graph
         self._update_topol_order()
-        print("start update:")
         self._update_nodes()
-        print("after build\n", self, "\n---")
-        # print("after update top_order\n", self)
-        # print("all nodes ", [node for node in self.nodes])
-        # print("before update")
-        # for node in self.nodes:
-        #     print([arg for arg in node._constructor["args"]])
-        # self._update_nodes()
-        # print("after update")
-        # for node in self.nodes:
-        #     print(node.name, [arg for arg in node._constructor["args"]])
-        # self._update_topol_order()
         self._update_topol_order()
         self._update_plate_embedding()
+        self.unfolded_dot_str = self._generate_dot()
 
     @staticmethod
     def _check_args(list_nodes):
@@ -205,58 +189,6 @@ class Graph:
                                                                                              "most one Selection node. "
         assert len([strat for strat in list_nodes if isinstance(strat, Stratify)]) <= 1, "A graph can have at most " \
                                                                                          "one Stratify node. "
-
-    def _build_graph_old(self):
-        plates_reps = {"n1": 3, "n2": 4}  # replication of each node
-
-        nodes_to_remove = []
-        for node_name in self.top_order:
-            print("Configuring node ", node_name)
-            # remember to remove the original node
-            node = self._get_node_by_name(node_name)
-            if node.plates:
-                # todo change to not necessarily in the same plate, and place it outside the if statement
-                parents_in_same_plate = [parent for parent in node.parents if parent.plates == node.plates]
-                # node_replication = [node] * plates_reps[node.name]
-                # node_replication = [node for _ in range(plates_reps[node.name])]
-                new_nodes = [copy.copy(node) for _ in range(self.plates_reps[node.name])]
-                for i in range(len(new_nodes)):
-                    setattr(new_nodes[i], "name", node.name + f'_{i}')
-                for parent in parents_in_same_plate:
-                    print("Name of parent ", parent.name)
-                    print("Current node ", node._constructor)
-                    # todo the case where the node is not a parent
-                    ind = node._constructor["args"].index(parent) if parent in node._constructor["args"] else None
-                    if ind:
-                        for replica_index in range(len(new_nodes)):
-                            setattr(new_nodes[replica_index], node._constructor["args"][ind],
-                                    self._get_node_by_name(parent.name + f'_{replica_index}'))
-                        # assume each parent is used in one argument
-                    else:
-                        key = list(node._constructor["kwargs"].keys())[
-                            list(node._constructor["kwargs"].values()).index(parent)]
-                        for replica_index in new_nodes:
-                            setattr(new_nodes[replica_index], node._constructor["kwargs"][key],
-                                    self._get_node_by_name(parent.name + f'_{replica_index}'))
-                self.nodes.extend(new_nodes)
-            else:
-                parents_in_plates = [parent for parent in node.parents if parent.plates]
-                for parent in parents_in_plates:
-                    # Node(name=parent.name + "_agg_", function=lambda x: [val for sublist in x for val in sublist],
-                    self.nodes.extend([Node(name=parent.name + "_agg_", function=lambda x: x,
-                                            args=[self._get_node_by_name(parent.name + f'_{replica_index}') for
-                                                  replica_index
-                                                  in range(plates_reps[parent.name])])])
-
-                    ind = node._constructor["args"].index(parent) if parent in node._constructor["args"] else None
-                    node_replication = plates_reps[parent.name]
-                    if ind is not None:
-                        node._constructor["args"][ind] = self._get_node_by_name(parent.name + "_agg_")
-                    # assume each parent is used in one argument
-                    else:
-                        key = list(node._constructor["kwargs"].keys())[
-                            list(node._constructor["kwargs"].values()).index(parent)]
-                        node._constructor["kwargs"][key] = self._get_node_by_name(parent.name + "_agg_")
 
     def _get_nodes_to_aggregate(self):
         # Returns all the nodes that are in plates if their children are outside that plate.
@@ -274,22 +206,18 @@ class Graph:
     def _replicate_nodes(self):
         # Replicates all the nodes found in plates based on plates_reps. Also set 'plates' to None on these nodes.
         parents_to_aggregate = self._get_nodes_to_aggregate()
-        print("Nodes to aggregate ", [n.name for n in parents_to_aggregate])
         nodes_to_remove = []
         new_nodes = []
         for node in self.nodes:
-            print("Configuring node ", node.name)
             if node.plates:
                 nodes_to_remove.append(node)
                 node_replicas = [copy.deepcopy(node) for _ in range(self.plates_reps[node.plates[0]])]
                 new_nodes.extend(node_replicas)
                 for i in range(len(node_replicas)):
                     setattr(node_replicas[i], "name", node.name + f'_{i}_')
-                    # todo check if necessary
-                    # setattr(node_replicas[i], "plates", None)
                 if node in parents_to_aggregate:
-                    new_nodes.append(Node(name=f'{node.name}_agg', function=lambda *x: x, args=node_replicas, observed=False))
-                    print(f'aggregated {node.name}')
+                    new_nodes.append(
+                        Node(name=f'{node.name}_agg', function=lambda *x: list(x), args=node_replicas, observed=True))
         self.nodes.extend(new_nodes)
         self.nodes = list(set(self.nodes) - set(nodes_to_remove))
         # deepcopy will copy the parent with the same name to different references, so checking for name solves it
@@ -411,8 +339,8 @@ class Graph:
         dot_str += "}"
         return dot_str
 
-    def draw(self):
-        dot_str = self._generate_dot()
+    def draw(self, folded=True):
+        dot_str = self.folded_dot_str if folded else self.unfolded_dot_str
         with open(self.name + "_DOT.txt", "w") as file:
             file.write(dot_str)
 
@@ -469,10 +397,6 @@ class Graph:
             node = self._get_node_by_name(node_name)
             if show_log and (isinstance(node, Missing) or isinstance(node, Node)):
                 print(f"{datetime.datetime.now()}: Simulating node \"{node.name}\".", flush=True)
-            # print(f'output of {node.name}"s parents:')
-            # if node_name == "n2_0_":
-            #     print(f'--> {node.parents}')#: {parent.output}')
-                # print(f'--> {parent.name}')
             node._node_simulate(num_samples, output_path)
             if isinstance(node, Selection):
                 assert all(isinstance(x, bool) for x in node.output), "The selection node's function should return " \
@@ -485,7 +409,6 @@ class Graph:
                 assert all(isinstance(x, str) for x in node.output), "The stratification node's function should " \
                                                                      "return a string"
             else:
-                # print(f'output of {node.name} is: {node.output}')
                 output_dict[node.name] = node.output
         return output_dict
 
@@ -536,71 +459,24 @@ class Graph:
             output.append(exter_dict)
         return output
 
-    def _update_nodes2(self):
-        for child_name in self.top_order:
-            child = self._get_node_by_name(child_name)
-            for parent in child.parents:
-                if parent in self.removed_nodes:  # this avoids modifying nodes in plates with parents not in a plate
-                    if child.plates == parent.plates:  # todo change when you allow for nested plates
-                        # for replica in range(self.plates_reps[child.plates[0]]):
-                        replica = child_name.rfind("_", 0, child_name.rfind("_"))
-                        # child_replica_name = child_name[:idx+1] + str(replica) + "_"
-                        # print(child_replica_name)
-                        # child_replica_name = child_name.split("_")[-2]
-                        child_replica = self._get_node_by_name(child.name + f'_{replica}_')
-                        setattr(child_replica, "plates", None)
-                        ind = child._constructor["args"].index(parent) if parent in child._constructor[
-                            "args"] else None
-                        if ind is not None:
-                            child_replica._constructor["args"][ind] = self._get_node_by_name(
-                                parent.name + f'_{replica}_')
-                        # assume each parent is used in one argument
-                        else:
-                            key = list(child._constructor["kwargs"].keys())[
-                                list(child._constructor["kwargs"].values()).index(parent)]
-                            child_replica._constructor["kwargs"][key] = self._get_node_by_name(
-                                parent.name + f'_{replica}_')
-                        # setattr(child_replica, "parent", self._get_node_by_name(parent.name + f'_{replica}_'))
-                    elif child.plates is None:  # whether they are in different plates or the child is not in a plate
-                        ind = child._constructor["args"].index(parent) if parent in child._constructor[
-                            "args"] else None
-                        if ind is not None:
-                            child._constructor["args"][ind] = self._get_node_by_name(parent.name + "_agg")
-                        # assume each parent is used in one argument
-                        else:
-                            key = list(child._constructor["kwargs"].keys())[
-                                list(child._constructor["kwargs"].values()).index(parent)]
-                            child._constructor["kwargs"][key] = self._get_node_by_name(parent.name + "_agg")
-                        # setattr(child_replica, "parent", self._get_node_by_name(parent.name + f'_{replica}_'))
-
-            child._parse_func_arguments()
-            child._update_parents()
-
     def _update_nodes(self):
         # update the _constructors of the nodes to include the new parents
         for child_name in self.top_order:
-            print(f'{child_name} started')
             child = self._get_node_by_name(child_name)
             for parent in child.parents:
+                usage = self.get_parent_usage(child, parent)
                 if parent.name in self.removed_nodes:  # avoid modifying nodes in plates with parents not in a plate
-                    usage = self.get_parent_usage(child, parent)
-                    # print(f'child: {child.name}; parent: {parent.name}')
-                    # print(f'parent\'s plates: {parent.plates}; child\'s plates: {child.plates}')
                     if child.plates == parent.plates:  # todo change when you allow for nested plates
                         self._match_parents(child, parent, usage)
-                    # elif not child.plates or :
                     else:  # if child is in another plate, or not in a plate itfp
                         self._assign_parent_to_child(child, parent, usage)
-                    # setattr(child, "plates", [])
-                    # todo check for other conditions
-            print(f'{child_name} passed')
+                else:  #
+                    if child.plates:
+                        self._assign_parent_to_child(child, self._get_node_by_name(parent.name), usage, agg=0)
             child._args, child._kwargs = child._parse_func_arguments()
             child._update_parents()
 
     def get_parent_usage(self, child, parent):
-        # print(f'looking for {parent.name}: parent of {child.name}')
-        # print(f'parents of {child.name} are {[(par, par.name) for par in child.parents]}')
-        # print(f'args of {child.name} are {[(arg, arg.name) for arg in child._constructor["args"]]}')
         ind = child._constructor["args"].index(parent) if parent in child._constructor["args"] else None
         if ind is not None:
             tuple_usage = (ind, "arg")
@@ -616,12 +492,12 @@ class Graph:
         replica_index = child.name.split("_")[-2]
         if usage[1] == "arg":
             child._constructor["args"][usage[0]] = self._get_node_by_name(f'{parent.name}_{replica_index}_')
-            print(f'matching {parent.name} for {child.name}: args: {[arg.name for arg in child._constructor["args"]]}')
         else:  # if in kwargs
             child._constructor["kwargs"][usage[0]] = self._get_node_by_name(f'{parent.name}_{replica_index}_')
 
-    def _assign_parent_to_child(self, child, parent, usage):
+    def _assign_parent_to_child(self, child, parent, usage, agg=1):
+        parent_name = parent.name + "_agg" if agg else parent.name
         if usage[1] == "arg":
-            child._constructor["args"][usage[0]] = self._get_node_by_name(parent.name + "_agg")
+            child._constructor["args"][usage[0]] = self._get_node_by_name(parent_name)
         else:  # if in kwargs
-            child._constructor["kwargs"][usage[0]] = self._get_node_by_name(parent.name + "_agg")
+            child._constructor["kwargs"][usage[0]] = self._get_node_by_name(parent_name)
