@@ -164,8 +164,6 @@ class Missing(_Node):
 
 class Graph:
     def __init__(self, list_nodes, name="Graph", plates_reps: dict = None):
-        if plates_reps is not None:
-            self.plates_reps = plates_reps  # replication of each node
         self._check_args(list_nodes)
         self.name = name
         self.nodes = list_nodes  # [None] * num_nodes
@@ -175,10 +173,15 @@ class Graph:
         self._update_topol_order()
         self._update_plate_embedding()
         self.folded_dot_str = self._generate_dot()
-        self.removed_nodes = self._replicate_nodes()  # When a node is replicated, the original one is removed
+        if plates_reps is not None:
+            self.unfolded_dot_str = ""
+            self.unfold_graph(plates_reps)
+
+    def unfold_graph(self, reps):
+        removed_nodes = self._replicate_nodes(reps)  # When a node is replicated, the original one is removed
         # todo reserve _agg names if there are plates in the graph
         self._update_topol_order()
-        self._update_nodes()
+        self._update_nodes(removed_nodes)
         self._update_topol_order()
         self._update_plate_embedding()
         self.unfolded_dot_str = self._generate_dot()
@@ -203,7 +206,7 @@ class Graph:
                     nodes_to_aggregate.append(parent)
         return nodes_to_aggregate
 
-    def _replicate_nodes(self):
+    def _replicate_nodes(self, plates_reps):
         # Replicates all the nodes found in plates based on plates_reps. Also set 'plates' to None on these nodes.
         parents_to_aggregate = self._get_nodes_to_aggregate()
         nodes_to_remove = []
@@ -211,7 +214,7 @@ class Graph:
         for node in self.nodes:
             if node.plates:
                 nodes_to_remove.append(node)
-                node_replicas = [copy.deepcopy(node) for _ in range(self.plates_reps[node.plates[0]])]
+                node_replicas = [copy.deepcopy(node) for _ in range(plates_reps[node.plates[0]])]
                 new_nodes.extend(node_replicas)
                 for i in range(len(node_replicas)):
                     setattr(node_replicas[i], "name", node.name + f'_{i}_')
@@ -459,13 +462,13 @@ class Graph:
             output.append(exter_dict)
         return output
 
-    def _update_nodes(self):
+    def _update_nodes(self, removed_nodes):
         # update the _constructors of the nodes to include the new parents
         for child_name in self.top_order:
             child = self._get_node_by_name(child_name)
             for parent in child.parents:
                 usage = self.get_parent_usage(child, parent)
-                if parent.name in self.removed_nodes:  # avoid modifying nodes in plates with parents not in a plate
+                if parent.name in removed_nodes:  # avoid modifying nodes in plates with parents not in a plate
                     if child.plates == parent.plates:  # todo change when you allow for nested plates
                         self._match_parents(child, parent, usage)
                     else:  # if child is in another plate, or not in a plate itfp
