@@ -39,7 +39,6 @@ class DagSimSpec:
         self._build_graph_from_nodes(nodes_dict, functions_list)
         if verbose:
             print(self.graph)
-
         if draw:
             self.graph.draw()
         data = self._simulate_data()
@@ -66,23 +65,22 @@ class DagSimSpec:
         self.top_order = top_order
 
     def _build_graph_from_nodes(self, nodes: dict, functions: list):
-        if "name" not in self.yaml_file["graph"]:
-            self.yaml_file["graph"]["name"] = "Graph"
-
-        self.graph = Graph(name=self.yaml_file["graph"]["name"], list_nodes=[])
-
+        list_nodes = []
         for key in self.top_order:
             nodes[key] = {**nodes[key], **{"name": key}}
             nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
             nodes[key]["kwargs"] = {
-                k: self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for k, v in
+                k: self._get_node_by_name(v, list_nodes) if self._get_node_by_name(v, list_nodes) is not None else v for k, v in
                 nodes[key]["kwargs"].items()}
 
             nodes[key]["args"] = [
-                self.graph._get_node_by_name(v) if self.graph._get_node_by_name(v) is not None else v for v in
+                self._get_node_by_name(v, list_nodes) if self._get_node_by_name(v, list_nodes) is not None else v for v in
                 nodes[key]["args"]]
 
             nodes[key] = self._clear_strs(nodes[key])
+
+            if "plates" in nodes[key]:
+                nodes[key]["plates"] = str(nodes[key].get("plates")).replace(" ", "").split(",")
 
             node_type = nodes[key].get("type")
             if node_type is not None:
@@ -90,19 +88,27 @@ class DagSimSpec:
 
             if node_type == "Node" or node_type is None:
                 node = Node._build_object(**nodes[key])
-                self.graph._add_node(node)
+                # self.graph._add_node(node)
 
             elif node_type == "Selection":
                 node = Selection._build_object(**nodes[key])
-                self.graph._add_node(node)
+                # self.graph._add_node(node)
 
             elif node_type == "Stratify":
                 node = Stratify._build_object(**nodes[key])
-                self.graph._add_node(node)
+                # self.graph._add_node(node)
 
             else:
                 raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Node, "
                                                    "Selection, or Stratify.")
+            list_nodes.append(node)
+
+        if "name" not in self.yaml_file["graph"]:
+            self.yaml_file["graph"]["name"] = "Graph"
+
+        plate_reps = self._get_plates_reps()
+
+        self.graph = Graph(name=self.yaml_file["graph"]["name"], list_nodes=list_nodes, plates_reps=plate_reps)
 
     def _get_func_by_name(self, functions_list: list, func_name: str):
         for name, func in functions_list:
@@ -132,6 +138,18 @@ class DagSimSpec:
             if isinstance(v, str):
                 if v.startswith(("'", '"')):
                     node["kwargs"][k] = v[1:-1]
+        return node
+
+    def _get_plates_reps(self):
+        plate_dict = self.yaml_file["graph"].get("plates_reps")
+        plate_dict = {str(key): val for key, val in plate_dict.items()}
+        return plate_dict
+
+    def _get_node_by_name(self, name, list_nodes):
+        try:
+            node = [i for i in list_nodes if i.name == name][0]
+        except (ValueError, IndexError):
+            node = None
         return node
 
     def _simulate_data(self):

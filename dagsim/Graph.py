@@ -58,6 +58,7 @@ class Graph:
         return nodes_to_aggregate
 
     def _replicate_nodes(self, plates_reps):
+        # todo check if plates and not plate_reps
         # Replicates all the nodes found in plates based on plates_reps. Also set 'plates' to None on these nodes.
         parents_to_aggregate = self._get_nodes_to_aggregate()
         nodes_to_remove = []
