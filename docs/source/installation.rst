@@ -1,10 +1,8 @@
 Installing DagSim
 =================
 
-DagSim can be installed directly using `pip <https://pypi.org/project/dagsim>`_
 
-
-To install the DagSim package using `pip`, run:
+To install the DagSim package using `pip <https://pypi.org/project/dagsim>`_, run:
 
 ``pip install dagsim``
 
