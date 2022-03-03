@@ -21,7 +21,7 @@ For more details on this workflow, check :ref:`this<How to specify a simulation 
 To install DagSim, see :ref:`Installing DagSim`
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Content:
 
    installation
