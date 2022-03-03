@@ -24,9 +24,9 @@ To install DagSim, see :ref:`Installing DagSim`
    :maxdepth: 2
    :caption: Content:
 
+   installation
    specify_with_code
    tutorials
-   installation
 
 Indices and tables
 ==================
