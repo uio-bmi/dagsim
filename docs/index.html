@@ -90,6 +90,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="specify_with_code.html">Specifying a simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing DagSim</a></li>
 </ul>
 
             
@@ -159,6 +160,16 @@
             
   <div class="section" id="welcome-to-dagsim-s-documentation">
 <h1>Welcome to DagSim’s documentation!<a class="headerlink" href="#welcome-to-dagsim-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>DagSim is a framework and specification language for simulating data based on user-defined graphical models,
+specifically Directed Acyclic Graphs, or DAGs. To get started with DagSim check out <a class="reference internal" href="tutorials/hello_world.html#simulate-data-from-a-simple-model"><span class="std std-ref">this</span></a> tutorial.</p>
+<p>Simulating data using DagSim follows this workflow:</p>
+<ul class="simple">
+<li><p><strong>Defining the functions</strong> that will be used for the simulation. This can be any Python function, whether it is user-definedor provided by some Python library.</p></li>
+<li><p><strong>Defining the graph</strong> that you want to simulate data from. This mainly entails defining the different nodes in the graph, by giving each node a name, the function to evaluate the value of that node, and the arguments of that function. These arguments could be nodes in the graph or any other Python objects.</p></li>
+<li><p><strong>Simulating data</strong> from the defined graph.</p></li>
+</ul>
+<p>For more details on this workflow, check <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation-using-python-code"><span class="std std-ref">this</span></a> extended tutorial</p>
+<p>To install DagSim, see <a class="reference internal" href="installation.html#installing-dagsim"><span class="std std-ref">Installing DagSim</span></a></p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Content:</span></p>
 <ul>
@@ -172,6 +183,11 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/linear_regression.html">Simulate data for a simple linear regression problem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/selection_and_stratification.html">Special nodes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/model_from_weight_matrix.html">Importing models from other libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing DagSim</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#quickstart">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-graphviz">Installing graphviz</a></li>
 </ul>
 </li>
 </ul>
