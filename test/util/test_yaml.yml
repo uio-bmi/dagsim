@@ -5,10 +5,9 @@ graph:
     result:
       function: printing(source, phra="a")
     source:
-      function: "numpy.random.normal"
+      function: "numpy.random.randint"
       kwargs:
-        scale: 1
-        loc: 0
+        low: 5
 instructions:
   simulation:
     num_samples: 2
