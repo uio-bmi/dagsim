@@ -1,7 +1,6 @@
 Installing DagSim
 =================
 
-
 To install the DagSim package using `pip <https://pypi.org/project/dagsim>`_, run:
 
 ``pip install dagsim``
@@ -17,7 +16,5 @@ Installing graphviz
 If you use `pip`, you need to install graphviz on the system level in order to use the drawing functionality in DagSim. Please follow the instrcutions `here <https://graphviz.org/download/>`_ on how to install graphviz depending on the
 operating system.
 
-.. toctree::
-  :maxdepth: 1
 
   
