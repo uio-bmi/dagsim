@@ -8,6 +8,5 @@ def square(param, add_param):
 
 
 def printing(num, phra):
-    num = int(str(num)[3])
     aa = phra * num
     return aa
