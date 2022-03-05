@@ -24,6 +24,7 @@ To install DagSim, see :ref:`Installing DagSim`
    :maxdepth: 1
    :caption: Content:
 
+   quickstart
    installation
    specify_with_code
    tutorials

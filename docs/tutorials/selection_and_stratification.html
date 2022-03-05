@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/css-style.css" type="text/css" />
 
   
   
@@ -91,13 +93,14 @@
             
               <p class="caption"><span class="caption-text">Content:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installing DagSim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../specify_with_code.html">Specifying a simulation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Simulate data from a simple model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Simulate data for a simple linear regression problem</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Special nodes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#selection">Selection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stratification">Stratification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stratify">Stratify</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#missing">Missing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#missing-completely-at-random-mcar">Missing Completely At Random (MCAR)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#missing-at-random-mar">Missing At Random (MAR)</a></li>
@@ -107,11 +110,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="model_from_weight_matrix.html">Importing models from other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plates.html">Plate Notation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installing DagSim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html#quickstart">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html#installing-graphviz">Installing graphviz</a></li>
 </ul>
 
             
@@ -183,8 +184,9 @@
             
   <div class="section" id="special-nodes">
 <h1>Special nodes<a class="headerlink" href="#special-nodes" title="Permalink to this headline">¶</a></h1>
-<p>DagSim has two special types of nodes that could be useful in simulations, namely a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node and a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node. A <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node allows the user to simulate selection bias in the simulated data, such that only the samples that satisfy some user-specified criteria end up in the resulting data set.</p>
-<p>On the other hand, and as the name suggests, a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node allows the user to stratify the resulting data set into different strata, again according to user-specified criteria. The results will be returned as a dictionary of different dictionaries, one for each stratum, and the samples from each stratum are saved in a separate .csv file.</p>
+<p>DagSim has three special types of nodes that could be useful in simulations, namely a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node, a <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node, and a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node. A <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node allows the user to simulate <span class="xref std std-ref">selection bias</span> in the simulated data based on some user-specified criteria.</p>
+<p>On the other hand, and as the name suggests, a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node allows the user to easily stratify the resulting data set into different strata, again according to user-specified criteria. The results will be returned as a dictionary of different dictionaries, one for each stratum, and the samples from each stratum are saved in a separate .csv file.</p>
+<p>Finally, a <code class="code docutils literal notranslate"><span class="pre">Missing</span></code> node allows the user to drop some values from the resulting dataset and replace them by <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>, again based on the criterion set by the user.</p>
 <p>In this tutorial, you will learn how to use each of these nodes.</p>
 <div class="section" id="selection">
 <h2>Selection<a class="headerlink" href="#selection" title="Permalink to this headline">¶</a></h2>
@@ -231,8 +233,8 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="stratification">
-<h2>Stratification<a class="headerlink" href="#stratification" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stratify">
+<h2>Stratify<a class="headerlink" href="#stratify" title="Permalink to this headline">¶</a></h2>
 <p>The arguments needed to specify a <code class="code docutils literal notranslate"><span class="pre">Stratify</span></code> node are exactly the same as for a <code class="code docutils literal notranslate"><span class="pre">Selection</span></code> node. However, the function here should return the name <code class="code docutils literal notranslate"><span class="pre">(str)</span></code> of the stratum to which a given example should belong. These names will be used as suffixes to the main .csv file name.</p>
 <p>The following code shows an example where the samples are split into three categories, namely “less than -1”, “greater than +1”, and “between -1 and +1”.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>

@@ -1,9 +1,11 @@
 Special nodes
 =========================================================================
 
-DagSim has two special types of nodes that could be useful in simulations, namely a :code:`Selection` node and a :code:`Stratify` node. A :code:`Selection` node allows the user to simulate selection bias in the simulated data, such that only the samples that satisfy some user-specified criteria end up in the resulting data set. 
+DagSim has three special types of nodes that could be useful in simulations, namely a :code:`Selection` node, a :code:`Missing` node, and a :code:`Stratify` node. A :code:`Selection` node allows the user to simulate :ref:`selection bias<https://en.wikipedia.org/wiki/Selection_bias>` in the simulated data based on some user-specified criteria.
 
-On the other hand, and as the name suggests, a :code:`Stratify` node allows the user to stratify the resulting data set into different strata, again according to user-specified criteria. The results will be returned as a dictionary of different dictionaries, one for each stratum, and the samples from each stratum are saved in a separate .csv file. 
+On the other hand, and as the name suggests, a :code:`Stratify` node allows the user to easily stratify the resulting data set into different strata, again according to user-specified criteria. The results will be returned as a dictionary of different dictionaries, one for each stratum, and the samples from each stratum are saved in a separate .csv file.
+
+Finally, a :code:`Missing` node allows the user to drop some values from the resulting dataset and replace them by :code:`NaN`, again based on the criterion set by the user.
 
 In this tutorial, you will learn how to use each of these nodes.
 
@@ -55,7 +57,7 @@ The following code shows an example where only the samples that have a value of 
     output = my_graph.simulate(num_samples=20, csv_name="SelectionExample")
 
 
-Stratification
+Stratify
 ---------------------------------------------
 
 The arguments needed to specify a :code:`Stratify` node are exactly the same as for a :code:`Selection` node. However, the function here should return the name :code:`(str)` of the stratum to which a given example should belong. These names will be used as suffixes to the main .csv file name.
