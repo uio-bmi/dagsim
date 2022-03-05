@@ -16,9 +16,9 @@ Simulating data using DagSim follows this workflow:
 
 - **Simulating data** from the defined graph.
 
-For more details on this workflow, check :ref:`this<How to specify a simulation using python code>` extended tutorial
+For more details on this workflow, check :ref:`this<How to specify a simulation using python code>` extended tutorial.
 
-To install DagSim, see :ref:`Installing DagSim`
+To install DagSim, see :ref:`Installing DagSim`.
 
 .. toctree::
    :maxdepth: 1

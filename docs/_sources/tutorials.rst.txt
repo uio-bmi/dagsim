@@ -1,7 +1,7 @@
 Tutorials
 ==========
 
-This page provides an overview of tutorials on how to get started using DagSim
+This page provides an overview of tutorials on how to use DagSim
 
 .. toctree::
   :maxdepth: 1
