@@ -1,5 +1,5 @@
 Specifying a simulation
-=========================================================================
+=======================
 
 Simulations using DagSim can be specified either using a YAML specification file or using python code directly. Nonetheless, the main components of a simulation are the same regardless of the used method. To run any simulation, the user needs to define three things:
 
@@ -15,10 +15,10 @@ How to specify a simulation using python code
 
 1. **Functions:**
 
-These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.
+These functions encode how to calculate the value of a node based on the values of its parent nodes and/or other additional parameters.
 
 For a standard :code:`Node`, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
-For the other nodes, the return value has a different significance depending on the type of the corresponding node.
+For the other nodes, the return value has a different significance depending on the type of the corresponding node, see :ref:`Special nodes`.
 
 2. **Nodes and Graph:**
 
@@ -31,7 +31,9 @@ The nodes represent variables in the model that interact with each other based o
 
 Please check :ref:`this tutorial<Special nodes>` for more information on how to use **Selection**, **Stratify**, and **Missing** nodes.
 
-To define a standard :code:`Node`, you need to specify the following things:
+    2.1 **Nodes**
+
+To define a standard :code:`Node`, you need to specify the following:
  
  * :code:`name (str)`: A name for the node.
  * :code:`function`: The function to evaluate to get the value of the node. Note that here you need to specify only the **name** of the function without any arguments.
@@ -43,6 +45,9 @@ To define a standard :code:`Node`, you need to specify the following things:
  * :code:`handle_multi_cols (bool)` (Optional): Default is :code:`False`. If :code:`True`, vector-valued outputs will be split into different columns, each with the name of the original node appended by its index.
  * :code:`handle_multi_return (function)` (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.
  * :code:`plates (list)` (Optional): The names of the plates in which the node resides.
+
+
+ 2.2 **Graph**
 
 After defining all the nodes in your model, you construct a graph by creating an instance of the class :code:`Graph` and giving it two arguments:
 
@@ -62,14 +67,14 @@ Now that you have defined the functions and the graph, you can simulate data by 
 
 This method will return a Python dictionary where the :code:`keys` are the names of the nodes and the :code:`values` are the simulated values of each node.
 
-For an example of defining a simulation using Python code, please check this tutorial.
+For an example of defining a simulation using Python code, see :ref:`Quickstart`.
 
 How to specify a simulation using YAML
 --------------------------------------
 
 The YAML file has two main components, the definition of the graph itself including all the nodes and functions that connect them to each other, and the simulation details including the number of samples to be simulated and the name of the csv file to save the simulated data to.
 
-Within the graph component, you provide a name for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes within the "nodes" key.
+Within the graph component, you provide a name (optional) for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes in the "nodes" component.
 
 .. note::
     Functions provided by standard libraries do not need to be included in the python file. However, these functions should use the whole library name instead of abbreviations, for example, :code:`numpy` instead of :code:`np`.
@@ -80,6 +85,7 @@ Within the graph component, you provide a name for that graph, the path to the p
 .. note::
     The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.
 
+The type of a given node (whether it is Node, Selection, Stratify, or Missing) is specified in the "type" key, as shown below. The other keys are the same as the arguments that you would use to specify a node in Python code (see :ref:`Node`.)
 
 The general structure of the YAML file would look like this:
 
@@ -91,11 +97,11 @@ The general structure of the YAML file would look like this:
       name: "user-defined name" # A optional name for the graph.
       nodes: # A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.
         name_of_node1:
-          function: function_name # user-defined or one provided by an external library, with default arguments
+          function: function_name # user-defined or one provided by an external library, with default arguments.
         name_of_node2:
-          function: function_name # user-defined or one provided by an external library, along with the kwargs
+          function: function_name # user-defined or one provided by an external library, along with the kwargs.
           kwargs:
-            name_of_argument1: value_of_argument1 # The name and value of an argument. This could be an appropriate python object or another node
+            name_of_argument1: value_of_argument1 # The name and value of an argument. This could be a python object or another node in the graph.
             name_of_argument2: value_of_argument2
           type: Node # This could be :code:`Node`, :code:`Selection`, :code:`Stratify`, or :code:`Missing`. Specifying it as :code:`Node` is optional.
           ⋮(other optional arguments)
@@ -108,7 +114,7 @@ The general structure of the YAML file would look like this:
         csv_name: parser # The name of the CSV file to which to save the file, if desired.
         ⋮(other optional arguments. See :ref:`Simulation details` above.)
 
-For a sample simulation definition using a YAML file, please see :ref:`Define the simulation using a YAML file`.
+For a sample simulation definition using a YAML file, please see :ref:`Quickstart`.
 
 .. toctree::
    :maxdepth: 2

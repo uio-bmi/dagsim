@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/css-style.css" type="text/css" />
 
   
   
@@ -42,7 +44,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Tutorials" href="tutorials.html" />
-    <link rel="prev" title="Welcome to DagSim’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Installing DagSim" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,6 +91,8 @@
             
               <p class="caption"><span class="caption-text">Content:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing DagSim</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Specifying a simulation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-specify-a-simulation-using-python-code">How to specify a simulation using python code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-specify-a-simulation-using-yaml">How to specify a simulation using YAML</a><ul class="simple">
@@ -97,9 +101,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing DagSim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#quickstart">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#installing-graphviz">Installing graphviz</a></li>
 </ul>
 
             
@@ -181,9 +182,9 @@
 <ol class="arabic simple">
 <li><p><strong>Functions:</strong></p></li>
 </ol>
-<p>These functions should encode how the value of a node depends on the parent nodes, and possibly some additional parameters.</p>
+<p>These functions encode how to calculate the value of a node based on the values of its parent nodes and/or other additional parameters.</p>
 <p>For a standard <code class="code docutils literal notranslate"><span class="pre">Node</span></code>, the return value of the corresponding function would be the value of that node. In that case, the returned value can be of any data type depending on the problem at hand.
-For the other nodes, the return value has a different significance depending on the type of the corresponding node.</p>
+For the other nodes, the return value has a different significance depending on the type of the corresponding node, see <a class="reference internal" href="tutorials/selection_and_stratification.html#special-nodes"><span class="std std-ref">Special nodes</span></a>.</p>
 <ol class="arabic simple" start="2">
 <li><p><strong>Nodes and Graph:</strong></p></li>
 </ol>
@@ -197,7 +198,10 @@ For the other nodes, the return value has a different significance depending on 
 </ul>
 </div></blockquote>
 <p>Please check <a class="reference internal" href="tutorials/selection_and_stratification.html#special-nodes"><span class="std std-ref">this tutorial</span></a> for more information on how to use <strong>Selection</strong>, <strong>Stratify</strong>, and <strong>Missing</strong> nodes.</p>
-<p>To define a standard <code class="code docutils literal notranslate"><span class="pre">Node</span></code>, you need to specify the following things:</p>
+<blockquote>
+<div><p>2.1 <strong>Nodes</strong></p>
+</div></blockquote>
+<p>To define a standard <code class="code docutils literal notranslate"><span class="pre">Node</span></code>, you need to specify the following:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">name</span> <span class="pre">(str)</span></code>: A name for the node.</p></li>
@@ -211,6 +215,7 @@ For the other nodes, the return value has a different significance depending on 
 <li><p><code class="code docutils literal notranslate"><span class="pre">handle_multi_return</span> <span class="pre">(function)</span></code> (Optional): The name of the function that would specify how to handle outputs of functions with multiple return values.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">plates</span> <span class="pre">(list)</span></code> (Optional): The names of the plates in which the node resides.</p></li>
 </ul>
+<p>2.2 <strong>Graph</strong></p>
 </div></blockquote>
 <p>After defining all the nodes in your model, you construct a graph by creating an instance of the class <code class="code docutils literal notranslate"><span class="pre">Graph</span></code> and giving it two arguments:</p>
 <blockquote>
@@ -234,12 +239,12 @@ For the other nodes, the return value has a different significance depending on 
 </ul>
 </div></blockquote>
 <p>This method will return a Python dictionary where the <code class="code docutils literal notranslate"><span class="pre">keys</span></code> are the names of the nodes and the <code class="code docutils literal notranslate"><span class="pre">values</span></code> are the simulated values of each node.</p>
-<p>For an example of defining a simulation using Python code, please check this tutorial.</p>
+<p>For an example of defining a simulation using Python code, see <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a>.</p>
 </div>
 <div class="section" id="how-to-specify-a-simulation-using-yaml">
 <h2>How to specify a simulation using YAML<a class="headerlink" href="#how-to-specify-a-simulation-using-yaml" title="Permalink to this headline">¶</a></h2>
 <p>The YAML file has two main components, the definition of the graph itself including all the nodes and functions that connect them to each other, and the simulation details including the number of samples to be simulated and the name of the csv file to save the simulated data to.</p>
-<p>Within the graph component, you provide a name for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes within the “nodes” key.</p>
+<p>Within the graph component, you provide a name (optional) for that graph, the path to the python file having all the functions to be used in the simulation, and the definition of the nodes in the “nodes” component.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Functions provided by standard libraries do not need to be included in the python file. However, these functions should use the whole library name instead of abbreviations, for example, <code class="code docutils literal notranslate"><span class="pre">numpy</span></code> instead of <code class="code docutils literal notranslate"><span class="pre">np</span></code>.</p>
@@ -249,17 +254,18 @@ For the other nodes, the return value has a different significance depending on 
 <p class="admonition-title">Note</p>
 <p>The nodes do not need to be provided in a topological order, i.e a child node could be defined before its parents node(s). DagSim will sort the nodes topologically after checking for acyclicity.</p>
 </div>
+<p>The type of a given node (whether it is Node, Selection, Stratify, or Missing) is specified in the “type” key, as shown below. The other keys are the same as the arguments that you would use to specify a node in Python code (see <span class="xref std std-ref">Node</span>.)</p>
 <p>The general structure of the YAML file would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
   <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path/to/file</span> <span class="c1"># (optional) A .py file containing the user-defined functions, if any, to be used in the simulation.</span>
   <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;user-defined</span><span class="nv"> </span><span class="s">name&quot;</span> <span class="c1"># A optional name for the graph.</span>
   <span class="nt">nodes</span><span class="p">:</span> <span class="c1"># A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.</span>
     <span class="nt">name_of_node1</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, with default arguments</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, with default arguments.</span>
     <span class="nt">name_of_node2</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, along with the kwargs</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">function_name</span> <span class="c1"># user-defined or one provided by an external library, along with the kwargs.</span>
       <span class="nt">kwargs</span><span class="p">:</span>
-        <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># The name and value of an argument. This could be an appropriate python object or another node</span>
+        <span class="nt">name_of_argument1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument1</span> <span class="c1"># The name and value of an argument. This could be a python object or another node in the graph.</span>
         <span class="nt">name_of_argument2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value_of_argument2</span>
       <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Node</span> <span class="c1"># This could be :code:`Node`, :code:`Selection`, :code:`Stratify`, or :code:`Missing`. Specifying it as :code:`Node` is optional.</span>
       <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments)</span>
@@ -273,7 +279,7 @@ For the other nodes, the return value has a different significance depending on 
     <span class="l l-Scalar l-Scalar-Plain">⋮(other optional arguments. See :ref:`Simulation details` above.)</span>
 </pre></div>
 </div>
-<p>For a sample simulation definition using a YAML file, please see <a class="reference internal" href="tutorials/hello_world.html#define-the-simulation-using-a-yaml-file"><span class="std std-ref">Define the simulation using a YAML file</span></a>.</p>
+<p>For a sample simulation definition using a YAML file, please see <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a>.</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>
@@ -286,7 +292,7 @@ For the other nodes, the return value has a different significance depending on 
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to DagSim’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installing DagSim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

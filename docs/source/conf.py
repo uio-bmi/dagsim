@@ -21,7 +21,6 @@ project = 'DagSim'
 copyright = '2022, Ghadi Al Hajj'
 author = 'Ghadi Al Hajj'
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -35,6 +34,7 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
+    'sphinx_tabs.tabs',
 ]
 
 # mathjax configuration
@@ -79,7 +79,6 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -89,5 +88,9 @@ html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# so a file named "custom.css" will overwrite the builtin "custom.css".
 html_static_path = ['_static']
+
+html_css_files = [
+    'css/css-style.css',
+]
