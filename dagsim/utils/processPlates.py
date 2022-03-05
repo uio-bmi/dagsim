@@ -105,7 +105,7 @@ def get_plate_dot(plate_embedding):
     """
     subs_dict = {
         i: "subgraph cluster_" + str(i) + " {" + ", ".join(plate_embedding[i][1]) + ';\n label="' +
-           plate_embedding[i][0] + '"' for i in range(1, len(plate_embedding.keys()))}
+           plate_embedding[i][0] + '"' + ';\n labelloc=b' for i in range(1, len(plate_embedding.keys()))}
     ordered_dict = find_order([plate_embedding[i][1] for i in range(1, len(plate_embedding.keys()))])
     processed_dict = process_dict(ordered_dict)
     root_plates = find_roots(processed_dict)
