@@ -62,7 +62,5 @@ The following are examples of how to exactly do this in Python and YAML.
             csv_name: plates_demo
             num_samples: 10
 
-.. autoclass:: Graph
-
 .. toctree::
    :maxdepth: 1

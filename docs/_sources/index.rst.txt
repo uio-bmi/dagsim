@@ -6,9 +6,9 @@
 Welcome to DagSim's documentation!
 ==================================
 DagSim is a framework and specification language for simulating data based on user-defined graphical models,
-specifically Directed Acyclic Graphs, or DAGs. To get started with DagSim check out :ref:`this<Simulate data from a simple model>` tutorial.
+specifically Directed Acyclic Graphs, or DAGs. To get started with DagSim check out :ref:`this<Quickstart>` tutorial.
 
-Simulating data using DagSim follows this workflow:
+Typically, simulating data using DagSim would follow this workflow:
 
 - **Defining the functions** that will be used for the simulation. This can be any Python function, whether it is user-definedor provided by some Python library.
 

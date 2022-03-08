@@ -1,6 +1,5 @@
 import numpy as np
 import igraph as ig
-from numpy import genfromtxt
 import yaml
 import os
 from dagsim.utils._misc import parse_string_args
@@ -114,7 +113,7 @@ def from_matrix(weight_matrix: np.ndarray, sem_type: str = "gauss", script_name:
 
 
 def from_csv(file_name: str, sem_type: str, script_name: str):
-    weight_matrix = genfromtxt(file_name+".csv")
+    weight_matrix = np.genfromtxt(file_name+".csv")
     from_matrix(weight_matrix, sem_type=sem_type, script_name=script_name)
 
 
