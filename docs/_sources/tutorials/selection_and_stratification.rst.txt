@@ -1,5 +1,5 @@
 Special nodes
-=========================================================================
+=============
 
 DagSim has three special types of nodes that could be useful in simulations, namely a :code:`Selection` node, a :code:`Missing` node, and a :code:`Stratify` node. A :code:`Selection` node allows the user to simulate :ref:`selection bias<https://en.wikipedia.org/wiki/Selection_bias>` in the simulated data based on some user-specified criteria.
 
@@ -7,11 +7,11 @@ On the other hand, and as the name suggests, a :code:`Stratify` node allows the 
 
 Finally, a :code:`Missing` node allows the user to drop some values from the resulting dataset and replace them by :code:`NaN`, again based on the criterion set by the user.
 
-In this tutorial, you will learn how to use each of these nodes.
+In this tutorial, you will learn how to use each of these nodes. If you are not familiar with how to specify a simulation using DagSim, see :ref:`this<Specifying a simulation>`.
 
 
 Selection
----------------------------------------------
+---------
 
 Similar to a :code:`Node` node, to define a :code:`Selection` node, you need to specify the following:
 
@@ -25,36 +25,64 @@ The difference from a :code:`Node` node is that the function here should return 
 
 The following code shows an example where only the samples that have a value of node Y greater than a certain threshold are included in the data set.
 
-.. code-block:: python
-   
-    import dagsim.base as ds
-    import numpy as np
+.. tabs::
+
+   .. tab:: Python
+        .. highlight:: python
+        .. code-block:: python
+
+            import dagsim.base as ds
+            import numpy as np
 
 
-    def add(param1, param2):
-        return param1 + param2
+            def add(param1, param2):
+                return param1 + param2
 
 
-    def square(param):
-        return np.square(param)
+            def square(param):
+                return np.square(param)
 
 
-    def is_greater_than2(node, threshold):
-        if node < threshold:
-            return True
-        else:
-            return False
+            def is_greater_than2(node, threshold):
+                if node < threshold:
+                    return True
+                else:
+                    return False
 
 
-    Node1 = ds.Node(name="A", function=np.random.normal)
-    Node2 = ds.Node(name="B", function=np.random.normal)
-    Node3 = ds.Node(name="C", args={"param1": Node1, "param2": Node2}, function=add)
-    Node4 = ds.Node(name="D", function=square, kwargs={"param": Node3})
-    Node5 = ds.Selection(name="SB", function=is_greater_than2, kwargs={"node": Node3, "threshold":2})
+            A = ds.Node(name="A", function=np.random.normal)
+            B = ds.Node(name="B", function=np.random.normal)
+            C = ds.Node(name="C", function=add, kwargs={"param1": A, "param2": B})
+            D = ds.Node(name="D", function=square, kwargs={"param": C})
+            SB = ds.Selection(name="SB", function=is_greater_than2, kwargs={"node": C, "threshold":2})
 
-    listNodes = [Node1, Node2, Node3, Node4, Node5]
-    my_graph = ds.Graph(listNodes, "SelectionExample")
-    output = my_graph.simulate(num_samples=20, csv_name="SelectionExample")
+            listNodes = [A, B, C, D, SB]
+            my_graph = ds.Graph(listNodes, "SelectionExample")
+            output = my_graph.simulate(num_samples=10, csv_name="SelectionExample")
+
+   .. tab:: YAML
+        .. highlight:: yaml
+        .. code-block:: yaml
+
+            graph:
+              python_file: functions.py
+              nodes:
+                A:
+                  function: numpy.random.normal
+                B:
+                  function: numpy.random.normal
+                C:
+                  function: add(param1= A, param2= B)
+                D:
+                  function: square(C)
+                SB:
+                  function: is_greater_than2(C, 2)
+
+
+            instructions:
+              simulation:
+                csv_name: parser
+                num_samples: 10
 
 
 Stratify
@@ -67,44 +95,70 @@ The arguments needed to specify a :code:`Stratify` node are exactly the same as 
 
 The following code shows an example where the samples are split into three categories, namely "less than -1", "greater than +1", and "between -1 and +1".
 
-.. code-block:: python
+.. tabs::
+
+   .. tab:: Python
+        .. highlight:: python
+        .. code-block:: python
+
+                import dagsim.base as ds
+                import numpy as np
 
 
-    import dagsim.base as ds
-    import numpy as np
+                def add(param1, param2):
+                return param1 + param2
 
 
-    def add(param1, param2):
-        return param1 + param2
+                def square(param):
+                return np.square(param)
 
 
-    def square(param):
-        return np.square(param)
+                def check_strata(node):
+                if node < -1:
+                return "<-1"
+                else:
+                if node > 1:
+                    return ">1"
+                else:
+                    return ">-1|<+1"
 
 
-    def check_strata(node):
-        if node < -1:
-        return "<-1"
-        else:
-        if node > 1:
-            return ">1"
-        else:
-            return ">-1|<+1"
+                A = ds.Node(name="A", function=np.random.normal)
+                B = ds.Node(name="B", function=np.random.normal)
+                C = ds.Node(name="C", function=add, kwargs={"param1": A, "param2": B})
+                D = ds.Node(name="D", function=square, kwargs={"param": C})
+                St = ds.Stratify(name="St", function=check_strata, kwargs={"node": C})
+
+                listNodes = [A, B, C, D, St]
+                my_graph = ds.Graph(listNodes, "StratificationExample")
+                output = my_graph.simulate(num_samples=10, csv_name="StratificationExample")
+
+   .. tab:: YAML
+        .. highlight:: yaml
+        .. code-block:: yaml
+
+            graph:
+              python_file: hello_world_functions.py
+              nodes:
+                A:
+                  function: numpy.random.normal
+                B:
+                  function: numpy.random.normal
+                C:
+                  function: add(param1= A, param2= B)
+                D:
+                  function: square(C)
+                SB:
+                  function: check_strata(C)
 
 
-    Node1 = ds.Node(name="A", function=np.random.normal)
-    Node2 = ds.Node(name="B", function=np.random.normal)
-    Node3 = ds.Node(name="C", function=add, kwargs={"param1": Node1, "param2": Node2})
-    Node4 = ds.Node(name="D", function=square, kwargs={"param": Node3})
-    Node5 = ds.Stratify(name="St", function=check_strata, kwargs={"node": Node3})
-
-    listNodes = [Node1, Node2, Node3, Node4, Node5]
-    my_graph = ds.Graph(listNodes, "StratificationExample")
-    output = my_graph.simulate(num_samples=20, csv_name="StratificationExample")
-
+            instructions:
+              simulation:
+                csv_name: parser
+                num_samples: 10
 
 Missing
----------------------------------------------
+-------
 
 To specify a :code:`Missing` node, the user provides the following:
 
@@ -130,22 +184,44 @@ of any missing or non-missing values of other variables in the data-generating p
 .. math::
     \Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)
 
-.. code-block:: python
+   .. tab:: Python
+        .. highlight:: python
+        .. code-block:: python
 
 
-    import dagsim.base as ds
-    import numpy as np
+            import dagsim.base as ds
+            import numpy as np
 
 
-    underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
-    index_node = ds.Node(name="index_node", function=np.random.randint, kwargs={"low":0, "high":2})
-    MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
+            underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
+            index_node = ds.Node(name="index_node", function=np.random.randint, kwargs={"low":0, "high":2})
+            MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
 
-    list_nodes = [underlying_value, index_node, MCAR]
-    my_graph = ds.Graph(list_nodes=list_nodes, name="MCAR")
+            list_nodes = [underlying_value, index_node, MCAR]
+            my_graph = ds.Graph(list_nodes=list_nodes, name="MCAR")
 
-    data = my_graph.simulate(num_samples=10, csv_name="MCAR")
+            data = my_graph.simulate(num_samples=10, csv_name="MCAR")
 
+   .. tab:: YAML
+        .. highlight:: yaml
+        .. code-block:: yaml
+
+            graph:
+              python_file: hello_world_functions.py
+              nodes:
+                underlying_value:
+                  function: numpy.random.normal
+                index_node:
+                  function: numpy.random.randint(0,2)
+                MCAR:
+                  underlying_value: underlying_value
+                  index_node: index_node
+
+
+            instructions:
+              simulation:
+                csv_name: parser
+                num_samples: 10
 
 Missing At Random (MAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

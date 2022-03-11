@@ -43,13 +43,15 @@ The following are examples of how to exactly do this in Python and YAML.
 
    .. tab:: YAML
     In YAML, you follow a very similar way of defining plates, specifying the plate in which each node lives, if any, and the number of replications of each node in the graph.
-    You would specify the same simulation above as follows:
+    You would specify the simulation above as follows:
 
     .. highlight:: yaml
     .. code-block:: yaml
 
         graph:
           python_file: functions_file.py # the path of the python file containing the definition of the add_noise function
+          plates_reps:
+            plate1: 3
           nodes:
             X:
               function: numpy.random.normal

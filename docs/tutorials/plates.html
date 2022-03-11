@@ -199,9 +199,11 @@ If you are not familiar with using DagSim, please see <a class="reference intern
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">folded</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><p>You would specify the same simulation above as follows:</p>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><p>You would specify the simulation above as follows:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
   <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">functions_file.py</span> <span class="c1"># the path of the python file containing the definition of the add_noise function</span>
+  <span class="nt">plates_reps</span><span class="p">:</span>
+    <span class="nt">plate1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
   <span class="nt">nodes</span><span class="p">:</span>
     <span class="nt">X</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.normal</span>

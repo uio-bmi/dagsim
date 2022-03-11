@@ -94,7 +94,7 @@ The general structure of the YAML file would look like this:
 
     graph:
       python_file: path/to/file # (optional) A .py file containing the user-defined functions, if any, to be used in the simulation.
-      name: "user-defined name" # A optional name for the graph.
+      name: "user-defined name" # An optional name for the graph.
       nodes: # A list of all the nodes in the graph. For each node you provide the same arguments as when specifying it with code.
         name_of_node1:
           function: function_name # user-defined or one provided by an external library, with default arguments.

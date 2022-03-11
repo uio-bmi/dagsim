@@ -16,7 +16,7 @@ Typically, simulating data using DagSim would follow this workflow:
 
 - **Simulating data** from the defined graph.
 
-For more details on this workflow, check :ref:`this<How to specify a simulation using python code>` extended tutorial.
+For more details on this workflow, check :ref:`this<Specifying a simulation>` extended tutorial.
 
 To install DagSim, see :ref:`Installing DagSim`.
 
