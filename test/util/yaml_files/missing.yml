@@ -1,0 +1,16 @@
+graph:
+  python_file: "functions_for_parser_test.py"
+  nodes:
+    source:
+      function: get_missing()
+    index:
+      function: check_if_even_bool(source)
+    missing_source:
+      type: Missing
+      underlying_value: source
+      index_node: index
+
+instructions:
+  simulation:
+    num_samples: 3
+    csv_name: "parser"

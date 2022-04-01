@@ -1,0 +1,12 @@
+graph:
+  python_file: "functions_for_parser_test.py"
+  nodes:
+    select:
+      type: Stratify
+      function: check_if_even_str(source)
+    source:
+      function: get_stratify()
+
+instructions:
+  simulation:
+    num_samples: 3

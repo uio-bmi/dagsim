@@ -1,5 +1,5 @@
 import yaml
-from dagsim.base import Graph, Node, Selection, Stratify
+from dagsim.base import Graph, Node, Selection, Stratify, Missing
 from dagsim.utils._misc import parse_string_args
 from inspect import getmembers, isfunction
 import importlib
@@ -10,10 +10,12 @@ import os.path
 
 class DagSimSpec:
     def __init__(self, file_name: str):
+        self.functions_list = None
         self.top_order = []
         self.graph = None
         with open(file_name, 'r') as stream:
             self.yaml_file = yaml.safe_load(stream)
+        # todo check parsing floats or integers
 
     def parse(self, verbose: bool = True, draw: bool = True):
 
@@ -32,11 +34,11 @@ class DagSimSpec:
             python_file = python_file[:-3]
 
             functions_file = importlib.import_module(python_file)
-            functions_list = getmembers(functions_file, isfunction)
+            self.functions_list = getmembers(functions_file, isfunction)
         except KeyError:
-            functions_list = []
+            self.functions_list = []
 
-        self._build_graph_from_nodes(nodes_dict, functions_list)
+        self._build_graph_from_nodes(nodes_dict)
         if verbose:
             print(self.graph)
         if draw:
@@ -46,8 +48,12 @@ class DagSimSpec:
 
     def _build_adj_matrix(self, nodes: dict):
         node_names = nodes.keys()
-        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values()) + nodes[k]["args"]) if v in node_names] for k
-                        in node_names}
+        # allow for non-boolean Missing-index output
+        parents_dict = {k: [v for v in (list(nodes[k]["kwargs"].values()) + nodes[k]["args"]) if
+                            v in node_names] for k in node_names if nodes[k]["type"] != "Missing"}
+        parents_dict.update({k: [nodes[k]["underlying_value"], nodes[k]["index_node"]] for k in node_names if
+                             nodes[k]["type"] == "Missing"})
+
         pd_dict = pd.DataFrame(0, columns=node_names, index=node_names)
         for child in node_names:
             for parent in parents_dict[child]:
@@ -64,51 +70,66 @@ class DagSimSpec:
         top_order = [names[i] for i in top_order]
         self.top_order = top_order
 
-    def _build_graph_from_nodes(self, nodes: dict, functions: list):
-        list_nodes = []
+    def _build_graph_from_nodes(self, nodes: dict):
+        self.list_nodes = []
         for key in self.top_order:
+            node_type = self._get_node_type(nodes[key])
             nodes[key] = {**nodes[key], **{"name": key}}
-            nodes[key]["function"] = self._get_func_by_name(functions, nodes[key]["function"])
-            nodes[key]["kwargs"] = {
-                k: self._get_node_by_name(v, list_nodes) if self._get_node_by_name(v, list_nodes) is not None else v for k, v in
-                nodes[key]["kwargs"].items()}
-
-            nodes[key]["args"] = [
-                self._get_node_by_name(v, list_nodes) if self._get_node_by_name(v, list_nodes) is not None else v for v in
-                nodes[key]["args"]]
-
-            nodes[key] = self._clear_strs(nodes[key])
-
-            if "plates" in nodes[key]:
-                nodes[key]["plates"] = str(nodes[key].get("plates")).replace(" ", "").split(",")
-
-            node_type = nodes[key].get("type")
-            if node_type is not None:
-                nodes[key].pop("type")
-
-            if node_type == "Node" or node_type is None:
-                node = Node._build_object(**nodes[key])
-                # self.graph._add_node(node)
-
-            elif node_type == "Selection":
-                node = Selection._build_object(**nodes[key])
-                # self.graph._add_node(node)
-
-            elif node_type == "Stratify":
-                node = Stratify._build_object(**nodes[key])
-                # self.graph._add_node(node)
-
+            if node_type == "Missing":
+                node = self._build_missing_node(nodes[key])
             else:
-                raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Node, "
-                                                   "Selection, or Stratify.")
-            list_nodes.append(node)
+                node = self._build_other_node(nodes[key], node_type)
+            self.list_nodes.append(node)
 
         if "name" not in self.yaml_file["graph"]:
             self.yaml_file["graph"]["name"] = "Graph"
 
         plate_reps = self._get_plates_reps()
 
-        self.graph = Graph(name=self.yaml_file["graph"]["name"], list_nodes=list_nodes, plates_reps=plate_reps)
+        self.graph = Graph(name=self.yaml_file["graph"]["name"], list_nodes=self.list_nodes, plates_reps=plate_reps)
+
+    def _build_missing_node(self, node: dict) -> Missing:
+        assert "underlying_value" in node, "'underlying_value' is not specified"
+        assert "index_node" in node, "'index_node' is not specified"
+
+        node["underlying_value"] = self._get_node_by_name(node["underlying_value"])
+        node["index_node"] = self._get_node_by_name(node["index_node"])
+
+        return Missing(**node)
+
+    def _build_other_node(self, node, node_type):
+        node["function"] = self._get_func_by_name(self.functions_list, node["function"])
+        node["kwargs"] = {
+            k: self._get_node_by_name(v) if self._get_node_by_name(v) is not None else v for
+            k, v in node["kwargs"].items()}
+
+        node["args"] = [
+            self._get_node_by_name(v) if self._get_node_by_name(v) is not None else v for v
+            in node["args"]]
+
+        node = self._clear_strs(node)
+
+        if node_type == "Node":
+            if "plates" in node:
+                node["plates"] = str(node.get("plates")).replace(" ", "").split(",")
+            node = Node._build_object(**node)
+
+        elif node_type == "Selection":
+            node = Selection._build_object(**node)
+
+        elif node_type == "Stratify":
+            node = Stratify._build_object(**node)
+
+        return node
+
+    def _get_node_type(self, node):
+        node_type = node.get("type")  # always not None because parse_string_args adds the type
+        node.pop("type")
+        if node_type in ["Node", "Selection", "Missing", "Stratify"]:
+            return node_type
+        else:
+            raise TypeError("\"" + node_type + "\" is not a valid node type. \"type\" should be either Node, "
+                                               "Selection, or Stratify.")
 
     def _get_func_by_name(self, functions_list: list, func_name: str):
         for name, func in functions_list:
@@ -142,12 +163,13 @@ class DagSimSpec:
 
     def _get_plates_reps(self):
         plate_dict = self.yaml_file["graph"].get("plates_reps")
-        plate_dict = {str(key): val for key, val in plate_dict.items()}
+        if plate_dict is not None:
+            plate_dict = {str(key): val for key, val in plate_dict.items()}
         return plate_dict
 
-    def _get_node_by_name(self, name, list_nodes):
+    def _get_node_by_name(self, name):
         try:
-            node = [i for i in list_nodes if i.name == name][0]
+            node = [i for i in self.list_nodes if i.name == name][0]
         except (ValueError, IndexError):
             node = None
         return node
@@ -158,6 +180,7 @@ class DagSimSpec:
 
 
 if __name__ == "__main__":
-    parser = DagSimSpec(file_name="testyml.yml")
+    # parser = DagSimSpec(file_name="test_yaml_missing.yml")
+    parser = DagSimSpec(file_name="testyml2.yml")
     data = parser.parse()
     print(data)

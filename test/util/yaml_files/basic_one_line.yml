@@ -1,14 +1,11 @@
 graph:
   python_file: "functions_for_parser_test.py"
-  name: "my_graph"
   nodes:
-    result:
-      function: printing(source, phra="a")
+    result: printing(source, phra="a")
     source:
-      function: "numpy.random.randint"
+      function: numpy.random.randint
       kwargs:
         low: 5
 instructions:
   simulation:
     num_samples: 2
-    csv_name: "parser"

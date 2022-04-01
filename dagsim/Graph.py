@@ -133,7 +133,7 @@ class Graph:
         check_for_missing = [item for item in self.nodes if item.__class__.__name__ == "Missing"]
         return check_for_missing if check_for_missing else None
 
-    def _get_node_by_name(self, name: str):
+    def get_node_by_name(self, name: str):
         if not isinstance(name, str):
             return None
         else:
@@ -181,10 +181,10 @@ class Graph:
 
         # add the edges of both vertices are visible
         for parent_node in self.adj_mat:
-            if self._get_node_by_name(parent_node).visible:
+            if self.get_node_by_name(parent_node).visible:
                 for node_idx in self.adj_mat.loc[parent_node].index:
                     if self.adj_mat.loc[parent_node].loc[node_idx] == 1:
-                        if self._get_node_by_name(node_idx).visible:
+                        if self.get_node_by_name(node_idx).visible:
                             tmp_str = '"%s" -> "%s";\n' % (parent_node, node_idx)
                             dot_str += tmp_str
 
@@ -223,7 +223,7 @@ class Graph:
                         output_dict=self._traverse_graph(1, output_path, missing, False))
                     output_dict = {k: output_dict[k] + temp_output[k] for k in output_dict.keys()}
 
-        output_dict = {k: v for k, v in output_dict.items() if self._get_node_by_name(k).observed}
+        output_dict = {k: v for k, v in output_dict.items() if self.get_node_by_name(k).observed}
         output_dict = self._prettify_output(output_dict)
 
         stratifyNode = self._get_stratify()
@@ -249,7 +249,7 @@ class Graph:
         output_dict = {}
         for node_name in self.top_order:
 
-            node = self._get_node_by_name(node_name)
+            node = self.get_node_by_name(node_name)
             if show_log and (isinstance(node, Missing) or isinstance(node, Node)):
                 print(f"{datetime.datetime.now()}: Simulating node \"{node.name}\".", flush=True)
             node._node_simulate(num_samples, output_path)
@@ -270,7 +270,7 @@ class Graph:
     def _prettify_output(self, output_dict: dict):
         keys_to_remove = []
         for key in output_dict:
-            node = self._get_node_by_name(key)
+            node = self.get_node_by_name(key)
             # check if subscriptible
             if node.handle_multi_cols:
                 node_output = output_dict[key]
@@ -317,7 +317,7 @@ class Graph:
     def _update_nodes(self, removed_nodes):
         # update the _constructors of the nodes to include the new parents
         for child_name in self.top_order:
-            child = self._get_node_by_name(child_name)
+            child = self.get_node_by_name(child_name)
             for parent in child.parents:
                 usage = self.get_parent_usage(child, parent)
                 if parent.name in removed_nodes:  # avoid modifying nodes in plates with parents not in a plate
@@ -327,7 +327,7 @@ class Graph:
                         self._assign_parent_to_child(child, parent, usage)
                 else:  #
                     if child.plates:
-                        self._assign_parent_to_child(child, self._get_node_by_name(parent.name), usage, agg=0)
+                        self._assign_parent_to_child(child, self.get_node_by_name(parent.name), usage, agg=0)
             child._args, child._kwargs = child._parse_func_arguments()
             child._update_parents()
 
@@ -346,13 +346,13 @@ class Graph:
     def _match_parents(self, child, parent, usage):
         replica_index = child.name.split("_")[-2]
         if usage[1] == "arg":
-            child._constructor["args"][usage[0]] = self._get_node_by_name(f'{parent.name}_{replica_index}_')
+            child._constructor["args"][usage[0]] = self.get_node_by_name(f'{parent.name}_{replica_index}_')
         else:  # if in kwargs
-            child._constructor["kwargs"][usage[0]] = self._get_node_by_name(f'{parent.name}_{replica_index}_')
+            child._constructor["kwargs"][usage[0]] = self.get_node_by_name(f'{parent.name}_{replica_index}_')
 
     def _assign_parent_to_child(self, child, parent, usage, agg=1):
         parent_name = parent.name + "_agg" if agg else parent.name
         if usage[1] == "arg":
-            child._constructor["args"][usage[0]] = self._get_node_by_name(parent_name)
+            child._constructor["args"][usage[0]] = self.get_node_by_name(parent_name)
         else:  # if in kwargs
-            child._constructor["kwargs"][usage[0]] = self._get_node_by_name(parent_name)
+            child._constructor["kwargs"][usage[0]] = self.get_node_by_name(parent_name)

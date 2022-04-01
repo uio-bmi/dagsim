@@ -1,19 +1,26 @@
 def parse_string_args(nodes):
     # For each node, separate the function's name from its arguments, if not separated already
     for key in nodes.keys():
-        nodes[key]["args"] = []
-        if "kwargs" not in nodes[key]:
-            nodes[key]["kwargs"] = {}
+        if "type" in nodes[key] and nodes[key]["type"] == "Missing":
+            continue
+        else:
+            nodes[key] = check_node_syntax(nodes[key])
+            if "type" not in nodes[key]:
+                nodes[key]["type"] = "Node"
+            nodes[key]["args"] = []
+            if "kwargs" not in nodes[key]:
+                nodes[key]["kwargs"] = {}
 
-        if "(" in nodes[key]["function"]:
-            if nodes[key]["kwargs"]:
-                raise SyntaxError("Using a python-like definition with separate kwargs is not allowed. "
-                                  "Use one way or the other.")
-            elif "()" in nodes[key]["function"]:
-                nodes[key]["function"] = nodes[key]["function"][:-2]
-            else:
-                nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = split_func_and_args(
-                    nodes[key]["function"])
+            if "(" in nodes[key]["function"]:
+                if nodes[key]["kwargs"]:
+                    raise SyntaxError(
+                        "Using a python-like definition, i.e. with parantheses, with separate kwargs is not "
+                        "allowed. Use one way or the other.")
+                elif "()" in nodes[key]["function"]:
+                    nodes[key]["function"] = nodes[key]["function"][:-2]
+                else:
+                    nodes[key]["function"], nodes[key]["args"], nodes[key]["kwargs"] = split_func_and_args(
+                        nodes[key]["function"])
     return nodes
 
 
@@ -54,3 +61,12 @@ def check_args_order(all_args_str: str):
     else:
         first_kwarg_index = len(all_args_str)
     return first_kwarg_index
+
+
+def check_node_syntax(node):
+    if not isinstance(node, dict):
+        assert isinstance(node, str), "One line definitions should contain the function definition itself."
+        node_dict = {"function": node}
+        return node_dict
+    else:
+        return node

@@ -1,0 +1,12 @@
+graph:
+  python_file: "functions_for_parser_test.py"
+  nodes:
+    result:
+      function: printing(source, phra="a")
+    source:
+      function: numpy.random.randint
+      kwargs:
+        low: 5
+instructions:
+  simulation:
+    num_samples: 2
