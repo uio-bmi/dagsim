@@ -107,6 +107,7 @@ The general structure of the YAML file would look like this:
           ⋮(other optional arguments)
         name_of_node3:
           function: function_name(*args, **kwargs) # This is another way of defining a function, without separately defining the arguments.
+        name_of_node4: function_name(*args, **kwargs) # Another way if you want to specify only the function of a Node node, with the other arguments being their default values.
 
     instructions:
       simulation:

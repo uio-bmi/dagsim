@@ -20,7 +20,6 @@ class TestParser(unittest.TestCase):
         self.assertEqual(['aaa', 'aaaa'], data["result"])
         self.assertEqual([3, 4], data["source"])
 
-
     def test_selection_parsing(self):
         parser = DagSimSpec(file_name="yaml_files/selection.yml")
         data = parser.parse(draw=False, verbose=False)
