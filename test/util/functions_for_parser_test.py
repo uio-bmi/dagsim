@@ -15,7 +15,6 @@ def printing(num, phra):
 def get_select(counter=[0]):
     index_list = [0, 1, 2, 3, 4]
     counter[0] += 1
-    print("returned ", index_list[counter[0] - 1])
     return index_list[counter[0] - 1]
 
 

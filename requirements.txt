@@ -1,7 +1,6 @@
 graphviz>=0.16
 numpy>=1.20.2
 pandas>=1.2.4
-python-igraph>=0.9.6
 ipython>=7.27.0
-#python-graphviz~=0.16
+igraph>=0.9.6
 PyYAML

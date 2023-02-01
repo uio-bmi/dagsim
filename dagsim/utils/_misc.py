@@ -33,21 +33,30 @@ def split_func_and_args(func_expression: str):
     inputs = inputs.split(",")
     args = inputs[:first_kwarg_index]
     for arg_idx in range(len(args)):
-        try:
-            args[arg_idx] = float(args[arg_idx])
-        except (ValueError, TypeError):
-            pass
+        args[arg_idx] = get_number(args[arg_idx]) if is_numeric(args[arg_idx]) else args[arg_idx]
     inputs = inputs[first_kwarg_index:]
     kwargs = {}
     for kwarg in inputs:
         arg_name = kwarg[:kwarg.find("=")]
         kwargs[arg_name] = kwarg[kwarg.find("=") + 1:]
-        try:
-            kwargs[arg_name] = float(kwargs[arg_name])
-        except (ValueError, TypeError):
-            pass
+        kwargs[arg_name] = get_number(kwargs[arg_name]) if is_numeric(kwargs[arg_name]) else kwargs[arg_name]
     func_name = func_expression[:func_expression.find("(")]
     return func_name, args, kwargs
+
+
+def get_number(string: str):
+    num = float(string)
+    if num == int(num):
+        num = int(num)
+    return num
+
+
+def is_numeric(string: str):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 
 def check_args_order(all_args_str: str):
