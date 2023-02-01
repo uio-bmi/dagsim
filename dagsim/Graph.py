@@ -209,6 +209,9 @@ class Graph:
 
     def simulate(self, num_samples, csv_name="", output_path="./", selection=True, stratify=True, missing=True):
 
+        if output_path[-1] != "/":
+            output_path += "/"
+
         tic = time.perf_counter()
         print(f"{datetime.datetime.now()}: Simulation started.", flush=True)
         output_dict = self._traverse_graph(num_samples, output_path, missing, True)

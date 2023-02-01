@@ -181,6 +181,7 @@ class DagSimSpec:
         simulation_instructions = self.yaml_file["instructions"]["simulation"]
         if self.output_path is not None:
             simulation_instructions.update({"output_path": self.output_path})
+        print(simulation_instructions)
         data = self.graph.simulate(**simulation_instructions)
         return data
 
@@ -200,6 +201,6 @@ def main():
 
 if __name__ == "__main__":
     # parser = DagSimSpec(file_name="test_yaml_missing.yml")
-    parser = DagSimSpec(file_name="testyml2.yml")
+    parser = DagSimSpec(file_name="testyml2.yml", output_path="/home/ghadi/gitvigs/")
     data = parser.parse()
     print(data)
