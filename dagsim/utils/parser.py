@@ -1,3 +1,5 @@
+import argparse
+
 import yaml
 from dagsim.base import Graph, Node, Selection, Stratify, Missing
 from dagsim.utils._misc import parse_string_args
@@ -9,7 +11,8 @@ import os.path
 
 
 class DagSimSpec:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, output_path: str = None):
+        self.output_path = output_path
         self.functions_list = None
         self.top_order = []
         self.graph = None
@@ -175,8 +178,24 @@ class DagSimSpec:
         return node
 
     def _simulate_data(self):
-        data = self.graph.simulate(**self.yaml_file["instructions"]["simulation"])
+        simulation_instructions = self.yaml_file["instructions"]["simulation"]
+        if self.output_path is not None:
+            simulation_instructions.update("output_path", self.output_path)
+        data = self.graph.simulate(**simulation_instructions)
         return data
+
+
+def main():
+    args_parser = argparse.ArgumentParser(description="dagsim command line tool")
+    args_parser.add_argument("specification_path",
+                             help="Path to specification YAML file. Always used to define the simulation.")
+    args_parser.add_argument("-v", "--verbose", action="store_true", help="Set verbosity to True")
+    args_parser.add_argument("-d", "--draw", action="store_true", help="Set draw to True")
+    args_parser.add_argument("-o", "--output", type=str, help="The output path to the simulated data")
+
+    args = args_parser.parse_args()
+    dagsim_parser = DagSimSpec(file_name=args.specification_path, output_path=args.output)
+    _ = dagsim_parser.parse(verbose=args.verbose, draw=args.draw)
 
 
 if __name__ == "__main__":

@@ -15,8 +15,7 @@ setup(
     install_requires=['graphviz>=0.16',
                       'numpy>=1.20.2',
                       'pandas>=1.2.4',
-                      'python-igraph>=0.9.6',
-                      'scikit-learn>=0.24.2',
+                      'igraph>=0.9.6',
                       'pyyaml',
                       'ipython>=7.27.0'],
     classifiers=[
@@ -26,7 +25,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'dagsim-quickstart = dagsim.utils.quickstart:main'
+            'dagsim-quickstart = dagsim.utils.quickstart:main',
+            'dagsim = dagsim.utils.parser:main'
         ]
     },
 )
