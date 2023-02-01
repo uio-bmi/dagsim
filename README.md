@@ -2,7 +2,8 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/uio-bmi/dagsim/main?labpath=tutorials%2Fhello_world.ipynb)
 
-DagSim is a Python-based framework and specification language for simulating data based on a Directed Acyclic Graph (DAG)
+DagSim is a Python-based framework and specification language for simulating data based on a Directed Acyclic Graph (
+DAG)
 structure, without any constraints on variable types or functional relations. A succinct YAML format for
 defining the structure of the simulation model promotes transparency, while separate user-provided functions for
 generating each variable based on its parents ensure the modularization of the simulation code.
@@ -48,13 +49,16 @@ operating system.
 
 ## Simple example
 
+### Python code
+
 Suppose we are interested in simulating two variables, X and Y, where X follows a standard Gaussian distribution, and Y
 is the square of X.
 
 For each node we need a function to simulate the node's values:
 
 - For X, we can use the `numpy.random.normal` function
-- For Y, we can use either `numpy.power` or define our own function. We will use the second to illustrate how one can use
+- For Y, we can use either `numpy.power` or define our own function. We will use the second to illustrate how one can
+  use
   user-define functions.
 
 ```python
@@ -100,4 +104,17 @@ data = graph.simulate(num_samples=10, csv_name="demo_data")
 Here, `data` would be a dictionary with keys being the names of the nodes in the graph, and the corresponding values
 being the simulated values for each node returned as a Python `list`.
 
-For other simple examples, please refer to the `tutorials` folder.
+For more detailed instructions, check
+this [page](https://uio-bmi.github.io/dagsim/specify_with_code.html#how-to-specify-a-simulation-using-python-code), and
+for other simple examples, please refer to the `tutorials` folder.
+
+### YAML Specification
+
+dagsim also allows the specification of a simulation using a YAML file. You can run dagsim on a YAML file by running:
+
+```shell
+dagsim path/to/yaml/file [-v|--verbose] [-d|--draw] [-o output/path|--output_path=output/path]
+```
+
+For a tutorial on using a YAMl file for simulation, check
+this [page](https://uio-bmi.github.io/dagsim/specify_with_code.html#how-to-specify-a-simulation-using-yaml).

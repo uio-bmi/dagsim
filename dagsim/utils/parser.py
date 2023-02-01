@@ -192,10 +192,10 @@ def main():
                              help="Path to specification YAML file. Always used to define the simulation.")
     args_parser.add_argument("-v", "--verbose", action="store_true", help="Set verbosity to True")
     args_parser.add_argument("-d", "--draw", action="store_true", help="Set draw to True")
-    args_parser.add_argument("-o", "--output", type=str, help="The output path to the simulated data")
+    args_parser.add_argument("-o", "--output_path", type=str, help="The output path to the simulated data")
 
     args = args_parser.parse_args()
-    dagsim_parser = DagSimSpec(file_name=args.specification_path, output_path=args.output)
+    dagsim_parser = DagSimSpec(file_name=args.specification_path, output_path=args.output_path)
     _ = dagsim_parser.parse(verbose=args.verbose, draw=args.draw)
 
 
