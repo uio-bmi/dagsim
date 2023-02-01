@@ -1,0 +1,17 @@
+graph:
+  nodes:
+    U1: uniform(0,1)
+    U2: uniform(0,1)
+    H: binomial(1, U1)
+    C: binomial(1, U2)
+    V: complement_binomial(U1)
+    R: sigmoid_binomial(C, H, "H")
+    Y: sigmoid_binomial(C, V, "V")
+    Image: drawImage(H, V, R, C)
+  python_file: ImagesExample.py
+
+instructions:
+  simulation:
+    csv_name: Images_metadata
+    num_samples: 50
+    output_path: "./images"
