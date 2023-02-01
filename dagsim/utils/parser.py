@@ -180,7 +180,7 @@ class DagSimSpec:
     def _simulate_data(self):
         simulation_instructions = self.yaml_file["instructions"]["simulation"]
         if self.output_path is not None:
-            simulation_instructions.update({"output_path", self.output_path})
+            simulation_instructions.update({"output_path": self.output_path})
         data = self.graph.simulate(**simulation_instructions)
         return data
 
