@@ -13,6 +13,13 @@ class TestParser(unittest.TestCase):
         self.assertEqual(['aaa', 'aaaa'], data["result"])
         self.assertEqual([3, 4], data["source"])
 
+    def test_basic_parsing_num_type(self):
+        np.random.seed(1)
+        parser = DagSimSpec(file_name="yaml_files/basic_num_type.yml")
+        data = parser.parse(draw=False, verbose=False)
+        self.assertEqual([0, 1, 0, 0, 0], data["X"][0].tolist())
+        self.assertEqual([0, 0, 0, 0, 1], data["Y"][0].tolist())
+
     def test_basic_one_liner_parsing(self):
         np.random.seed(1)
         parser = DagSimSpec(file_name="yaml_files/basic_one_line.yml")

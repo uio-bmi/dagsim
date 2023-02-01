@@ -1,0 +1,13 @@
+graph:
+  nodes:
+    X:
+      function: numpy.random.binomial(1, 0.5, size=5)
+    Y:
+      function: numpy.random.binomial
+      kwargs:
+        n: 1
+        p: 0.5
+        size: 5
+instructions:
+  simulation:
+    num_samples: 1
