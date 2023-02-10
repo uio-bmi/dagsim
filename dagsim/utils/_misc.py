@@ -1,8 +1,9 @@
 def parse_string_args(nodes):
     # For each node, separate the function's name from its arguments, if not separated already
     for key in nodes.keys():
-        if "type" in nodes[key] and nodes[key]["type"] == "Missing":
-            continue
+        if isinstance(nodes[key], dict) and "type" in nodes[key]:
+            if nodes[key]["type"] == "Missing":
+                continue
         else:
             nodes[key] = check_node_syntax(nodes[key])
             if "type" not in nodes[key]:
