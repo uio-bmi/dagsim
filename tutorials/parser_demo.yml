@@ -1,21 +1,11 @@
 graph:
-  name: my_graph
   python_file: hello_world_functions.py
   nodes:
-    X:
-      function: numpy.random.normal()
-    Y:
-      function: numpy.random.normal
-      kwargs:
-        loc: 1
-        scale: 2
-    Z:
-      function: add(X, Y)
-    W:
-      function: square_plus_constant(z=Z, constant=2)
-
+    p_head: numpy.random.uniform
+    seq_len: numpy.random.randint(10, 20)
+    sequence: simulate_sequence(seq_len, p_head)
 
 instructions:
   simulation:
-    csv_name: parser
-    num_samples: 4
+    csv_name: simple_example
+    num_samples: 100
