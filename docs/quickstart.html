@@ -174,12 +174,11 @@
   <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>In this tutorial, you will learn how you can set up a simple directed acyclic graph (DAG) to generate data from. For a more detailed description of DagSim’s workflow, see <span class="xref std std-ref">How to specify a simulation</span>.</p>
-<p>Suppose that we have simulate data from a model that has these four variables:</p>
+<p>Suppose that we want to simulate sequences of coin tosses, based on a randomly generated probability of getting heads − per sequence − and random sequence length bounded between a low and a high value.</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(X \sim \mathcal{N}(0,1)\)</span>, i.e. standard Gaussian Distribution</p></li>
-<li><p><span class="math notranslate nohighlight">\(Y \sim \mathcal{N}(1,2)\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(Z = X + Y\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(W = Z^2 + c\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(sequence\_length \sim Cat(10,20)\)</span>, i.e. categorical distribution over integers between 10 and 20.</p></li>
+<li><p><span class="math notranslate nohighlight">\(p\_head \sim \mathcal{U}(0,1)\)</span>, i.e. standard uniform distribution</p></li>
+<li><p><span class="math notranslate nohighlight">\(sequence\)</span>: a sequence of coin tosses</p></li>
 </ul>
 <p>We can do that using DagSim by following these steps:</p>
 <div class="section" id="step-1-setting-up-dagsim">
@@ -203,29 +202,27 @@ Regardless of the method you choose, you start by defining your own functions, i
 </ol>
 <p>The first thing that we need to define is the functions that relate the nodes to each other.
 For the model that we have defined above we would need three functions, one to sample data from a given Gaussian distribution, one that adds two numbers, and one that squares a number and adds a constant to it.</p>
-<p>For <span class="math notranslate nohighlight">\(X\)</span> and <span class="math notranslate nohighlight">\(Y\)</span> we can use the <code class="code docutils literal notranslate"><span class="pre">np.random.normal</span></code> function from <code class="code docutils literal notranslate"><span class="pre">numpy</span></code>. For the remaining nodes we could either use functions from <code class="code docutils literal notranslate"><span class="pre">numpy</span></code>, for example, or define our own functions. Here we chose the latter to show how one could use user-defined functions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<p>For <span class="math notranslate nohighlight">\(p\_head\)</span> and <span class="math notranslate nohighlight">\(sequence\_length\)</span> we can use the <code class="code docutils literal notranslate"><span class="pre">np.random.uniform</span></code> and the <code class="code docutils literal notranslate"><span class="pre">np.random.randint</span></code> functions, respectively, from <code class="code docutils literal notranslate"><span class="pre">numpy</span></code>. For the sequence node, we would need to define our own function, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choices</span>
 
-<span class="k">def</span> <span class="nf">square_plus_constant</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">constant</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">constant</span>
+<span class="k">def</span> <span class="nf">simulate_sequence</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">p_head</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">([</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">p_head</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">p_head</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">seq_len</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>These functions would inform DagSim how to simulate the values of <span class="math notranslate nohighlight">\(Z\)</span> and <span class="math notranslate nohighlight">\(W\)</span> based on the values of their parents.</p>
+<p>This functions would inform DagSim how to simulate the value of <span class="math notranslate nohighlight">\(sequence\)</span> based on the values of its parents.</p>
 <ol class="arabic simple" start="2">
 <li><p><strong>Defining the graph:</strong></p></li>
 </ol>
-<p>Since X uses the default arguments of the <code class="code docutils literal notranslate"><span class="pre">np.random.normal</span></code> function, we don’t provide any arguments for the function, only the name of the node and the function itself.
-For the nodes <span class="math notranslate nohighlight">\(Y\)</span>, <span class="math notranslate nohighlight">\(Z\)</span> and <span class="math notranslate nohighlight">\(W\)</span>, we need to give each a name, the function to evaluate, and the values of the arguments of the corresponding function.</p>
-<p>Passing these arguments mimics the way this is done in Python. These arguments can be either positional arguments (provided in the form of a list of the arguments’ values), keyword arguments (in the form of a dictionary with (arg_name:arg_value) keys-value pairs), or a combination of both, as shown below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
-<span class="n">Y</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
-<span class="n">Z</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">add</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">])</span>
-<span class="n">W</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">square_plus_constant</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">Z</span><span class="p">],</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;constant&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<p>Since <span class="math notranslate nohighlight">\(p_\head\)</span> uses the default arguments of the <code class="code docutils literal notranslate"><span class="pre">np.random.uniform</span></code> function, we don’t provide any arguments for the function, only the name of the node and the function itself.
+For the nodes <span class="math notranslate nohighlight">\(sequence\_length\)</span> and <span class="math notranslate nohighlight">\(sequence\)</span>, we need to give each node a name, the function to evaluate, and the arguments of the corresponding functions.</p>
+<p>Passing these arguments mimics the way this is done in Python. These arguments can be either positional arguments (provided in the form of a list of the arguments’ values), keyword arguments (in the form of a dictionary with (arg_name:arg_value) keys-value pairs), or a combination of both. For more information on different ways to pass arguments, check this tutorial. In this example, they are all passed as positional arguments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sequence_length</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sequence_length&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<span class="n">p_head</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;p_head&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">)</span>
+<span class="n">sequence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">simulate_sequence</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">p_head</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>At this stage, we can simply compile the graph as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">W</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">p_head</span><span class="p">,</span> <span class="n">sequence</span><span class="p">]</span>
 <span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">listNodes</span><span class="p">,</span> <span class="s2">&quot;Graph1&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -248,37 +245,25 @@ For the nodes <span class="math notranslate nohighlight">\(Y\)</span>, <span cla
 <p>For a general description of a YAML file structure, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation-using-yaml"><span class="std std-ref">How to specify a simulation using YAML</span></a>.</p>
 <p>Here, hello_world_functions is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the <code class="code docutils literal notranslate"><span class="pre">square_plus_constant</span></code> and <code class="code docutils literal notranslate"><span class="pre">add</span></code> functions.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
-  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my_graph</span>
   <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hello_world_functions.py</span>
   <span class="nt">nodes</span><span class="p">:</span>
-    <span class="nt">X</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.normal</span>
-    <span class="nt">Y</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.normal</span>
-      <span class="nt">kwargs</span><span class="p">:</span>
-        <span class="nt">loc</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-        <span class="nt">scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
-    <span class="nt">Z</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">add(X, Y)</span>
-    <span class="nt">W</span><span class="p">:</span>
-      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">square_plus_constant(z=Z, constant=2)</span>
+    <span class="nt">p_head</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.uniform</span>
+    <span class="nt">seq_len</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.randint(10, 20)</span>
+    <span class="nt">sequence</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">simulate_sequence(p_head, seq_len)</span>
 
 
 <span class="nt">instructions</span><span class="p">:</span>
   <span class="nt">simulation</span><span class="p">:</span>
     <span class="nt">csv_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">parser</span>
-    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>
 </pre></div>
 </div>
 <p>To run the simulation defined in the YAML file, you can use the built-in parser as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dagsim.utils.parser</span> <span class="kn">import</span> <span class="n">DagSimSpec</span>
-<span class="n">parser</span> <span class="o">=</span> <span class="n">DagSimSpec</span><span class="p">(</span><span class="s2">&quot;name∕or/path/to/YAML∕file&quot;</span><span class="p">)</span>
-
-<span class="n">data</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ dagsim name∕or/path/to/YAML∕file
 </pre></div>
 </div>
-<p>The method <code class="code docutils literal notranslate"><span class="pre">parse</span></code> would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.</p>
-<p>By default, this method will also print the details of the graph in addition to drawing it. If you wish not to do so, you cen set <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> and/or <code class="code docutils literal notranslate"><span class="pre">draw</span></code> to <code class="code docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
+<p>This command would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.</p>
+<p>For more information on how to use this command, see this tutorial.</p>
 </div></div>
 <div class="toctree-wrapper compound">
 </div>
