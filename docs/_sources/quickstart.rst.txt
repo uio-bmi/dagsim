@@ -28,8 +28,7 @@ Click on the corresponding tab for more details:
    .. tab:: Python
     To run this tutorial on binder, click on this badge:
     .. image:: https://mybinder.org/badge_logo.svg
-     :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=https%3A%2F%2Fgithub.com%2Fuio-bmi%2Fdagsim%2Fblob%2Fmain%2Ftutorials%2Fhello_world.ipynb
-
+     :target: https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2Fhello_world.ipynb
 
     We begin by importing the following:
 
