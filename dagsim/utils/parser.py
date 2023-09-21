@@ -1,4 +1,6 @@
 import argparse
+import sys
+from pathlib import Path
 
 import yaml
 from dagsim.base import Graph, Node, Selection, Stratify, Missing
@@ -34,7 +36,9 @@ class DagSimSpec:
             python_file = self.yaml_file["graph"]["python_file"]
             assert python_file.endswith(".py"), "Please use a proper python file."
             assert os.path.isfile(python_file), "The file \"" + python_file + "\" doesn't exist."
-            python_file = python_file[:-3]
+
+            sys.path.insert(0, str(Path(python_file).parent))
+            python_file = str(Path(python_file).name)[:-3]
 
             functions_file = importlib.import_module(python_file)
             self.functions_list = getmembers(functions_file, isfunction)

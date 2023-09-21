@@ -1,5 +1,11 @@
+import os
+import shutil
 import unittest
 import time
+from pathlib import Path
+
+import yaml
+
 from dagsim.utils.parser import DagSimSpec
 import numpy as np
 
@@ -48,6 +54,30 @@ class TestParser(unittest.TestCase):
         self.assertIn("missing_source", data)
         self.assertEqual(data["index"], [True, False, True])
         self.assertEqual(data["missing_source"], ['NaN', 1, 'NaN'])
+
+    def test_parser_with_alt_paths(self):
+        tmp_path = Path("./tmp_folder/")
+        os.makedirs(str(tmp_path), exist_ok=True)
+
+        original_path = Path("yaml_files/basic.yml")
+        with original_path.open('r') as file:
+            specs = yaml.safe_load(file)
+
+        tmp_python_file = tmp_path / str(Path(specs['graph']['python_file']).name)
+        shutil.copyfile(specs['graph']['python_file'], tmp_python_file)
+
+        tmp_specs_file = tmp_path / str(Path('tmp_basic.yml'))
+        specs['graph']['python_file'] = str(tmp_python_file)
+        with tmp_specs_file.open('w') as file:
+            yaml.dump(specs, file)
+
+        np.random.seed(1)
+        parser = DagSimSpec(file_name=str(tmp_specs_file))
+        data = parser.parse(draw=False, verbose=False)
+        self.assertEqual(['aaa', 'aaaa'], data["result"])
+        self.assertEqual([3, 4], data["source"])
+
+        shutil.rmtree(tmp_path)
 
 
 if __name__ == '__main__':
