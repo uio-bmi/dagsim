@@ -1,2 +1,2 @@
 graphviz>=0.16
-python-igraph>=0.9.6
+python3-igraph>=0.9.6
