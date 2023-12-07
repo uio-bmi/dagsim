@@ -41,7 +41,7 @@ jobs:
 
       - name: List Files in Publish Directory
         run: |
-          ls -la 
+          ls -la docs/ # Add this line to list the files in the publish directory
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
