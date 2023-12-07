@@ -37,4 +37,3 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html
-        publish_branch: main  # branch to deploy the pages on
