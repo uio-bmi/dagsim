@@ -33,17 +33,17 @@ jobs:
         make html
 
 
-  deploy:
-    runs-on: ubuntu-latest
-
-    needs: build  # This ensures the 'deploy' job runs only if the 'build' job succeeds.
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/build/html  # Adjust this based on your Sphinx output directory
+#  deploy:
+#    runs-on: ubuntu-latest
+#
+#    needs: build  # This ensures the 'deploy' job runs only if the 'build' job succeeds.
+#
+#    steps:
+#    - name: Checkout Repository
+#      uses: actions/checkout@v2
+#
+#    - name: Deploy to GitHub Pages
+#      uses: peaceiris/actions-gh-pages@v3
+#      with:
+#        github_token: ${{ secrets.GITHUB_TOKEN }}
+#        publish_dir: docs/build/html  # Adjust this based on your Sphinx output directory
