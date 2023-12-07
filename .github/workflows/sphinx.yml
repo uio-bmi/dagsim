@@ -42,6 +42,7 @@ jobs:
 
       - name: List Files in Publish Directory
         run: |
+          ls -R
           ls -la build/html  # Add this line to list the files in the publish directory
 
       - name: Deploy to GitHub Pages
