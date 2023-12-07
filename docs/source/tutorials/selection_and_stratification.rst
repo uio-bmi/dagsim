@@ -151,6 +151,7 @@ The following code shows an example where the samples are split into three categ
                   function: square(C)
                 St:
                   function: check_strata(C)
+                  type: Stratify
 
 
             instructions:
