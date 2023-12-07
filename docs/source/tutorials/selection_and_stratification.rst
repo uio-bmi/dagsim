@@ -115,13 +115,13 @@ The following code shows an example where the samples are split into three categ
 
 
                 def check_strata(node):
-                if node < -1:
-                return "<-1"
-                else:
-                if node > 1:
-                    return ">1"
-                else:
-                    return ">-1|<+1"
+                    if node < -1:
+                        return "<-1"
+                    else:
+                        if node > 1:
+                            return ">1"
+                        else:
+                            return ">-1|<+1"
 
 
                 A = ds.Node(name="A", function=np.random.normal)
