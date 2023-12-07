@@ -28,9 +28,7 @@ jobs:
       - name: Build Documentation
         run: |
           cd docs
-          pwd
           make html
-          ls -la build/html  # Add this line to list the files in the build directory
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,13 +41,11 @@ jobs:
 
       - name: List Files in Publish Directory
         run: |
-          pwd
-          ls -R
-          ls -la build/html  # Add this line to list the files in the publish directory
+          ls -la docs/build/html  # Add this line to list the files in the publish directory
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/html
+          publish_dir: build/html  # Adjust this based on your Sphinx output directory
           publish_branch: gh-pages
