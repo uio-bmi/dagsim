@@ -3,7 +3,9 @@ name: Sphinx Documentation
 on:
   push:
     branches:
-      - main  # Change this to your main branch name
+      - main
+    paths:
+      - 'docs/**'  # Trigger only if changes are made in the 'docs' folder
 
 jobs:
   build:
@@ -16,12 +18,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9  # Change this to your Python version
+        python-version: 3.9
 
     - name: Install Sphinx
       run: |
         python -m pip install --upgrade pip
         pip install sphinx
+        pip install sphinx_rtd_theme
 
     - name: Build and Publish Documentation
       run: |
@@ -33,5 +36,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html
-        publish_branch: main  # Change this to your main branch name
-
+        publish_branch: main  # branch to deploy the pages on
