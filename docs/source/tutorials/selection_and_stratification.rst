@@ -77,6 +77,7 @@ The following code shows an example where only the samples that have a value of 
                   function: square(C)
                 SB:
                   function: is_greater_than2(C, 2)
+                  type: Selection
 
 
             instructions:
