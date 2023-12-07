@@ -34,14 +34,11 @@ The following code shows an example where only the samples that have a value of 
             import dagsim.base as ds
             import numpy as np
 
-
             def add(param1, param2):
                 return param1 + param2
 
-
             def square(param):
                 return np.square(param)
-
 
             def is_greater_than2(node, threshold):
                 if node < threshold:
