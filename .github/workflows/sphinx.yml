@@ -42,11 +42,11 @@ jobs:
 
       - name: List Files in Publish Directory
         run: |
-          ls -la docs/build/html  # Add this line to list the files in the publish directory
+          ls -la build/html  # Add this line to list the files in the publish directory
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
+          publish_dir: build/html
           publish_branch: gh-pages
