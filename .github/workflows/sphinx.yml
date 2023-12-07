@@ -47,5 +47,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html  # Adjust this based on your Sphinx output directory
+          publish_dir: build/html  # Adjust this based on your Sphinx output directory
 
