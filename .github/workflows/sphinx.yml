@@ -28,7 +28,8 @@ jobs:
       - name: Build Documentation
         run: |
           cd docs
-          make html
+          make html SPHINXOPTS="-v"
+
 
   deploy:
     runs-on: ubuntu-latest
