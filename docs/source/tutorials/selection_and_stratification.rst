@@ -148,7 +148,7 @@ The following code shows an example where the samples are split into three categ
                   function: add(param1= A, param2= B)
                 D:
                   function: square(C)
-                SB:
+                St:
                   function: check_strata(C)
 
 
@@ -184,44 +184,44 @@ of any missing or non-missing values of other variables in the data-generating p
 .. math::
     \Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)
 
-   .. tab:: Python
-        .. highlight:: python
-        .. code-block:: python
+.. tab:: Python
+.. highlight:: python
+.. code-block:: python
 
 
-            import dagsim.base as ds
-            import numpy as np
+    import dagsim.base as ds
+    import numpy as np
 
 
-            underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
-            index_node = ds.Node(name="index_node", function=np.random.randint, kwargs={"low":0, "high":2})
-            MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
+    underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
+    index_node = ds.Node(name="index_node", function=np.random.randint, kwargs={"low":0, "high":2})
+    MCAR = ds.Missing(name="MCAR", underlying_value=underlying_value, index_node=index_node)
 
-            list_nodes = [underlying_value, index_node, MCAR]
-            my_graph = ds.Graph(list_nodes=list_nodes, name="MCAR")
+    list_nodes = [underlying_value, index_node, MCAR]
+    my_graph = ds.Graph(list_nodes=list_nodes, name="MCAR")
 
-            data = my_graph.simulate(num_samples=10, csv_name="MCAR")
+    data = my_graph.simulate(num_samples=10, csv_name="MCAR")
 
-   .. tab:: YAML
-        .. highlight:: yaml
-        .. code-block:: yaml
+.. tab:: YAML
+.. highlight:: yaml
+.. code-block:: yaml
 
-            graph:
-              python_file: hello_world_functions.py
-              nodes:
-                underlying_value:
-                  function: numpy.random.normal
-                index_node:
-                  function: numpy.random.randint(0,2)
-                MCAR:
-                  underlying_value: underlying_value
-                  index_node: index_node
+    graph:
+      python_file: hello_world_functions.py
+      nodes:
+        underlying_value:
+          function: numpy.random.normal
+        index_node:
+          function: numpy.random.randint(0,2)
+        MCAR:
+          underlying_value: underlying_value
+          index_node: index_node
 
 
-            instructions:
-              simulation:
-                csv_name: parser
-                num_samples: 10
+    instructions:
+      simulation:
+        csv_name: parser
+        num_samples: 10
 
 Missing At Random (MAR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
