@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulate data for a simple linear regression problem &mdash; DagSim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/css-style.css?v=c9ecb4b3" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"extensions": ["tex2jax.js"], "jax": ["input/TeX", "output/HTML-CSS"]})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Special nodes" href="selection_and_stratification.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DagSim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installing DagSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specify_with_code.html">Specifying a simulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulate data for a simple linear regression problem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-simulation-using-python-code">Define the simulation using python code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="selection_and_stratification.html">Special nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_from_weight_matrix.html">Importing models from other libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plates.html">Plate Notation</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DagSim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Simulate data for a simple linear regression problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/linear_regression.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulate-data-for-a-simple-linear-regression-problem">
+<h1>Simulate data for a simple linear regression problem<a class="headerlink" href="#simulate-data-for-a-simple-linear-regression-problem" title="Link to this heading"></a></h1>
+<p>In this tutorial, you will learn how to build a simple DAG using DagSim to generate data for a simple linear regression problem, using either python code or a YAML configuration. If you are not familiar with the workflow of DagSim, see <span class="xref std std-ref">How to specify a simulation</span>.</p>
+<section id="define-the-simulation-using-python-code">
+<h2>Define the simulation using python code<a class="headerlink" href="#define-the-simulation-using-python-code" title="Link to this heading"></a></h2>
+<p>To run this tutorial on binder, click on this badge:</p>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FLinear%20Regression.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
+<p>We begin by importing the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span> <span class="k">as</span> <span class="n">lr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><strong>Defining the functions:</strong></p></li>
+</ol>
+<p>The first thing that we need to define is the functions that relate the nodes to each other. In our example, we need one function for simulating the value of the feature <span class="math notranslate nohighlight">\(x\)</span> and another function to specify the true relation between <span class="math notranslate nohighlight">\(x\)</span> and the output <span class="math notranslate nohighlight">\(y\)</span>.</p>
+<p>For simplicity, we will simulate x to follow a standard normal distribution. For <span class="math notranslate nohighlight">\(y\)</span>, suppose that the ground truth relation is:
+<span class="math notranslate nohighlight">\(y = 2x + 1 + \epsilon\)</span>, where <span class="math notranslate nohighlight">\(\epsilon\)</span> is a white noise error term . Suppose that we also want to have control of the standard deviation of this error term from DagSim.</p>
+<p>We can then define such a function in python as the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ground_truth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">):</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">std_dev</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">y</span>
+</pre></div>
+</div>
+<p>This function would inform DagSim how to simulate the value <span class="math notranslate nohighlight">\(y\)</span> for each value of <span class="math notranslate nohighlight">\(x\)</span>.</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>Defining the graph:</strong></p></li>
+</ol>
+<p>For the node of the variable <span class="math notranslate nohighlight">\(x\)</span> we only need to give it a name and the function to evaluate. This is because it has no parents, i.e. it is a root node, and the function to evaluate <span class="math notranslate nohighlight">\(x\)</span> does not need any arguments in our case. For the node of the variable <span class="math notranslate nohighlight">\(y\)</span>, we need to give it a name, the function to evaluate, and the values of the arguments needed to evaluate that function, in the form of a dictionary, as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Nodex</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">Nodey</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">Nodex</span><span class="p">,</span> <span class="s2">&quot;std_dev&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>At this stage, we can simply compile the graph as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Nodex</span><span class="p">,</span> <span class="n">Nodey</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s2">&quot;Graph1&quot;</span><span class="p">,</span> <span class="n">listNodes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_graph</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure class="align-center">
+<img alt="../_images/linear_regression.png" src="../_images/linear_regression.png" />
+</figure>
+<ol class="arabic simple" start="3">
+<li><p><strong>Running the simulation:</strong></p></li>
+</ol>
+<p>Now that we have defined everything we need, we simulate the data by calling the <code class="code docutils literal notranslate"><span class="pre">simulate</span></code> method and providing the number of samples and the name of the CSV file to which to save the data. We will run two simulations using the same model, one for training data and another for testing data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">train</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p><strong>Running the analysis:</strong></p></li>
+</ol>
+<p>Here, we will use the linear regression model by <code class="code docutils literal notranslate"><span class="pre">scikit-learn</span></code> to run the analysis, and <code class="code docutils literal notranslate"><span class="pre">pandas</span></code> to read the CSV files. Note that this step is not DagSim-specific and is up to the user to define the workflow of the analysis. We can use the dictionary returned by the <code class="code docutils literal notranslate"><span class="pre">simulate</span></code> method, which contains the data, or read the saved CSV files. Here, we will use the second method.</p>
+<p>First, we need to read the training dataset in order to train the model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;train.csv&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">train_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x_train&quot;</span><span class="p">,</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;y_train&quot;</span><span class="p">,</span> <span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After that we train a linear regression model as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LR</span> <span class="o">=</span> <span class="n">lr</span><span class="p">()</span>
+<span class="n">reg</span> <span class="o">=</span> <span class="n">LR</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">reg</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Coefficient: &quot;</span><span class="p">,</span> <span class="n">LR</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Intercept: &quot;</span><span class="p">,</span> <span class="n">LR</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, we evaluate the model by first reading the testing data set, and then calculating the <span class="math notranslate nohighlight">\(R^2\)</span> coefficient:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;test.csv&quot;</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">test_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x_test&quot;</span><span class="p">,</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">test_data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;y_test&quot;</span><span class="p">,</span> <span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;R2 score on test data: &quot;</span><span class="p">,</span> <span class="n">LR</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="selection_and_stratification.html" class="btn btn-neutral float-right" title="Special nodes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ghadi Al Hajj.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

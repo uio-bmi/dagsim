@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quickstart &mdash; DagSim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+      <link rel="stylesheet" type="text/css" href="_static/css/css-style.css?v=c9ecb4b3" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/tabs.js?v=3030b3cb"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"extensions": ["tex2jax.js"], "jax": ["input/TeX", "output/HTML-CSS"]})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing DagSim" href="installation.html" />
+    <link rel="prev" title="Welcome to DagSim’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DagSim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-setting-up-dagsim">Step 1: Setting up DagSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-defining-the-simulation">Step 2: Defining the simulation</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing DagSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specify_with_code.html">Specifying a simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DagSim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h1>
+<p>In this tutorial, you will learn how you can set up a simple directed acyclic graph (DAG) to generate data from. For a more detailed description of DagSim’s workflow, see <span class="xref std std-ref">How to specify a simulation</span>.</p>
+<p>Suppose that we want to simulate sequences of coin tosses, based on a randomly generated probability of getting heads − per sequence − and random sequence length bounded between a low and a high value.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(sequence\_length \sim Cat(10,20)\)</span>, i.e. categorical distribution over integers between 10 and 20.</p></li>
+<li><p><span class="math notranslate nohighlight">\(p\_head \sim \mathcal{U}(0,1)\)</span>, i.e. standard uniform distribution</p></li>
+<li><p><span class="math notranslate nohighlight">\(sequence\)</span>: a sequence of coin tosses</p></li>
+</ul>
+<p>We can do that using DagSim by following these steps:</p>
+<section id="step-1-setting-up-dagsim">
+<h2>Step 1: Setting up DagSim<a class="headerlink" href="#step-1-setting-up-dagsim" title="Link to this heading"></a></h2>
+<p>To use DagSim for this tutorial, you can either install it on your machine by following the instructions on <a class="reference internal" href="installation.html#installing-dagsim"><span class="std std-ref">this</span></a> page, or start a Binder session by clicking on the badge in one of the tabs below.</p>
+</section>
+<section id="step-2-defining-the-simulation">
+<h2>Step 2: Defining the simulation<a class="headerlink" href="#step-2-defining-the-simulation" title="Link to this heading"></a></h2>
+<p>Now, that we have DagSim set up, we want to specify and run the simulation. For that, we can use either python code or a YAML specification file.
+Regardless of the method you choose, you start by defining your own functions, if any, that will be used for the simulation.</p>
+<p>Click on the corresponding tab for more details:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">Python</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">YAML</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><p>To run this tutorial on binder, click on this badge:
+.. image:: <a class="reference external" href="https://mybinder.org/badge_logo.svg">https://mybinder.org/badge_logo.svg</a></p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">target<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2Fhello_world.ipynb">https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2Fhello_world.ipynb</a></p>
+</dd>
+</dl>
+</div></blockquote>
+<p>We begin by importing the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><strong>Defining the functions:</strong></p></li>
+</ol>
+<p>The first thing that we need to define is the functions that relate the nodes to each other.
+For the model that we have defined above we would need three functions, one to sample data from a given Gaussian distribution, one that adds two numbers, and one that squares a number and adds a constant to it.</p>
+<p>For <span class="math notranslate nohighlight">\(p\_head\)</span> and <span class="math notranslate nohighlight">\(sequence\_length\)</span> we can use the <code class="code docutils literal notranslate"><span class="pre">np.random.uniform</span></code> and the <code class="code docutils literal notranslate"><span class="pre">np.random.randint</span></code> functions, respectively, from <code class="code docutils literal notranslate"><span class="pre">numpy</span></code>. For the sequence node, we would need to define our own function, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choices</span>
+
+<span class="k">def</span> <span class="nf">simulate_sequence</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">p_head</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">([</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">p_head</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">p_head</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">seq_len</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This functions would inform DagSim how to simulate the value of <span class="math notranslate nohighlight">\(sequence\)</span> based on the values of its parents.</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>Defining the graph:</strong></p></li>
+</ol>
+<p>Since <span class="math notranslate nohighlight">\(p_\head\)</span> uses the default arguments of the <code class="code docutils literal notranslate"><span class="pre">np.random.uniform</span></code> function, we don’t provide any arguments for the function, only the name of the node and the function itself.
+For the nodes <span class="math notranslate nohighlight">\(sequence\_length\)</span> and <span class="math notranslate nohighlight">\(sequence\)</span>, we need to give each node a name, the function to evaluate, and the arguments of the corresponding functions.</p>
+<p>Passing these arguments mimics the way this is done in Python. These arguments can be either positional arguments (provided in the form of a list of the arguments’ values), keyword arguments (in the form of a dictionary with (arg_name:arg_value) keys-value pairs), or a combination of both. For more information on different ways to pass arguments, check this tutorial. In this example, they are all passed as positional arguments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sequence_length</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sequence_length&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<span class="n">p_head</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;p_head&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">)</span>
+<span class="n">sequence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">simulate_sequence</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">p_head</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>At this stage, we can simply compile the graph as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">listNodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">p_head</span><span class="p">,</span> <span class="n">sequence</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">listNodes</span><span class="p">,</span> <span class="s2">&quot;Graph1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model, as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_graph</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure class="align-center">
+<img alt="_images/hello_world.png" src="_images/hello_world.png" />
+</figure>
+<ol class="arabic simple" start="3">
+<li><p><strong>Running the simulation:</strong></p></li>
+</ol>
+<p>Now that we have defined everything we need, we simulate the data by calling the <code class="code docutils literal notranslate"><span class="pre">simulate</span></code> method and providing the number of samples and the name of the CSV file to which to save the data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;hello_world&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><p>To run this tutorial on binder, click on this badge:</p>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/uio-bmi/dagsim/HEAD?labpath=tutorials%2FParser.ipynb"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
+<p>For a general description of a YAML file structure, see <a class="reference internal" href="specify_with_code.html#how-to-specify-a-simulation-using-yaml"><span class="std std-ref">How to specify a simulation using YAML</span></a>.</p>
+<p>Here, hello_world_functions is a python (.py) file containing the user-defined functions that we need in our simulation, in our case a file containing the <code class="code docutils literal notranslate"><span class="pre">square_plus_constant</span></code> and <code class="code docutils literal notranslate"><span class="pre">add</span></code> functions.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hello_world_functions.py</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">p_head</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">numpy.random.uniform</span>
+<span class="w">    </span><span class="nt">seq_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">numpy.random.randint(10, 20)</span>
+<span class="w">    </span><span class="nt">sequence</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">simulate_sequence(p_head, seq_len)</span>
+
+
+<span class="nt">instructions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">simulation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">csv_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parser</span>
+<span class="w">    </span><span class="nt">num_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+</pre></div>
+</div>
+<p>To run the simulation defined in the YAML file, you can use the built-in parser as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dagsim<span class="w"> </span>name∕or/path/to/YAML∕file
+</pre></div>
+</div>
+<p>This command would build the graph as defined in the YAML file, and then run the instructions given in the <code class="code docutils literal notranslate"><span class="pre">instructions</span></code> part.</p>
+<p>For more information on how to use this command, see this tutorial.</p>
+</div></div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to DagSim’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installing DagSim" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ghadi Al Hajj.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
