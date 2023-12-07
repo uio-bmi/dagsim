@@ -28,6 +28,7 @@ jobs:
       - name: Build Documentation
         run: |
           cd docs
+          pwd
           make html
           ls -la build/html  # Add this line to list the files in the build directory
 
@@ -42,6 +43,7 @@ jobs:
 
       - name: List Files in Publish Directory
         run: |
+          pwd
           ls -R
           ls -la build/html  # Add this line to list the files in the publish directory
 
