@@ -35,7 +35,7 @@ jobs:
           ls -la docs/ # Add this line to list the files in the publish directory
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: build/html  # Adjust this based on your Sphinx output directory
