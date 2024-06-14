@@ -247,6 +247,7 @@
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">square(C)</span>
     <span class="nt">SB</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">is_greater_than2(C, 2)</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Selection</span>
 
 
 <span class="nt">instructions</span><span class="p">:</span>
@@ -275,13 +276,13 @@
 
 
 <span class="k">def</span> <span class="nf">check_strata</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-<span class="k">if</span> <span class="n">node</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-<span class="k">return</span> <span class="s2">&quot;&lt;-1&quot;</span>
-<span class="k">else</span><span class="p">:</span>
-<span class="k">if</span> <span class="n">node</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="k">return</span> <span class="s2">&quot;&gt;1&quot;</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="s2">&quot;&gt;-1|&lt;+1&quot;</span>
+    <span class="k">if</span> <span class="n">node</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;-1&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&gt;1&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&gt;-1|&lt;+1&quot;</span>
 
 
 <span class="n">A</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
@@ -306,8 +307,9 @@
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">add(param1= A, param2= B)</span>
     <span class="nt">D</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">square(C)</span>
-    <span class="nt">SB</span><span class="p">:</span>
+    <span class="nt">St</span><span class="p">:</span>
       <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">check_strata(C)</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Stratify</span>
 
 
 <span class="nt">instructions</span><span class="p">:</span>
@@ -340,38 +342,49 @@ Here, the observed data are collectively denoted by <span class="math notranslat
 <p>In this case, the missingness pattern is random and the probability of an entry going missing, <span class="math notranslate nohighlight">\(Pr(M=0)\)</span>, is independent
 of any missing or non-missing values of other variables in the data-generating process. In other words,</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|\psi)\\.. tab:: Python
-     .. highlight:: python
-     .. code-block:: python\\
-         import dagsim.base as ds
-         import numpy as np\\
-         underlying_value = ds.Node(name=&quot;underlying_value&quot;, function=np.random.normal)
-         index_node = ds.Node(name=&quot;index_node&quot;, function=np.random.randint, kwargs={&quot;low&quot;:0, &quot;high&quot;:2})
-         MCAR = ds.Missing(name=&quot;MCAR&quot;, underlying_value=underlying_value, index_node=index_node)\\         list_nodes = [underlying_value, index_node, MCAR]
-         my_graph = ds.Graph(list_nodes=list_nodes, name=&quot;MCAR&quot;)\\         data = my_graph.simulate(num_samples=10, csv_name=&quot;MCAR&quot;)\\.. tab:: YAML
-     .. highlight:: yaml
-     .. code-block:: yaml\\         graph:
-           python_file: hello_world_functions.py
-           nodes:
-             underlying_value:
-               function: numpy.random.normal
-             index_node:
-               function: numpy.random.randint(0,2)
-             MCAR:
-               underlying_value: underlying_value
-               index_node: index_node\\
-         instructions:
-           simulation:
-             csv_name: parser
-             num_samples: 10\end{aligned}\end{align} \]</div>
+\[\Pr(M=0|Y_{obs},Y_{mis},\psi) = \Pr(M=0|\psi)\]</div>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">Python</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">YAML</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="n">underlying_value</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;underlying_value&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+<span class="n">index_node</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;low&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">MCAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
+
+<span class="n">list_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="p">,</span> <span class="n">MCAR</span><span class="p">]</span>
+<span class="n">my_graph</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">list_nodes</span><span class="o">=</span><span class="n">list_nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">my_graph</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">csv_name</span><span class="o">=</span><span class="s2">&quot;MCAR&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">graph</span><span class="p">:</span>
+  <span class="nt">python_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hello_world_functions.py</span>
+  <span class="nt">nodes</span><span class="p">:</span>
+    <span class="nt">underlying_value</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.normal</span>
+    <span class="nt">index_node</span><span class="p">:</span>
+      <span class="nt">function</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">numpy.random.randint(0,2)</span>
+    <span class="nt">MCAR</span><span class="p">:</span>
+      <span class="nt">underlying_value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">underlying_value</span>
+      <span class="nt">index_node</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">index_node</span>
+
+
+<span class="nt">instructions</span><span class="p">:</span>
+  <span class="nt">simulation</span><span class="p">:</span>
+    <span class="nt">csv_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">parser</span>
+    <span class="nt">num_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+</pre></div>
+</div>
+</div></div>
 </div>
 <div class="section" id="missing-at-random-mar">
 <h3>Missing At Random (MAR)<a class="headerlink" href="#missing-at-random-mar" title="Permalink to this headline">¶</a></h3>
 <p>In this case, the probability of an entry going missing depends on other observed values in the model, but
 does not depend on any unobserved quantities:</p>
 <div class="math notranslate nohighlight">
-\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,\psi)\]</div>
-<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span>.</p>
+\[\Pr(M=0|Y_{obs},Y_{mis},\psi) = \Pr(M=0|Y_{obs},\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_{obs}\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -399,9 +412,9 @@ does not depend on any unobserved quantities:</p>
 <p>In the MNAR case, the probability that an entry is missing depends not only on observed quantities but also on missing ones,
 so the conditional probability does not simplify:</p>
 <div class="math notranslate nohighlight">
-\[\Pr(M=0|Y_obs,Y_mis,\psi) = \Pr(M=0|Y_obs,Y_mis,\psi)\]</div>
-<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_obs\)</span> and the, possibly, unobserved,
-would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</span>.</p>
+\[\Pr(M=0|Y_{obs},Y_{mis},\psi) = \Pr(M=0|Y_{obs},Y_{mis},\psi)\]</div>
+<p>In this case, <span class="math notranslate nohighlight">\(\Pr(M=0)\)</span> depends on the observed value of <span class="math notranslate nohighlight">\(Y_{obs}\)</span> and the, possibly, unobserved,
+would-have-been value of <span class="math notranslate nohighlight">\(Y_{mis}\)</span>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dagsim.base</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -416,6 +429,7 @@ would-have-been value of <span class="math notranslate nohighlight">\(Y_mis\)</s
 <span class="n">underlying_value</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;underlying_value&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
 <span class="n">Y_observed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
 <span class="n">Y_missing</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Y_missing&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+
 <span class="n">index_node_Y</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node_Y&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;low&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
 <span class="n">index_node</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;index_node&quot;</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">get_index</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Y_observed&quot;</span><span class="p">:</span><span class="n">Y_observed</span><span class="p">,</span> <span class="s2">&quot;Y_missing&quot;</span><span class="p">:</span><span class="n">Y_missing</span><span class="p">})</span>
 <span class="n">MNAR</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">Missing</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MNAR&quot;</span><span class="p">,</span> <span class="n">underlying_value</span><span class="o">=</span><span class="n">underlying_value</span><span class="p">,</span> <span class="n">index_node</span><span class="o">=</span><span class="n">index_node</span><span class="p">)</span>
