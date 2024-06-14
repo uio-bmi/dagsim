@@ -288,6 +288,7 @@ would-have-been value of :math:`Y_mis`.
     underlying_value = ds.Node(name="underlying_value", function=np.random.normal)
     Y_observed = ds.Node(name="Y_observed", function=np.random.normal)
     Y_missing = ds.Node(name="Y_missing", function=np.random.normal)
+
     index_node_Y = ds.Node(name="index_node_Y", function=np.random.randint, kwargs={"low":0, "high":2})
     index_node = ds.Node(name="index_node", function=get_index, kwargs={"Y_observed":Y_observed, "Y_missing":Y_missing})
     MNAR = ds.Missing(name="MNAR", underlying_value=underlying_value, index_node=index_node)
