@@ -3,10 +3,11 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/uio-bmi/dagsim/main?labpath=tutorials%2Fhello_world.ipynb)
 
 DagSim is a Python-based framework and specification language for simulating data based on a Directed Acyclic Graph (
-DAG)
-structure, without any constraints on variable types or functional relations. A succinct YAML format for
+DAG) structure, without any constraints on variable types or functional relations. A succinct YAML format for
 defining the structure of the simulation model promotes transparency, while separate user-provided functions for
 generating each variable based on its parents ensure the modularization of the simulation code.
+
+Link to the paper: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0284443
 
 ## Installation
 
