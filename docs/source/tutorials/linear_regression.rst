@@ -56,7 +56,7 @@ At this stage, we can simply compile the graph as follows:
 .. code-block:: python
 
   listNodes = [Nodex, Nodey]
-  my_graph = ds.Graph("Graph1", listNodes)
+  my_graph = ds.Graph(listNodes)
   
 Once we have compiled the graph, we can draw it to get a graphical representation of the underlying model:
 
