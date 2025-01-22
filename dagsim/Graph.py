@@ -150,7 +150,7 @@ class Graph:
         for node in self.nodes:
             if node.parents is not None:
                 for parent in node.parents:
-                    matrix[node.name][parent.name] = 1
+                    matrix.loc[parent.name, node.name] = 1
         self.adj_mat = matrix
 
     def _update_topol_order(self):
