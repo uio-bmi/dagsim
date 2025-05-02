@@ -24,7 +24,7 @@ jobs:
       - name: Extract version from setup.py
         id: get_version
         run: |
-          version=$(grep -Po '(?<=^version = ")[^"]+' setup.py)
+          version=$(sed -n "s/^[[:space:]]*version=['\"]\([^'\"]*\)['\"][[:space:]]*,/\1/p" setup.py)
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Check if version exists on PyPI
