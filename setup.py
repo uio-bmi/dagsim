@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dagsim',
-    version='1.0.9',
+    version='1.0.10',
     packages=find_packages(),
     url='https://github.com/uio-bmi/dagsim',
     license='AGPL-3.0 License',
